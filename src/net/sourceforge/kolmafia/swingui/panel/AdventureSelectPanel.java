@@ -89,8 +89,8 @@ public class AdventureSelectPanel extends JPanel {
     // West pane is a scroll pane which lists all of the available
     // locations -- to be included is a map on a separate tab.
 
-    this.locationSelect = new JList<>(this.matchingAdventures);
-    this.locationSelect.setVisibleRowCount(4);
+    this.locationSelect = new JList(this.matchingAdventures);
+    this.locationSelect.setVisibleRowCount(10);
 
     JPanel zonePanel = new JPanel(new BorderLayout(5, 5));
 
