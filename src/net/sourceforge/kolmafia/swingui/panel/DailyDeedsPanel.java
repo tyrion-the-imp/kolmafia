@@ -998,6 +998,7 @@ public class DailyDeedsPanel extends Box implements Listener {
 
       comboBox.setMaximumSize(new Dimension(Math.round(len + 100), (int) Math.round(ht * 1.5)));
       comboBox.setPrototypeDisplayValue(lengthString);
+      comboBox.setMaximumRowCount(45);
 
       for (int i = 0; i < choice.length; ++i) {
         comboBox.addItem(choice[i]);
