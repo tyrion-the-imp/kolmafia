@@ -248,7 +248,8 @@ public class FoldItemCommand extends AbstractCommand {
       if (!Preferences.getBoolean("_garbageItemChanged")) {
         if (InventoryManager.hasItem(ItemPool.DECEASED_TREE)
             && targetId != ItemPool.DECEASED_TREE
-            && Preferences.getInteger("garbageTreeCharge") > 0) {
+            && Preferences.getInteger("garbageTreeCharge") > 0
+            && !Preferences.getBoolean("aaa_suppressGarbageToteFoldWarnings")) {
           if (!InputFieldUtilities.confirm(
               "You will lose your current crimbo tree needles when you make "
                   + targetName
