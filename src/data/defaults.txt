@@ -1,6 +1,9 @@
 1
 global	abortOnChoiceWhenNotInChoice	true
-global	addChatCommandLine	false
+global	aaa_DefaultsEnableSetLocationLogging	true
+global	aaa_lastClanLeaderLogin	2020.01.01
+global	aaa_logTripleAPrefs	false
+global	aaa_suppressGarbageToteFoldWarnings	falseglobal	addChatCommandLine	false
 global	addCreationQueue	true
 global	addStatusBarToFrames	false
 global	allowCloseableDesktopTabs	false
