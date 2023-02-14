@@ -1,5 +1,9 @@
 package net.sourceforge.kolmafia.textui.command;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLmafiaCLI.ParameterHandling;
 import net.sourceforge.kolmafia.ModifierType;
@@ -91,8 +95,12 @@ public class SetPreferencesCommand extends AbstractCommand {
     }
 
     // suppress CLI output iff it is a pref that starts with _ AND is not defined in defaults.txt
-    if (print && !name.startsWith("_") || Preferences.containsDefault(name)) {
-      RequestLogger.printLine(name + " => " + value);
+    Set<String> preferenceFilter2 = new HashSet<String>();
+    Collections.addAll(preferenceFilter2, Preferences.getString("logPreferenceChangeFilter").split(","));
+    if (!preferenceFilter2.contains(name)) {
+      if (print && !name.startsWith("_") || Preferences.containsDefault(name)) {
+        RequestLogger.printLine(name + " => " + value);
+      }
     }
 
     Preferences.setString(name, value);
