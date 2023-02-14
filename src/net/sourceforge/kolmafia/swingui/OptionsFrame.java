@@ -149,7 +149,11 @@ public class OptionsFrame extends GenericFrame {
         {"logStatGains", "Session log records stat gains"},
         {"logAcquiredItems", "Session log records items acquired"},
         {"logStatusEffects", "Session log records status effects gained"},
-        {"logPreferenceChange", "Log preference changes"}
+        {"logPreferenceChange", "Log preference changes"},
+        {"aaa_logTripleAPrefs", "Log Triple A custom preference changes"},
+        {"aaa_DefaultsEnableSetLocationLogging", "Log all uses of set_location"},
+        {"aaa_suppressGarbageToteFoldWarnings", "Suppress Garbage Tote Fold Warnings"},
+        {"printStackOnAbort", "Print stack on abort"}
       };
 
       this.setOptions(options);
