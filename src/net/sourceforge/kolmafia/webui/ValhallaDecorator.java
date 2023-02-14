@@ -211,7 +211,7 @@ public class ValhallaDecorator {
     count = InventoryManager.getCount(ItemPool.GRIMACE_SHELTER_MAP);
     if (count > 0) {
       buffer.append(
-          "<nobr><span style='color:red; font-size:100%; font-weight:bold;'>You have "+count+" Grimace maps. (Can get pills when drunk.)</span></nobr>");
+          "<nobr><span style='color:red; font-size:100%; font-weight:bold;'>You have "+count+" Grimace maps. (Can get pills when drunk.)</span></nobr><br>");
     }
 
     if (KoLCharacter.getZapper() != null) {
