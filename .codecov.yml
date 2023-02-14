@@ -1,2 +1,0 @@
-ignore:
-  - "lib/" # Ignore the lib folder since we try not to change that code at all
