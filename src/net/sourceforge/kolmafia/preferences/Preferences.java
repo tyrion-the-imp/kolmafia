@@ -1133,10 +1133,16 @@ public class Preferences {
       Set<String> preferenceFilter = new HashSet<>();
       Collections.addAll(
           preferenceFilter, Preferences.getString("logPreferenceChangeFilter").split(","));
-      if (!preferenceFilter.contains(name)) {
-        String message =
-            "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
-        RequestLogger.printLine(message);
+      boolean isLoggablePref = true;
+      if (name.contains("aaa_") && !Preferences.getBoolean("aaa_logTripleAPrefs")) {
+          isLoggablePref = false;
+      }
+      if (!preferenceFilter.contains(name) && isLoggablePref) {
+         String message =
+             "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
+        String climessage =
+            "Preference <b>" + name + "</b> changed from <span style='color:gray;'>" + Preferences.getString( name ) + "</span> <b>to</b> <span style='color:maroon;font-weight:bold;'>" + value + "</span>";
+        RequestLogger.printLine(climessage);
         RequestLogger.updateSessionLog(message);
       }
     }
