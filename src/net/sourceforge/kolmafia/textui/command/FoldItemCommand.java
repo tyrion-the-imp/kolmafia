@@ -259,7 +259,8 @@ public class FoldItemCommand extends AbstractCommand {
         }
         if (InventoryManager.hasItem(ItemPool.BROKEN_CHAMPAGNE)
             && targetId != ItemPool.BROKEN_CHAMPAGNE
-            && Preferences.getInteger("garbageChampagneCharge") > 0) {
+            && Preferences.getInteger("garbageChampagneCharge") > 0
+            && !Preferences.getBoolean("aaa_suppressGarbageToteFoldWarnings")) {
           if (!InputFieldUtilities.confirm(
               "You will lose your current champagne drops when you make "
                   + targetName
@@ -269,8 +270,9 @@ public class FoldItemCommand extends AbstractCommand {
         }
         if (InventoryManager.hasItem(ItemPool.MAKESHIFT_GARBAGE_SHIRT)
             && targetId != ItemPool.MAKESHIFT_GARBAGE_SHIRT
-            && Preferences.getInteger("garbageShirtCharge") > 0) {
-          if (!InputFieldUtilities.confirm(
+            && Preferences.getInteger("garbageShirtCharge") > 0
+            && !Preferences.getBoolean("aaa_suppressGarbageToteFoldWarnings")) {
+    if (!InputFieldUtilities.confirm(
               "You will lose your current garbage shirt scraps when you make "
                   + targetName
                   + ", are you sure you wish to continue?")) {
