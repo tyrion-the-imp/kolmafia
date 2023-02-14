@@ -54,6 +54,7 @@ public class MaximizerFrame extends GenericFrame implements ListSelectionListene
     // frame being instantiated.
     expressionSelect.setEditable(true);
     KoLConstants.maximizerMList.updateJComboData(expressionSelect);
+    expressionSelect.setMaximumRowCount( 45 );
   }
 
   private SmartButtonGroup equipmentSelect, mallSelect;
