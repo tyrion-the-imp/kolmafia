@@ -397,6 +397,7 @@ public class CargoCultistShortsRequest extends GenericRequest {
   public static boolean registerRequest(final String urlString) {
     if (urlString.equals("inventory.php?action=pocket")) {
       String message = "Inspecting Cargo Cultist Shorts";
+      Preferences.setString( "lastEncounter", "Inspecting Cargo Cultist Shorts" );
       RequestLogger.printLine(message);
       RequestLogger.updateSessionLog(message);
       return true;
@@ -419,6 +420,7 @@ public class CargoCultistShortsRequest extends GenericRequest {
     }
 
     String message = "picking pocket " + pocket;
+    Preferences.setString( "lastEncounter", "Cargo Cultist Shorts Pocket " + pocket );
     RequestLogger.printLine(message);
     RequestLogger.updateSessionLog(message);
 
