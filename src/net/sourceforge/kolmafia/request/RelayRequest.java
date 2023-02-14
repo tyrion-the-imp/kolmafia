@@ -3086,6 +3086,10 @@ public class RelayRequest extends PasswordHashRequest {
     if (path.endsWith("submitCommand")) {
       submitCommand(this.getFormField("cmd", false));
       this.pseudoResponse("HTTP/1.1 200 OK", "");
+    } else if ( path.endsWith( "getPref" ) ) {
+      String pref = this.getFormField( "pref" );
+      String prefval = Preferences.getString( pref );
+      this.pseudoResponse( "HTTP/1.1 200 OK", prefval );
     } else if (path.endsWith("redirectedCommand")) {
       boolean polled = path.endsWith("polledredirectedCommand");
       String cmd = this.getFormField("cmd");
