@@ -841,7 +841,9 @@ public class KoLmafiaCLI {
         .register("opt")
         .registerPlural("option")
         .register("item")
-        .register("gear");
+        .register( "gear" )
+        .register( "cli" )
+        .register( "deeds" );
     new WinGameCommand().register("win game");
     new WitchessCommand().register("witchess");
     new WumpusCommand().register("wumpus");
