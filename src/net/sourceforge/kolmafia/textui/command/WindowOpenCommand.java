@@ -14,6 +14,16 @@ public class WindowOpenCommand extends AbstractCommand {
       return;
     }
 
+    if (command.equals("deeds")) {
+      KoLmafiaGUI.constructFrame("CharSheetFrame");
+      return;
+    }
+
+    if (command.equals("cli")) {
+      KoLmafiaGUI.constructFrame("CommandDisplayFrame");
+      return;
+    }
+
     if (command.startsWith("opt")) {
       KoLmafiaGUI.constructFrame("OptionsFrame");
       return;
