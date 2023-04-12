@@ -2,6 +2,7 @@ cd C:\github\kolmafia\dist
 del *.*/Q
 ::delete all previous jars
 cd "C:\Users\dkolg\Google Drive\kolmafia"
+dir *.jar
 del *.jar
 echo.
 cd C:\github\kolmafia
@@ -19,6 +20,7 @@ echo.
 ::second copy to show revision number
 cd C:\github\kolmafia\dist
 copy *.jar C:\Users\dkolg\GOOGLE~1\kolmafia\*.jar
-pause
 cd "C:\Users\dkolg\Google Drive\kolmafia"
+dir *.jar
+pause
 start javaw.exe -jar KoLmafia-latest.jar
