@@ -8473,7 +8473,13 @@ public abstract class RuntimeLibrary {
       RequestLogger.updateSessionLog( "Setting location: "+location );
     }
     KoLAdventure adventure = (KoLAdventure) location.rawValue();
-    KoLAdventure.setNextAdventure(adventure);
+    if (adventure == null) {
+      Preferences.setString("nextAdventure", "None");
+      KoLCharacter.updateSelectedLocation(null);
+    } else {
+      Preferences.setString("nextAdventure", adventure.getAdventureName());
+      KoLCharacter.updateSelectedLocation(adventure);
+    }
     return DataTypes.VOID_VALUE;
   }
 
