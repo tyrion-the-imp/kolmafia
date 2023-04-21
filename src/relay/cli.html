@@ -58,7 +58,8 @@
 	.inputform
 	{
 		position: absolute;
-		top: 2px;
+		<!-- top: 2px; -->
+		top: 75px;
 		left: 3px;
 		padding: 2px 2px;
 		border: none;
@@ -86,7 +87,7 @@
 
 		document.getElementById( "CmdWindow" ).style.width = initwidth;
 		document.getElementById( "InputForm" ).style.width = initwidth;
-		document.getElementById( "ToggleDisplay" ).style.width = initwidth;
+		//document.getElementById( "ToggleDisplay" ).style.width = initwidth;
 
 		if ( navigator.appName.indexOf( "Explorer" ) != -1 )
 		{
@@ -96,13 +97,14 @@
 		else
 		{
 			initheight = document.body.clientHeight -
-				document.getElementById( "ToggleDisplay" ).offsetHeight - document.getElementById( "InputForm" ).offsetHeight;
+				document.getElementById( "InputForm" ).offsetHeight;
+				//document.getElementById( "ToggleDisplay" ).offsetHeight - document.getElementById( "InputForm" ).offsetHeight;
 		}
 
 		document.getElementById( "CmdWindow" ).style.height = initheight;
-		document.getElementById( "CmdWindow" ).style.top = document.getElementById( "ToggleDisplay" ).offsetHeight + 6;
-		document.getElementById( "InputForm" ).style.top = document.getElementById( "ToggleDisplay" ).offsetHeight +
-			document.getElementById( "CmdWindow" ).offsetHeight + 6;
+		//document.getElementById( "CmdWindow" ).style.top = document.getElementById( "ToggleDisplay" ).offsetHeight + 6;
+		//document.getElementById( "InputForm" ).style.top = document.getElementById( "ToggleDisplay" ).offsetHeight +
+		document.getElementById( "InputForm" ).style.top = document.getElementById( "CmdWindow" ).offsetHeight + 6;
 	}
 
 	var requests = new Array();
@@ -195,9 +197,9 @@
 
  <body link=black alink=black vlink=black onLoad="initSizes(); getCLIUpdate();" onResize="initSizes();">
 
-	<div id="ToggleDisplay" class=toggledisplay>
+	<!-- <div id="ToggleDisplay" class=toggledisplay>
 		<b>KoLmafia gCLI</b><br>[ <u><a href="/chatlaunch.php">Announcements</a></u> ]
-	</div>
+	</div> -->
 	<div id="CmdWindow" class=cmddisplay></div>
 
 	 <div id="InputForm" class=inputform>
@@ -205,6 +207,7 @@
 	 		<form name=cmdform onSubmit='return false;'>
 				 <input style="width: 70%" maxlength=200 class=text type=text size=12 name=cmd onKeyUp='checkForKeyEvent( event );' autocomplete="off">
 				 <input class=button type=button onClick="submitCommand();" value="exec">
+				&nbsp;<a href="/chatlaunch.php">X</a>
 	 		</form>
 	 	</center>
 	 </div>
