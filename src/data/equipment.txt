@@ -2125,6 +2125,7 @@ red LavaCo Lamp&trade;	100	Mus: 35
 Red Roger's red left hand	120	none
 red wagon	200	Mys: 200
 Red X Shield	180	Mus: 70	shield
+replica Operation Patriot Shield	240	none	shield
 reusable shopping bag	10	none
 rice bowl	30	none
 rock	0	none
@@ -2948,6 +2949,7 @@ replica hewn moon-rune spoon	200	none
 replica Juju Mojo Mask	0	none
 replica Kramco Sausage-o-Matic&trade;	100	none
 replica navel ring of navel gazing	0	none
+replica over-the-shoulder Folder Holder	0	none
 replica plastic vampire fangs	0	none
 replica Powerful Glove	0	none
 replica V for Vivala mask	0	none
