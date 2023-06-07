@@ -281,9 +281,15 @@ public class FoldItemCommand extends AbstractCommand {
         }
       }
 
+      int tote =
+          KoLCharacter.inLegacyOfLoathing()
+                  && InventoryManager.hasItem(ItemPool.REPLICA_GARBAGE_TOTE)
+              ? ItemPool.REPLICA_GARBAGE_TOTE
+              : ItemPool.GARBAGE_TOTE;
+
       GenericRequest useRequest = new GenericRequest("inv_use.php");
       useRequest.addFormField("pwd", GenericRequest.passwordHash);
-      useRequest.addFormField("whichitem", String.valueOf(ItemPool.GARBAGE_TOTE));
+      useRequest.addFormField("whichitem", String.valueOf(tote));
       RequestThread.postRequest(useRequest);
 
       GenericRequest choiceRequest = new GenericRequest("choice.php");

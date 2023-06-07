@@ -1228,6 +1228,8 @@ public class ItemPool {
   public static final int SLIPPERY_SEAL = 3911;
   public static final int IMBUED_SEAL_BLUBBER_CANDLE = 3912;
   public static final int TURTLE_WAX = 3914;
+  public static final int TURTLE_WAX_HELMET = 3916;
+  public static final int TURTLE_WAX_GREAVES = 3917;
   public static final int TURTLEMAIL_BITS = 3919;
   public static final int TURTLING_ROD = 3927;
   public static final int SEAL_IRON_INGOT = 3932;
@@ -3612,6 +3614,7 @@ public class ItemPool {
   public static final int REPLICA_SPACE_PLANULA = 11235;
   public static final int REPLICA_ROBORTENDER = 11236;
   public static final int REPLICA_NEVERENDING_PARTY_INVITE = 11237;
+  public static final int REPLICA_GARBAGE_TOTE = 11238;
   public static final int REPLICA_GOD_LOBSTER = 11239;
   public static final int REPLICA_SAUSAGE_O_MATIC = 11241;
   public static final int REPLICA_CAMELCALF = 11243;
@@ -3623,6 +3626,7 @@ public class ItemPool {
   public static final int MR_STORE_2002_CATALOG = 11257;
   public static final int LOATHING_IDOL_MICROPHONE = 11263;
   public static final int CHARTER_NELLYVILLE = 11264;
+  public static final int FLASH_LIQUIDIZER_ULTRA_DOUSING_ACCESSORY = 11266;
   public static final int GIANT_BLACK_MONOLITH = 11268;
   public static final int LOATHING_IDOL_MICROPHONE_75 = 11277;
   public static final int LOATHING_IDOL_MICROPHONE_50 = 11278;
