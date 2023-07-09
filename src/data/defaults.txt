@@ -898,9 +898,9 @@ user	lastGuildStoreOpen	-1
 user	lastGuyMadeOfBeesReset	-1
 user	lastFratboyCall	-1
 user	lastFriarCeremonyAscension	-1
-user	lastFriarElbowNC	-1
-user	lastFriarHeartNC	-1
-user	lastFriarNeckNC	-1
+user	lastFriarsElbowNC	-1
+user	lastFriarsHeartNC	-1
+user	lastFriarsNeckNC	-1
 user	lastHippyCall	-1
 user	lastIslandUnlock	-1
 user	lastKeyotronUse	-1
@@ -1728,6 +1728,8 @@ user	_chubbyAndPlumpUsed	false
 user	_cinchUsed	0
 user	_cinchoRests	0
 user	_circleDrumUsed	false
+user	_citizenZone
+user	_citizenZoneMods
 user	_clanFortuneBuffUsed	false
 user	_clanFortuneConsultUses	0
 user	_claraBellUsed	false
