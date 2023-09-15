@@ -174,7 +174,6 @@ import net.sourceforge.kolmafia.swingui.widget.InterruptableDialog;
 import net.sourceforge.kolmafia.textui.AshRuntime.CallFrame;
 import net.sourceforge.kolmafia.textui.DataTypes.TypeSpec;
 import net.sourceforge.kolmafia.textui.command.ColdMedicineCabinetCommand;
-import net.sourceforge.kolmafia.textui.command.ConditionalStatement;
 import net.sourceforge.kolmafia.textui.command.EudoraCommand;
 import net.sourceforge.kolmafia.textui.command.MonkeyPawCommand;
 import net.sourceforge.kolmafia.textui.command.SetPreferencesCommand;
@@ -3248,7 +3247,7 @@ public abstract class RuntimeLibrary {
     Value[] keys = obj.keys();
     for (Value key : keys) {
       Value v = obj.aref(key);
-      String value = v.toString();
+      String value = v == null ? null : v.toString();
       if (!addToSessionStream) {
         value = StringUtilities.getEntityEncode(value);
       }
@@ -3259,8 +3258,8 @@ public abstract class RuntimeLibrary {
       } else {
         RequestLogger.printLine(line);
       }
-      if (v instanceof CompositeValue) {
-        RuntimeLibrary.dump((CompositeValue) v, indent + "\u00A0\u00A0", color, addToSessionStream);
+      if (v instanceof CompositeValue cv) {
+        RuntimeLibrary.dump(cv, indent + "\u00A0\u00A0", color, addToSessionStream);
       }
     }
   }
@@ -3845,18 +3844,7 @@ public abstract class RuntimeLibrary {
   // updated usually once per day.
 
   public static Value holiday(ScriptRuntime controller) {
-    var today = DateTimeManager.getRolloverDateTime();
-    String gameHoliday = HolidayDatabase.getGameHoliday(today);
-    String realHoliday = HolidayDatabase.getRealLifeHoliday(today);
-    String result =
-        gameHoliday != null && realHoliday != null
-            ? gameHoliday + "/" + realHoliday
-            : gameHoliday != null ? gameHoliday : realHoliday != null ? realHoliday : "";
-    if (result.equals("St. Sneaky Pete's Day/Feast of Boris")
-        || result.equals("Feast of Boris/St. Sneaky Pete's Day")) {
-      result = "Drunksgiving";
-    }
-    return new Value(result);
+    return new Value(HolidayDatabase.getHoliday());
   }
 
   public static Value today_to_string(ScriptRuntime controller) {
@@ -3950,35 +3938,13 @@ public abstract class RuntimeLibrary {
   }
 
   public static Value stat_bonus_today(ScriptRuntime controller) {
-    if (ConditionalStatement.test("today is muscle day")) {
-      return DataTypes.MUSCLE_VALUE;
-    }
-
-    if (ConditionalStatement.test("today is myst day")) {
-      return DataTypes.MYSTICALITY_VALUE;
-    }
-
-    if (ConditionalStatement.test("today is moxie day")) {
-      return DataTypes.MOXIE_VALUE;
-    }
-
-    return DataTypes.STAT_INIT;
+    return DataTypes.parseStatValue(HolidayDatabase.getStatDay().toString(), true);
   }
 
   public static Value stat_bonus_tomorrow(ScriptRuntime controller) {
-    if (ConditionalStatement.test("tomorrow is muscle day")) {
-      return DataTypes.MUSCLE_VALUE;
-    }
-
-    if (ConditionalStatement.test("tomorrow is myst day")) {
-      return DataTypes.MYSTICALITY_VALUE;
-    }
-
-    if (ConditionalStatement.test("tomorrow is moxie day")) {
-      return DataTypes.MOXIE_VALUE;
-    }
-
-    return DataTypes.STAT_INIT;
+    return DataTypes.parseStatValue(
+        HolidayDatabase.getStatDay(DateTimeManager.getRolloverDateTime().plusDays(1)).toString(),
+        true);
   }
 
   public static Value session_logs(ScriptRuntime controller, final Value dayCount) {
