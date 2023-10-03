@@ -4351,6 +4351,7 @@ Item	kill screen	Random Monster Modifiers: +1, Generic
 Item	kitty sheet music	Familiar Weight: +5
 Item	lead collar	Familiar Weight: +5
 Item	lead necklace	Familiar Weight: +3, Generic
+Item	LED candle	Familiar Weight: +5
 # Li'l Businessman Kit: Lets your familiar make deals
 Item	Li'l Businessman Kit	Meat Drop: +5, Item Drop: +5, Generic
 Item	li'l candy corn costume	Spooky Resistance: +5, Stench Resistance: +5, Hot Resistance: +5, Cold Resistance: +5, Sleaze Resistance: +5, Equips On: "Trick-or-Treating Tot"
@@ -4776,6 +4777,7 @@ Throne	Optimistic Candle	Item Drop: +15, Drops Items, Variable
 Throne	Origami Towel Crane	Initiative: +20, MP Regen Min: 5, MP Regen Max: 6
 Throne	Pair of Ragged Claws	Familiar Weight: +5
 Throne	Pair of Stomping Boots	Weapon Damage Percent: +10
+Throne	Party Mouse	Booze Drop: +25, Drops Items
 Throne	Patriotic Eagle	Monster Level: +10
 Throne	Penguin Goodfella	Familiar Weight: +5
 Throne	Peppermint Rhino	Weapon Damage Percent: +10, HP Regen Min: 5, HP Regen Max: 6, MP Regen Min: 3, MP Regen Max: 4
@@ -11217,6 +11219,7 @@ Item	dandy lion cub	Free Pull
 # dangerous chemicals: Take it to ChemiCorp's downtown office
 # dangerous jerkcicle: Deals 20-40 <font color=blue>Cold Damage</font>
 Item	Dark Jill-O-Lantern	Free Pull
+Item	Dark Jill-of-All-Trades	Free Pull
 Item	deactivated nanobots	Free Pull
 Item	deanimated reanimator's coffin	Free Pull
 Item	Dear Past Self Package	Free Pull
