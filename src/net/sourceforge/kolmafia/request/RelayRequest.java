@@ -3572,6 +3572,7 @@ public class RelayRequest extends PasswordHashRequest {
       RelayRequest.executeAfterAdventureScript();
     }
   }
+
   /**
    * Centralized method for sending warnings before executing a relay request. Call individual
    * warnings from here.
