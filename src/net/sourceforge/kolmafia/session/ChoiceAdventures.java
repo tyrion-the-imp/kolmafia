@@ -6152,7 +6152,7 @@ public abstract class ChoiceAdventures {
         // Option...
         new ChoiceOption("Moxie substats", 1),
         new ChoiceOption("Muscle substats", 2),
-        new ChoiceOption("get Ashamed", 3),
+        new ChoiceOption("get Ashamed +10 stats, -20% M3, 30a", 3),
         new ChoiceOption("Do nothing", 4));
 
     // Beware of Alligator
@@ -6161,7 +6161,7 @@ public abstract class ChoiceAdventures {
         "Item-Driven",
         "June cleaver",
         // Option...
-        new ChoiceOption("get Yapping Pal", 1),
+        new ChoiceOption("get Yapping Pal, +20 ML, 30a", 1),
         new ChoiceOption("Dad's brandy", 2, "Dad's brandy"),
         new ChoiceOption("1500 meat", 3),
         new ChoiceOption("Do nothing", 4));
@@ -6172,7 +6172,7 @@ public abstract class ChoiceAdventures {
         "Item-Driven",
         "June cleaver",
         // Option...
-        new ChoiceOption("30 turns of Teacher's Pet", 1),
+        new ChoiceOption("30 turns of Teacher's Pet, +2 sl.res, +50 DA, +5 DR, 30a", 1),
         new ChoiceOption("teacher's pen", 2, "teacher's pen"),
         new ChoiceOption("Muscle substats", 3),
         new ChoiceOption("Do nothing", 4));
@@ -6206,8 +6206,8 @@ public abstract class ChoiceAdventures {
         "June cleaver",
         // Option...
         new ChoiceOption("Muscle substats, gob of wet hair", 1, "gob of wet hair"),
-        new ChoiceOption("get Wholesomely Resolved", 2),
-        new ChoiceOption("get Kinda Damp", 3),
+        new ChoiceOption("get Wholesomely Resolved, +2 sp.st.sl.res, +15 DR, 30a", 2),
+        new ChoiceOption("get Kinda Damp. +3 h.res, +50% init, 30a", 3),
         new ChoiceOption("Do nothing", 4));
 
     // Delicious Sprouts
