@@ -1265,7 +1265,7 @@ public class Preferences {
              "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
         String climessage =
             "Preference <b>" + name + "</b> changed from <span style='color:maroon;'>" + Preferences.getString( name ) + "</span> <b>to</b> <span style='color:blue;font-weight:bold;'>" + value + "</span>";
-        RequestLogger.printLine(climessage);
+        RequestLogger.printHtml(climessage);
         RequestLogger.updateSessionLog(message);
       }
     }
