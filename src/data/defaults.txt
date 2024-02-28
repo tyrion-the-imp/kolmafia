@@ -1640,6 +1640,8 @@ user	warehouseProgress	0
 user	watchedPreferences
 user	waxMonster
 user	welcomeBackAdv	0
+user	wereProfessorStomach	0
+user	wereProfessorLiver	0
 user	wereProfessorPoints	0
 user	whetstonesUsed	0
 user	wildfireBarrelCaulked	false
@@ -2305,6 +2307,7 @@ user	_saplingsPlanted	0
 user	_sausageFights	0
 user	_sausagesEaten	0
 user	_sausagesMade	0
+user	_savageBeastMods
 user	_seaJellyHarvested	false
 user	_sealFigurineUses	0
 user	_sealScreeches	0
