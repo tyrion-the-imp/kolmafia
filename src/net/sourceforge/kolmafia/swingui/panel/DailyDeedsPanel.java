@@ -3366,7 +3366,7 @@ public class DailyDeedsPanel extends Box implements Listener {
 
     @Override
     public void update() {
-      List<String> list = BanishManager.getBanishedMonsters();
+      List<String> list = BanishManager.getBanishedMonsters(false);
       String text = "Banished monsters: " + String.join(",", list);
 
       this.setText(text);
