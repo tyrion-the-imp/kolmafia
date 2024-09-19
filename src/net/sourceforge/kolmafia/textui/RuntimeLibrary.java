@@ -11094,7 +11094,7 @@ public abstract class RuntimeLibrary {
 
   public static Value fact_type(
       ScriptRuntime controller, final Value cls, final Value path, final Value monster) {
-    if (cls.content == null) return DataTypes.STRING_INIT;
+    if (cls.content == null || monster.content == null) return DataTypes.STRING_INIT;
     var fact =
         FactDatabase.getFact(
             (AscensionClass) cls.content,
@@ -11114,7 +11114,7 @@ public abstract class RuntimeLibrary {
 
   public static Value effect_fact(
       ScriptRuntime controller, final Value cls, final Value path, final Value monster) {
-    if (cls.content == null) return DataTypes.EFFECT_INIT;
+    if (cls.content == null || monster.content == null) return DataTypes.EFFECT_INIT;
     var f =
         FactDatabase.getFact(
             (AscensionClass) cls.content,
@@ -11141,7 +11141,7 @@ public abstract class RuntimeLibrary {
 
   public static Value item_fact(
       ScriptRuntime controller, final Value cls, final Value path, final Value monster) {
-    if (cls.content == null) return DataTypes.ITEM_INIT;
+    if (cls.content == null || monster.content == null) return DataTypes.ITEM_INIT;
     var f =
         FactDatabase.getFact(
             (AscensionClass) cls.content,
@@ -11168,7 +11168,7 @@ public abstract class RuntimeLibrary {
 
   public static Value numeric_fact(
       ScriptRuntime controller, final Value cls, final Value path, final Value monster) {
-    if (cls.content == null) return DataTypes.INT_INIT;
+    if (cls.content == null || monster.content == null) return DataTypes.INT_INIT;
     var f =
         FactDatabase.getFact(
             (AscensionClass) cls.content,
@@ -11205,7 +11205,7 @@ public abstract class RuntimeLibrary {
 
   public static Value string_fact(
       ScriptRuntime controller, final Value cls, final Value path, final Value monster) {
-    if (cls.content == null) return DataTypes.STRING_INIT;
+    if (cls.content == null || monster.content == null) return DataTypes.STRING_INIT;
     var f =
         FactDatabase.getFact(
             (AscensionClass) cls.content,
