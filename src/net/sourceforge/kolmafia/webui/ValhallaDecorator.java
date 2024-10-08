@@ -305,6 +305,7 @@ public class ValhallaDecorator {
     ValhallaDecorator.checkCatHeists(buffer);
 
     ValhallaDecorator.check2002MrStoreCredit(buffer);
+    ValhallaDecorator.checkSeptEmbers(buffer);
 
     ValhallaDecorator.switchSeeds(buffer);
 
@@ -631,6 +632,20 @@ public class ValhallaDecorator {
           .append(
               "<nobr><a href=\"shop.php?whichshop=mrstore2002\">Spend remaining 2002 Mr. Store Credits (")
           .append(credits)
+          .append(")</a></nobr><br>");
+      buffer.append(storeCreditBuffer);
+    }
+  }
+
+  private static void checkSeptEmbers(StringBuffer buffer) {
+    StringBuilder storeCreditBuffer = new StringBuilder();
+
+    int embers = Preferences.getInteger("availableSeptEmbers");
+
+    if (embers > 0) {
+      storeCreditBuffer
+          .append("<nobr><a href=\"shop.php?whichshop=september\">Spend remaining Sept Embers (")
+          .append(embers)
           .append(")</a></nobr><br>");
       buffer.append(storeCreditBuffer);
     }
