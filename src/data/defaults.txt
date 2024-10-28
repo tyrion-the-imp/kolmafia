@@ -1777,6 +1777,7 @@ user	_aug30Cast	false
 user	_aug31Cast	false
 user	_augSkillsCast	0
 user	_augTodayCast	false
+user	_assertYourAuthorityCast	0
 user	_authorsInkUsed	false
 user	_automatedFutureSide
 user	_automatedFutureManufactures	0
@@ -2305,6 +2306,8 @@ user	_peteJumpedShark	0
 user	_petePartyThrown	false
 user	_petePeeledOut	0
 user	_peteRiotIncited	false
+user	_photoBoothEffects	0
+user	_photoBoothEquipment	0
 user	_photocopyUsed	false
 user	_pickyTweezersUsed	false
 user	_pickleJuiceDrunk	false
@@ -3369,6 +3372,7 @@ user	choiceAdventure1491	0
 user	choiceAdventure1494	0
 user	choiceAdventure1505	0
 user	choiceAdventure1528	1
+user	choiceAdventure1534	6
 user	lockedItem4637	true
 user	lockedItem4638	true
 user	lockedItem4639	true
