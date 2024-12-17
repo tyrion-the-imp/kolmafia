@@ -11751,8 +11751,8 @@
 11723	dark chocolate egg	428655084	darkchocegg.gif	potion, usable	t,d	15
 11724	moai toai	969792989	icedtea.gif	drink	t,d	29
 11725	moaiball	728604035	moaieye.gif	offhand	t	0
-11726
-11727
+11726	half-digested rat	445778415	halfdigrat.gif	none, combat	t,d	15	half-digested rats
+11727	four-leaf potato sprout	990121184	fourleafsprout.gif	potion, usable	t,d	22	four-leaf potato sprouts
 11728
 11729
 11730
