@@ -2854,6 +2854,7 @@ public class DailyDeedsPanel extends Box implements Listener {
       this.addListener("_gnomeAdv");
       this.addListener("_mafiaThumbRingAdvs");
       this.addListener("_carnivorousPottedPlantWins");
+      this.addListener("_juneCleaverAdvs");
       this.addListener("_tearawayPantsAdvs");
       this.addListener("_batWingsFreeFights");
       this.addListener("(character)");
@@ -2882,6 +2883,7 @@ public class DailyDeedsPanel extends Box implements Listener {
       addFreeFightEquipment(text, ItemPool.MAFIA_THUMB_RING, "_mafiaThumbRingAdvs", "thumb ring");
       addFreeFightEquipment(
           text, ItemPool.CARNIVOROUS_POTTED_PLANT, "_carnivorousPottedPlantWins", "potted plant");
+      addFreeFightEquipment(text, ItemPool.JUNE_CLEAVER, "_juneCleaverAdvs", "june cleaver");
       addFreeFightEquipment(text, ItemPool.TEARAWAY_PANTS, "_tearawayPantsAdvs", "tearaway pants");
       addFreeFightEquipment(text, ItemPool.BAT_WINGS, "_batWingsFreeFights", "bat wings");
 
