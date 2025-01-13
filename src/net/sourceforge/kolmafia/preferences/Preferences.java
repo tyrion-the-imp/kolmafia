@@ -1328,13 +1328,21 @@ public class Preferences {
           isLoggablePref = false;
       }
       if (!preferenceFilter.contains(name) && isLoggablePref) {
-         String message =
+        String message =
              "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
         String climessage =
             "Preference <b>" + name + "</b> changed from <span style='color:maroon;'>" + Preferences.getString( name ) + "</span> <b>to</b> <span style='color:blue;font-weight:bold;'>" + value + "</span>";
         RequestLogger.printHtml(climessage);
         RequestLogger.updateSessionLog(message);
       }
+	  if (preferenceFilter.contains(name) || !isLoggablePref) {
+        String message =
+             "Preference [" + name + "] was updated but it is filtered";
+        String climessage =
+            "Preference <b>[" + name + "]</b> was updated but it is filtered";
+        RequestLogger.printHtml(climessage);
+        RequestLogger.updateSessionLog(message);
+	  }
     }
 
     boolean trackEncoded = Preferences.mustTrackEncodedValues();
