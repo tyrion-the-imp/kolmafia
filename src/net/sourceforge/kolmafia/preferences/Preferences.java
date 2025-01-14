@@ -1335,12 +1335,22 @@ public class Preferences {
         RequestLogger.printHtml(climessage);
         RequestLogger.updateSessionLog(message);
       }
-	  if (preferenceFilter.contains(name) || !isLoggablePref) {
+	  //filtered props, still give indication of change in session log only
+	  if (preferenceFilter.contains(name)) {
         String message =
              "Preference [" + name + "] was updated but it is filtered";
-        String climessage =
-            "Preference <b>[" + name + "]</b> was updated but it is filtered";
-        RequestLogger.printHtml(climessage);
+        //String climessage =
+            //"Preference <b>[" + name + "]</b> was updated but it is filtered";
+        //RequestLogger.printHtml(climessage);
+        RequestLogger.updateSessionLog(message);
+	  }
+	  //log aaa prefs to session log even when disabled ie aaa_logTripleAPrefs = false (can only be false for aaa prefs)
+	  else if (!isLoggablePref) {
+        String message =
+             "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
+        //String climessage =
+            //"Preference <b>[" + name + "]</b> was updated but it is filtered";
+        //RequestLogger.printHtml(climessage);
         RequestLogger.updateSessionLog(message);
 	  }
     }
