@@ -262,7 +262,8 @@ public class FightRequest extends GenericRequest {
       Pattern.compile("I shall name you &quot;(.*?),&quot; you say.");
 
   private static final Pattern TIMEPRANK_PATTERN =
-      Pattern.compile("A figure steps out from behind this morning and says, &quot;(.*?)&quot;");
+      Pattern.compile(
+          "A figure steps out from behind this morning and says, &quot;(.*?)&quot;</blockquote>");
 
   private static final Pattern NANORHINO_CHARGE1_PATTERN = Pattern.compile("(\\d+)% charge");
   private static final Pattern NANORHINO_CHARGE2_PATTERN = Pattern.compile("charge to (\\d+)%");
@@ -3032,6 +3033,7 @@ public class FightRequest extends GenericRequest {
 
     KoLAdventure location = KoLAdventure.lastVisitedLocation();
     String locationName = (location != null) ? location.getAdventureName() : null;
+    String zone = (location != null) ? location.getZone() : "";
 
     FamiliarData familiar = KoLCharacter.getEffectiveFamiliar();
 
@@ -3453,7 +3455,29 @@ public class FightRequest extends GenericRequest {
       Preferences.setString("lastCopyableMonster", monsterName);
     }
 
-    final boolean free = responseText.contains("FREEFREEFREE");
+    boolean free = responseText.contains("FREEFREEFREE");
+
+    if (zone.equals("Server Room")) {
+      /*
+      if (responseText.contains("...overclock is ending...")) {
+        Preferences.setInteger("_cyberFreeFights", 10);
+      } else if (responseText.contains("...overclock is active...")) {
+        Preferences.increment("_cyberFreeFights", 1, 10, false);
+      }
+      */
+
+      // Something like the above would be nice, but KoL neither has
+      // special text to indicate OVERCLOCK(10) is active, nor does
+      // it include FREEFREEFREE to indicate the fight was free.
+      //
+      // I bug reported those things, but for now, workaround.
+
+      if (KoLCharacter.hasSkill(SkillPool.OVERCLOCK10)
+          && Preferences.getInteger("_cyberFreeFights") < 10) {
+        Preferences.increment("_cyberFreeFights", 1, 10, false);
+        free = true;
+      }
+    }
 
     if (adventure == AdventurePool.OLIVERS_SPEAKEASY_BRAWL) {
       if (responseText.contains(

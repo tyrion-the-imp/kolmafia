@@ -76,6 +76,7 @@ public class FightRequestTest {
     KoLCharacter.reset("FightRequestTest");
     KoLConstants.availableCombatSkillsList.clear();
     KoLConstants.availableCombatSkillsSet.clear();
+    KoLAdventure.setLastAdventure("None");
   }
 
   private void parseCombatData(String path, String location, String encounter) {
@@ -3158,6 +3159,7 @@ public class FightRequestTest {
         assertThat(
             FamiliarDatabase.getPokeDataById(FamiliarPool.BURLY_BODYGUARD).getMove2(),
             Is.is("Hug"));
+        assertThat(text, not(containsString("unspecified macro action")));
       }
     }
 
@@ -3227,6 +3229,118 @@ public class FightRequestTest {
         assertGetRequest(requests.get(1), "/fight.php", "ireallymeanit=1667327836");
         assertPostRequest(requests.get(2), "/api.php", "what=status&for=KoLmafia");
       }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void cyberRealmFightsIncrementFreeTurns(int securityLevel) {
+      var builder = new FakeHttpClientBuilder();
+      var client = builder.client;
+      String fileName = "request/test_fight_old_overclocked_win.html";
+      String html = html(fileName);
+      var cleanups =
+          new Cleanups(
+              withHttpClientBuilder(builder),
+              withSkill(SkillPool.OVERCLOCK10),
+              withLastLocation("Cyberzone " + securityLevel),
+              withFight(4),
+              withProperty("_cyberFreeFights", 5));
+      try (cleanups) {
+        client.addResponse(200, html);
+        client.addResponse(200, ""); // api.php
+
+        var request = new GenericRequest("fight.php?action=skill&whichskill=4012");
+        request.run();
+
+        assertThat("_cyberFreeFights", isSetTo(6));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void cyberRealmFightHasFreeTurnMaximum(int securityLevel) {
+      var builder = new FakeHttpClientBuilder();
+      var client = builder.client;
+      String fileName = "request/test_fight_old_overclocked_win.html";
+      String html = html(fileName);
+      var cleanups =
+          new Cleanups(
+              withHttpClientBuilder(builder),
+              withSkill(SkillPool.OVERCLOCK10),
+              withLastLocation("Cyberzone " + securityLevel),
+              withFight(4),
+              withProperty("_cyberFreeFights", 10));
+      try (cleanups) {
+        client.addResponse(200, html);
+        client.addResponse(200, ""); // api.php
+
+        var request = new GenericRequest("fight.php?action=skill&whichskill=4012");
+        request.run();
+
+        assertThat("_cyberFreeFights", isSetTo(10));
+      }
+    }
+
+    @Test
+    public void nonCyberRealmFightsDoNotIncrementFreeTurns() {
+      var builder = new FakeHttpClientBuilder();
+      var client = builder.client;
+      String fileName = "request/test_cyrpt_boss_defeat.html";
+      String html = html(fileName);
+      var cleanups =
+          new Cleanups(
+              withHttpClientBuilder(builder),
+              withSkill(SkillPool.OVERCLOCK10),
+              withLastLocation("The Defiled Cranny"),
+              withFight(1),
+              withProperty("_cyberFreeFights", 5));
+      try (cleanups) {
+        client.addResponse(200, html);
+        client.addResponse(200, ""); // api.php
+
+        var request = new GenericRequest("fight.php?action=attack");
+        request.run();
+
+        assertThat("_cyberFreeFights", isSetTo(5));
+      }
+    }
+  }
+
+  @Test
+  public void canDetectPirateInsult() {
+    RequestLoggerOutput.startStream();
+    var cleanups = new Cleanups(withFight(), withProperty("lastPirateInsult3"));
+    try (cleanups) {
+      parseCombatData(
+          "request/test_fight_pirate_insult.html",
+          "fight.php?action=useitem&whichitem=2947&whichitem2=0");
+      assertThat("lastPirateInsult3", isSetTo(true));
+      var text = RequestLoggerOutput.stopStream();
+      assertThat(
+          text,
+          containsString(
+              """
+                  Round 1: FightRequestTest uses the The Big Book of Pirate Insults!
+                  Pirate insults known: 1 (0.00%)
+                  You acquire an effect: Embarrassed (1)"""));
+    }
+  }
+
+  @Test
+  public void canDetectTimePrankMessage() {
+    RequestLoggerOutput.startStream();
+    var cleanups = new Cleanups(withLastLocation("Noob Cave"));
+    try (cleanups) {
+      GenericRequest request = new GenericRequest("fight.php");
+      request.responseText = html("request/test_fight_time_prank.html");
+      AdventureRequest.registerEncounter(request);
+      parseCombatData("request/test_fight_time_prank.html", "fight.php?ireallymeanit=1737125012");
+      var text = RequestLoggerOutput.stopStream();
+      // the original message was !"£$%^&*()<>€ so there is some double escaping going on here
+      assertThat(
+          text,
+          containsString(
+              "Round 0: Ryo_Sangnoir says: \"!&quot;&Acirc;&pound;$%^&amp;*()&lt;&gt;&acirc;�&not;\""));
     }
   }
 }
