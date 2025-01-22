@@ -631,11 +631,11 @@ public class StringUtilities {
         if ((Long.MIN_VALUE / multiplier <= rVal) && (rVal <= Long.MAX_VALUE / multiplier)) {
           return rVal * multiplier;
         } else {
-          RequestLogger.printLine(string + " is out of range, returning 0");
+          RequestLogger.printLine(string + " is out of range, returning 0 x");
           return 0;
         }
       } catch (NumberFormatException e) {
-        RequestLogger.printLine(string + " is out of range, returning 0");
+        RequestLogger.printLine(string + " is out of range, returning 0 xx");
         return 0;
       }
     }
@@ -644,7 +644,7 @@ public class StringUtilities {
       try {
         return Long.parseLong(string);
       } catch (NumberFormatException e) {
-        RequestLogger.printLine(string + " is out of range, returning 0");
+        RequestLogger.printLine(string + " is out of range, returning 0 xxx");
         return 0L;
       }
     }
@@ -673,7 +673,7 @@ public class StringUtilities {
     try {
       return Long.parseLong(string);
     } catch (NumberFormatException e) {
-      RequestLogger.printLine(string + " is out of range, returning 0");
+      RequestLogger.printLine(string + " is out of range, returning 0 xxxx");
       return 0L;
     }
   }
