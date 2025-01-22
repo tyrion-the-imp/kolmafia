@@ -664,19 +664,17 @@ public class StringUtilities {
     if (string == null) {
       return 0L;
     }
+	String originalStr = string;
     string = NONINTEGER_PATTERN.matcher(string).replaceAll("");
 
     if (string.length() == 0) {
-      return 0L;
-    }
-    if (string == "-" || string == "- " || string == "--" || string == "-- " || string == "---" || string == "--- " || string == "----" || string == "---- " || string == "-----" || string == "----- ") {
       return 0L;
     }
 
     try {
       return Long.parseLong(string);
     } catch (NumberFormatException e) {
-      RequestLogger.printLine(string + " is out of range, returning 0 xxxx");
+      RequestLogger.printLine(string + " is out of range, returning 0 xxxx (original = "+originalStr+"");
       return 0L;
     }
   }
