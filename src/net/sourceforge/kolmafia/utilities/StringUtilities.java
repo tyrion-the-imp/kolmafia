@@ -669,7 +669,7 @@ public class StringUtilities {
     if (string.length() == 0) {
       return 0L;
     }
-    if (string == "-" || string == "--" || string == "---" || string == "----" || string == "-----") {
+    if (string == "-" || string == "- " || string == "--" || string == "-- " || string == "---" || string == "--- " || string == "----" || string == "---- " || string == "-----" || string == "----- ") {
       return 0L;
     }
 
