@@ -664,7 +664,9 @@ public class StringUtilities {
     if (string == null) {
       return 0L;
     }
+	RequestLogger.printLine("string 1= "+string);
     string = NONINTEGER_PATTERN.matcher(string).replaceAll("");
+	RequestLogger.printLine("string 2= "+string);
 
     if (string.length() == 0) {
       return 0L;
