@@ -33,7 +33,7 @@ public class StringUtilities {
   private static final HashMap<String, String> prepositionsMap = new HashMap<>();
   private static final WeakHashMap<String[], int[]> hashCache = new WeakHashMap<>();
 
-  private static final Pattern NONINTEGER_PATTERN = Pattern.compile("[^0-9\\-]+");
+  private static final Pattern NONINTEGER_PATTERN = Pattern.compile("^[0-9\\-]+");
 
   private static final Pattern PREPOSITIONS_PATTERN =
       Pattern.compile(
@@ -674,7 +674,7 @@ public class StringUtilities {
     try {
       return Long.parseLong(string);
     } catch (NumberFormatException e) {
-      RequestLogger.printLine(string + " is out of range, returning 0 xxxx (original = "+originalStr+"");
+      RequestLogger.printLine(string + " is out of range, returning 0 xxxx (original = "+originalStr+")");
       return 0L;
     }
   }
