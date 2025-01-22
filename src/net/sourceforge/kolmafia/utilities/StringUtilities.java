@@ -33,7 +33,7 @@ public class StringUtilities {
   private static final HashMap<String, String> prepositionsMap = new HashMap<>();
   private static final WeakHashMap<String[], int[]> hashCache = new WeakHashMap<>();
 
-  private static final Pattern NONINTEGER_PATTERN = Pattern.compile("^[0-9\\-]+");
+  private static final Pattern NONINTEGER_PATTERN = Pattern.compile("[^0-9\\-]+");
 
   private static final Pattern PREPOSITIONS_PATTERN =
       Pattern.compile(
@@ -668,6 +668,9 @@ public class StringUtilities {
     string = NONINTEGER_PATTERN.matcher(string).replaceAll("");
 
     if (string.length() == 0) {
+      return 0L;
+    }
+    if (string.indexOf("--") > 0) {
       return 0L;
     }
 
