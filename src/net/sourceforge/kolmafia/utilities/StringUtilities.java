@@ -670,7 +670,7 @@ public class StringUtilities {
     if (string.length() == 0) {
       return 0L;
     }
-    if (string.indexOf("--") > 0) {
+    if (string.indexOf("--") > -1) {
       return 0L;
     }
 
