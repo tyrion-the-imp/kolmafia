@@ -673,6 +673,9 @@ public class StringUtilities {
     if (string.indexOf("--") > -1) {
       return 0L;
     }
+    if (string.equals("-")) {
+      return 0L;
+    }
 
     try {
       return Long.parseLong(string);
