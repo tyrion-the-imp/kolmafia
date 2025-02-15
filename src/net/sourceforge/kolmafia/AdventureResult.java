@@ -369,19 +369,19 @@ public class AdventureResult implements Comparable<AdventureResult>, Cloneable {
   }
 
   public boolean isHP() {
-    return this.name.equals(AdventureResult.HP);
+    return this.name != null && this.name.equals(AdventureResult.HP);
   }
 
   public boolean isMP() {
-    return this.name.equals(AdventureResult.MP);
+    return this.name != null && this.name.equals(AdventureResult.MP);
   }
 
   public boolean isEnergy() {
-    return this.name.equals(AdventureResult.ENERGY);
+    return this.name != null && this.name.equals(AdventureResult.ENERGY);
   }
 
   public boolean isScrap() {
-    return this.name.equals(AdventureResult.SCRAP);
+    return this.name != null && this.name.equals(AdventureResult.SCRAP);
   }
 
   public boolean isMonster() {
