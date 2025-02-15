@@ -3713,7 +3713,7 @@ public class RelayRequest extends PasswordHashRequest {
     }
   }
 
-  private static Pattern GO_CMD =
+  private static final Pattern GO_CMD =
       Pattern.compile("\"<font color=green>Sending you to (.*?)\\.<!--js\\((.*?)\\)-->");
 
   private static String decorateGoCommands(String chatText) {
@@ -3721,6 +3721,21 @@ public class RelayRequest extends PasswordHashRequest {
 
     if (!matcher.find()) return chatText;
 
+    return makeLink(chatText, matcher);
+  }
+
+  private static final Pattern GOTO_CMD =
+      Pattern.compile("\"<font color=green>Loading (.*?)\\.<!--js\\((.*?)\\)-->");
+
+  private static String decorateGoToCommands(String chatText) {
+    var matcher = GOTO_CMD.matcher(chatText);
+
+    if (!matcher.find()) return chatText;
+
+    return makeLink(chatText, matcher);
+  }
+
+  private static String makeLink(String chatText, Matcher matcher) {
     return chatText.substring(0, matcher.start(1))
         + "<span style=\\\"cursor:pointer;\\\" onclick=\\\""
         + matcher.group(2)
@@ -3751,6 +3766,7 @@ public class RelayRequest extends PasswordHashRequest {
       }
 
       chatText = decorateGoCommands(chatText);
+      chatText = decorateGoToCommands(chatText);
     }
 
     if (Preferences.getBoolean("relayFormatsChatText")) {
