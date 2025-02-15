@@ -3,7 +3,7 @@ del *.*/Q
 ::delete all previous jars
 cd "C:\Users\dkolg\Google Drive\kolmafia"
 dir *.jar
-move \y *.jar "C:\Users\dkolg\Google Drive\kolmafia\*.jar"
+move /y *.jar "C:\Users\dkolg\Google Drive\kolmafia\jarchive"
 echo.
 cd C:\github\kolmafia
 call gradlew.bat shadowJar
