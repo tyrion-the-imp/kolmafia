@@ -1716,7 +1716,8 @@ public class UseSkillRequest extends GenericRequest implements Comparable<UseSki
 
     if (responseText.contains("You don't have that skill")
         || responseText.contains("you don't seem to have that skill")) {
-      UseSkillRequest.lastUpdate = "That skill is unavailable.";
+      String skillName = SkillDatabase.getSkillName(skillId);
+      UseSkillRequest.lastUpdate = "That skill is unavailable. ["+skillId+"] "+skillName;
       return SkillStatus.ERROR;
     }
 
