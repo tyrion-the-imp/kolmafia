@@ -625,6 +625,21 @@ public class Preferences {
         "youRobotRight",
         "youRobotScavenged",
         "youRobotTop",
+        "zootGraftedButtCheekLeftFamiliar",
+        "zootGraftedButtCheekRightFamiliar",
+        "zootGraftedFootLeftFamiliar",
+        "zootGraftedFootRightFamiliar",
+        "zootGraftedHandLeftFamiliar",
+        "zootGraftedHandRightFamiliar",
+        "zootGraftedHeadFamiliar",
+        "zootGraftedMods",
+        "zootGraftedNippleLeftFamiliar",
+        "zootGraftedNippleRightFamiliar",
+        "zootGraftedShoulderLeftFamiliar",
+        "zootGraftedShoulderRightFamiliar",
+        "zootMilkCrueltyMods",
+        "zootMilkKindnessMods",
+        "zootSpecimensPrepared",
       };
 
   private static final Set<String> resetOnAscensionSet =
