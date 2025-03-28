@@ -158,7 +158,7 @@ Item	Covers-Your-Head	Moxie: +250, Maximum HP: +100, Maximum MP: +100, Initiativ
 Item	cr&ecirc;epy mask	Mysticality: +2, Maximum MP: +5, Familiar Effect: "spooky atk, cap 5"
 Item	crappy Mer-kin mask	Stench Resistance: +3, Item Drop: -25, Initiative: -50, Adventure Underwater, Familiar Effect: "hot atk, 1xBarrr"
 # crepe paper phrygian cap: Pull down to avoid monsters
-Item	crepe paper phrygian cap	Muscle: +10, Stench Damage: +10, Stench Spell Damage: +10, Last Available: "2025-12"
+Item	crepe paper phrygian cap	Muscle: +10, Stench Damage: +10, Stench Spell Damage: +10, Last Available: "2025-12", Conditional Skill (Inventory): "Pull down your crepe paper phrygian cap"
 Item	Crimbo hat	Spooky Resistance: +1, Last Available: "2004-10", Familiar Effect: "1.75xVolley, 1.75xLep, cap 25"
 Item	Crimbuccaneer tricorn	Last Available: "2023-12"
 Item	Crown of the Goblin King	Muscle: +10, Familiar Effect: "2xBarrr, 1xGhuol, cap 17"
@@ -979,7 +979,7 @@ Item	camouflage T-shirt	Mana Cost (combat): -3, Combat Rate: -5, Muscle Percent:
 Item	camouflage vest	Combat Rate: -10
 Item	cane-mail shirt	Candy Drop: +25, Monster Level: +20, Meat Drop: +15, Last Available: "2011-12"
 # ceramic cenobite's robe: Deal 30 damage and heal 30 HP
-Item	ceramic cenobite's robe	Experience (Moxie): +3, Maximum HP: +20, Maximum MP: +20, HP Regen Min: 4, HP Regen Max: 8, MP Regen Min: 4, MP Regen Max: 8, Last Available: "2023-12"
+Item	ceramic cenobite's robe	Experience (Moxie): +3, Maximum HP: +20, Maximum MP: +20, HP Regen Min: 4, HP Regen Max: 8, MP Regen Min: 4, MP Regen Max: 8, Last Available: "2023-12", Conditional Skill (Equipped): "Ceramic Cenobitize"
 Item	chamoisole	Slime Resistance: +3
 Item	cheerful Crimbo sweater	Cold Resistance: +2, Moxie: -15, Last Available: "2017-12"
 Item	chest barrel	Damage Reduction: 5, Damage Absorption: +50, Last Available: "2015-09"
@@ -993,7 +993,7 @@ Item	conquistador's breastplate	Spooky Resistance: +2, Stench Resistance: +2, Ho
 Item	cool iron breastplate	Damage Reduction: 20, Maximum HP: +200
 Item	Corporal Fennel's Lonely Clubs Club Jacket	PvP Fights: +2
 # crepe paper plunge camisole: Leave nothing to the imagination and distract your foes
-Item	crepe paper plunge camisole	Moxie: +10, Sleaze Damage: +10, Sleaze Spell Damage: +10, Last Available: "2025-12"
+Item	crepe paper plunge camisole	Moxie: +10, Sleaze Damage: +10, Sleaze Spell Damage: +10, Last Available: "2025-12", Conditional Skill (Inventory): "Leave nothing to the imagination"
 Item	Crimbuccaneer bombjacket	Moxie Percent: +25, Ranged Damage: +25, Last Available: "2023-12", Combat Item Damage Percent: 100
 Item	Crimbuccaneer shirt	Familiar Weight: [+10*event(December)], Last Available: "2023-12"
 Item	demonskin jacket	Mysticality: +5, Hot Spell Damage: +5
@@ -1294,7 +1294,7 @@ Item	carrot-on-a-stick	Moxie: +7, Candy Drop: +50, Last Available: "2014-12"
 Item	cast-iron legacy paddle	Muscle: +15, Weapon Damage: +10
 Item	cat o' nine teeth	Sleaze Damage: +10, Monster Level: +10
 # ceramic celery grater: Deal 30 damage and cause bleeding
-Item	ceramic celery grater	Mysticality Percent: +20, Spell Critical Percent: +20, Last Available: "2023-12"
+Item	ceramic celery grater	Mysticality Percent: +20, Spell Critical Percent: +20, Last Available: "2023-12", Conditional Skill (Equipped): "Ceramic Grate"
 Item	Cerebral Crossbow	Cold Damage: +3, Spooky Damage: +3, Sleaze Damage: +3, Last Available: "2006-06"
 # charming flute: +20 Damage vs. Snakes
 Item	charming flute	Moxie: +8
@@ -2223,7 +2223,7 @@ Item	cardboard wine carrier	Booze Drop: +50, Lasts Until Rollover, Last Availabl
 Item	carnivorous potted plant	Monster Level: +25, Last Available: "2021-12"
 Item	catskin buckler	Muscle: +10, Damage Absorption: +50, Damage Reduction: 11
 # ceramic centurion shield: Bash a foe, dealing 30 damage and weakening them
-Item	ceramic centurion shield	Experience (Muscle): +3, Maximum HP: +40, HP Regen Min: 8, HP Regen Max: 16, Damage Reduction: 9, Last Available: "2023-12"
+Item	ceramic centurion shield	Experience (Muscle): +3, Maximum HP: +40, HP Regen Min: 8, HP Regen Max: 16, Damage Reduction: 9, Last Available: "2023-12", Conditional Skill (Equipped): "Ceramic Bash"
 Item	Chalice of the Malkovich Prince	Muscle Percent: +4, Mysticality Percent: +4, Moxie Percent: +4, Last Available: "2011-10"
 # chalk chalice: Weakens enemies who hit you
 Item	chalk chalice	Maximum MP: +15, Hot Spell Damage: +20, Last Available: "2019-12"
@@ -2249,7 +2249,7 @@ Item	creepy doll head	Spooky Damage: +15
 Item	creepy voice box	Conditional Skill (Equipped): "Pull Voice Box String"
 Item	creme brulee torch	Hot Damage: +30, Lasts Until Rollover, Last Available: "2016-12"
 # crepe paper puzzle cube: Play with it to get more stats after combat
-Item	crepe paper puzzle cube	Experience (Mysticality): +2, Spooky Damage: +10, Spooky Spell Damage: +10, Last Available: "2025-12"
+Item	crepe paper puzzle cube	Experience (Mysticality): +2, Spooky Damage: +10, Spooky Spell Damage: +10, Last Available: "2025-12", Conditional Skill (Inventory): "Play with your crepe paper puzzle"
 Item	Crimbo bottomless hot cocoa mug	Hot Spell Damage: +10, Last Available: "2012-12"
 Item	Crimbo Elf creepy bobble-head	Spooky Damage: +10, Last Available: "2012-12"
 Item	Crimbo light-up Rudolph doll	Sleaze Damage: +10, Last Available: "2012-12"
@@ -2960,11 +2960,11 @@ Item	cement sandals	Initiative: -10, Experience (Muscle): +1, Single Equip, Last
 Item	cement shoes	Mysticality: +20, Moxie: +20, Last Available: "2004-10"
 # ceramic celsiturometer: Deal 60 Hot Damage to a foe and briefly stun them,
 # ceramic celsiturometer: but also make them very angry
-Item	ceramic celsiturometer	Experience (Mysticality): +3, Maximum MP: +30, MP Regen Min: 6, MP Regen Max: 12, Single Equip, Last Available: "2023-12"
+Item	ceramic celsiturometer	Experience (Mysticality): +3, Maximum MP: +30, MP Regen Min: 6, MP Regen Max: 12, Single Equip, Last Available: "2023-12", Conditional Skill (Equipped): "Ceramic Boil"
 # ceramic cerecloth belt: Deal 30 Spooky Damage to a target and weaken them
-Item	ceramic cerecloth belt	Moxie Percent: +20, Initiative: +40, Never Fumble, Single Equip, Last Available: "2023-12"
+Item	ceramic cerecloth belt	Moxie Percent: +20, Initiative: +40, Never Fumble, Single Equip, Last Available: "2023-12", Conditional Skill (Equipped): "Ceramic Skullgaze"
 # ceramic cestus: Punch a foe, dealing 30 damage and briefly stunning them
-Item	ceramic cestus	Muscle Percent: +20, Familiar Weight: +5, Single Equip, Last Available: "2023-12"
+Item	ceramic cestus	Muscle Percent: +20, Familiar Weight: +5, Single Equip, Last Available: "2023-12", Conditional Skill (Equipped): "Ceramic Punch"
 # chalk chain: Weakens enemies who hit you
 Item	chalk chain	Experience (Muscle): +2, Experience (familiar): +1, Single Equip, Last Available: "2019-12"
 # chalk choker: Weakens enemies who hit you
@@ -3017,9 +3017,9 @@ Item	Counterclockwise Watch	Adventures: +10, Single Equip, Nonstackable Watch
 Item	cozy scarf	Cold Resistance: +5, Last Available: "2021-12"
 Item	crank-powered radio on a lanyard	Monster Level: +15, Lasts Until Rollover, Last Available: "2022-05"
 # crepe paper pie clip: Look through it to enhance your spells
-Item	crepe paper pie clip	Mysticality: +10, Hot Damage: +10, Hot Spell Damage: +10, Last Available: "2025-12"
+Item	crepe paper pie clip	Mysticality: +10, Hot Damage: +10, Hot Spell Damage: +10, Last Available: "2025-12", Conditional Skill (Inventory): "Look through your crepe paper pie clip"
 # crepe paper polka charm: Embrace polka and dance for more items
-Item	crepe paper polka charm	Experience (Moxie): +2, Weapon Damage: +10, Spell Damage: +10, Last Available: "2025-12"
+Item	crepe paper polka charm	Experience (Moxie): +2, Weapon Damage: +10, Spell Damage: +10, Last Available: "2025-12", Conditional Skill (Inventory): "Embrace polka"
 # CRIMBCO lanyard: Lets you work harder!
 Item	CRIMBCO lanyard	Single Equip, Last Available: "2011-01"
 Item	Crimbolex watch	Adventures: +5, PvP Fights: +5, Rollover Effect: "Watched Over", Rollover Effect Duration: 100, Single Equip, Last Available: "2018-12", Nonstackable Watch
@@ -4263,7 +4263,7 @@ Item	chalk chlamys	Adventures: +2, Combat Rate: -5, Last Available: "2019-12"
 Item	Cloak of Dire Shadows	Maximum MP: +40, Meat Drop: +10, Muscle Percent: +5, Mysticality Percent: +5, Moxie Percent: +5, Last Available: "2013-02"
 Item	cod cape	Stench Damage: +25, Combat Rate: +5
 # crepe paper parachute cape: Parachute into a battle in a recent zone
-Item	crepe paper parachute cape	Experience (Muscle): +2, Cold Damage: +10, Cold Spell Damage: +10, Last Available: "2025-12"
+Item	crepe paper parachute cape	Experience (Muscle): +2, Cold Damage: +10, Cold Spell Damage: +10, Last Available: "2025-12", Conditional Skill (Inventory): "Parachute into a Fight"
 # cryptocloak: CyberRealm: Avoid damage from processes, once per combat
 Item	cryptocloak	Last Available: "2025-12"
 Item	cursed blanket	Hot Resistance: +3, Cold Resistance: +3, Spooky Resistance: +3, Stench Resistance: +3, Sleaze Resistance: +3, Familiar Weight: -20
