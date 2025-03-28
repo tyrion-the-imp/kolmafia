@@ -238,7 +238,7 @@ Item	fireman's helmet	Hot Resistance: +3, Muscle Percent: +10, Mysticality Perce
 Item	fishin' hat	Fishing Skill: +5, Last Available: "2016-04"
 Item	five-gallon hat	Muscle: +5, Mysticality: +5, Moxie: +5, Experience: +3
 # flagstone fez: Unleash dark rituals on your unsuspecting foes
-Item	flagstone fez	Mysticality Percent: +20, Spooky Damage: +5, Stench Damage: +5, Hot Damage: +5, Cold Damage: +5, Sleaze Damage: +5, Last Available: "2022-12"
+Item	flagstone fez	Mysticality Percent: +20, Spooky Damage: +5, Stench Damage: +5, Hot Damage: +5, Cold Damage: +5, Sleaze Damage: +5, Last Available: "2022-12", Conditional Skill (Equipped): "Flagstone Fez Ritual"
 Item	flaming leaf crown	Cold Resistance: +5, Hot Damage: +10, Hot Spell Damage: +10, Experience: +3, PvP Fights: +3, Adventures: +3
 # flatusaur gasmask: Protects against flatusaurus emissions
 Item	floaty rock helmet	Spell Critical Percent: +10, Familiar Effect: "1xGhuol, cap 25"
@@ -1010,7 +1010,7 @@ Item	filthy hippy poncho	Mysticality: +3
 Item	First Post shirt - Cir Senam	Spooky Damage: +1, Stench Damage: +1, Hot Damage: +1, Cold Damage: +1, Sleaze Damage: +1, Monster Level: +15, PvP Fights: +5, Last Available: "2016-05"
 # fishbone corset: Reduces the level of nearby water
 # flagstone fleece: Lets you flex your muscles
-Item	flagstone fleece	Experience (Moxie): +3, Adventures: +3, Last Available: "2022-12"
+Item	flagstone fleece	Experience (Moxie): +3, Adventures: +3, Last Available: "2022-12", Conditional Skill (Equipped): "Flagstone Fleece Flex"
 Item	flaming pink shirt	Item Drop: +15, Softcore Only, Last Available: "2007-01"
 # flatusaur gasmask: Protects against flatusaurus emissions
 Item	floral print shirt	Mysticality: +5
@@ -1449,7 +1449,7 @@ Item	fish hatchet	Muscle Percent: +100, Weapon Damage: +50, Familiar Weight: +5,
 Item	fish scimitar	Muscle Percent: +5, Weapon Damage Percent: +10
 Item	fish stick	Mysticality Percent: +5, Spell Damage Percent: +15
 # flagstone flail: Lets you clobber your enemies
-Item	flagstone flail	Muscle Percent: +20, Meat Drop: +20, Last Available: "2022-12"
+Item	flagstone flail	Muscle Percent: +20, Meat Drop: +20, Last Available: "2022-12", Conditional Skill (Equipped): "Flagflog"
 # Flail of the Seven Aspects: Handle Doubles as a Turtling Rod
 Item	Flail of the Seven Aspects	Muscle: +15, Never Fumble, Class: "Turtle Tamer", Conditional Skill (Equipped): "Turtle of Seven Tails"
 # flamin' bindle: On Critical: Deals 70-100 <font color=red>Hot Damage</font>
@@ -2326,7 +2326,7 @@ Item	fiberglass fetish	HP Regen Min: 6, HP Regen Max: 10, Stench Resistance: +5,
 Item	fireproof megaphone	Monster Level: +10, Hot Resistance: +2, Last Available: "2015-08"
 # fishbone catcher's mitt: Prevents some items from washing away in the Heavy Rains
 # flagstone flag: Lets you hit your enemies with a big heavy flag
-Item	flagstone flag	Experience (Muscle): +3, Item Drop: +10, Last Available: "2022-12"
+Item	flagstone flag	Experience (Muscle): +3, Item Drop: +10, Last Available: "2022-12", Conditional Skill (Equipped): "Flagellate"
 Item	flaming talons	Weapon Damage: +5, Hot Damage: +5
 Item	fleshy lump	Maximum HP: +20, HP Regen Min: 2, HP Regen Max: 4, Damage Reduction: 3, Last Available: "2016-08"
 Item	flickering flashlight	Item Drop: +15, Last Available: "2020-04"
@@ -3144,8 +3144,8 @@ Item	fishbone fins	Single Equip
 # fishbone kneepads: (Heavy Rains only)
 Item	fishbone kneepads	Initiative: [60*path(Heavy Rains)], Single Equip
 # flagstone flip-flops: Lets you kick your enemies
-Item	flagstone flip-flops	Experience (Mysticality): +3, Initiative: +40, Single Equip, Last Available: "2022-12"
-Item	flagstone fringe	Moxie Percent: +20, PvP Fights: +4, Single Equip, Last Available: "2022-12"
+Item	flagstone flip-flops	Experience (Mysticality): +3, Initiative: +40, Single Equip, Last Available: "2022-12", Conditional Skill (Equipped): "Flagstone Flap Flip"
+Item	flagstone fringe	Moxie Percent: +20, PvP Fights: +4, Single Equip, Last Available: "2022-12", Conditional Skill (Equipped): "Flagstone Foxtrot"
 Item	flapper floppers	Mysticality Percent: +25, Experience (Mysticality): +2, Single Equip
 Item	Flash Liquidizer Ultra Dousing Accessory	Item Drop: +20, Last Available: "2023-06", Conditional Skill (Equipped): "Douse Foe"
 Item	flashing novelty button	Maximum HP: +5, Moxie: -2
