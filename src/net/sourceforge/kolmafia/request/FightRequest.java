@@ -6530,6 +6530,12 @@ public class FightRequest extends GenericRequest {
           continue;
         }
 
+        if (str.startsWith("You notice a button on your doctor bag that you hadn't seen before")) {
+          Preferences.setBoolean("_bloodBagDoctorBag", true);
+          FightRequest.logText(str);
+          continue;
+        }
+
         if (str.startsWith("You can has")) {
           // Adjust for Can Has Cyborger
           str = StringUtilities.singleStringReplace(str, "can has", "gain");
@@ -10235,6 +10241,11 @@ public class FightRequest extends GenericRequest {
       case SkillPool.SHRINK_ENEMY -> {
         increment = 5;
         skillSuccess = true;
+      }
+      case SkillPool.DARK_FEAST -> {
+        if (responseText.contains("blood soaked into your cloake")) {
+          Preferences.setBoolean("_bloodBagCloake", true);
+        }
       }
       case SkillPool.HAMMER_THROW_COMBAT,
           SkillPool.JUGGLE_FIREBALLS_COMBAT,
