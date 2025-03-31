@@ -4067,4 +4067,34 @@ public class FightRequestTest {
       }
     }
   }
+
+  @Test
+  public void canDetectBloodBagFromDoctorBag() {
+    RequestLoggerOutput.startStream();
+    var cleanups = new Cleanups(withFight(), withProperty("_bloodBagDoctorBag", false));
+
+    try (cleanups) {
+      parseCombatData("request/test_fight_lil_doctor_blood_bag.html", "fight.php?action=attack");
+
+      assertThat("_bloodBagDoctorBag", isSetTo(true));
+
+      var text = RequestLoggerOutput.stopStream();
+      assertThat(
+          text,
+          containsString("You notice a button on your doctor bag that you hadn't seen before."));
+    }
+  }
+
+  @Test
+  public void canDetectBloodBagFromCloake() {
+    var cleanups = new Cleanups(withFight(), withProperty("_bloodBagCloake", false));
+
+    try (cleanups) {
+      parseCombatData(
+          "request/test_fight_dark_feast_blood_bag.html",
+          "fight.php?action=skill&whichskill=24000");
+
+      assertThat("_bloodBagCloake", isSetTo(true));
+    }
+  }
 }
