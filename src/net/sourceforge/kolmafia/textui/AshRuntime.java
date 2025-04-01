@@ -227,6 +227,7 @@ public class AshRuntime extends AbstractRuntime {
 
       if (main == null && topScope.getCommandList().isEmpty()) {
         KoLmafia.updateDisplay(MafiaState.ERROR, "Unable to invoke " + functionName);
+		RequestLogger.printLine("Unable to invoke " + functionName);
         return DataTypes.VOID_VALUE;
       }
     }
