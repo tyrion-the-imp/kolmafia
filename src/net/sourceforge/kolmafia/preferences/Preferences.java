@@ -789,29 +789,37 @@ public class Preferences {
       }
       if (!preferenceFilter.contains(name) && isLoggablePref) {
         String message =
-             "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
+             "Preference " + name + " changed from " + Preferences.getString(name);
+        String message2 =
+             "Preference " + name + " changed to " + value;
         String climessage =
             "Preference <b>" + name + "</b> changed from <span style='color:maroon;'>" + Preferences.getString( name ) + "</span> <b>to</b> <span style='color:blue;font-weight:bold;'>" + value + "</span>";
         RequestLogger.printHtml(climessage);
+		//double lines to vastly improve readability
         RequestLogger.updateSessionLog(message);
+        RequestLogger.updateSessionLog(message2);
       }
-	  //filtered props, still give indication of change in session log only
+	  //filtered props, still give indication of change in session log only (currently: disabled)
 	  if (preferenceFilter.contains(name)) {
         String message =
              "Preference [" + name + "] was updated but it is filtered";
         //String climessage =
             //"Preference <b>[" + name + "]</b> was updated but it is filtered";
         //RequestLogger.printHtml(climessage);
-        RequestLogger.updateSessionLog(message);
+        //RequestLogger.updateSessionLog(message);
 	  }
 	  //log aaa prefs to session log even when disabled ie aaa_logTripleAPrefs = false (can only be false for aaa prefs)
 	  else if (!isLoggablePref) {
         String message =
-             "Preference " + name + " changed from " + Preferences.getString(name) + " to " + value;
+             "aaa_Preference " + name + " changed from " + Preferences.getString(name);
+        String message2 =
+			"aaa_Preference " + name + " changed to " + value;
         //String climessage =
             //"Preference <b>[" + name + "]</b> was updated but it is filtered";
         //RequestLogger.printHtml(climessage);
+		//double lines to vastly improve readability
         RequestLogger.updateSessionLog(message);
+        RequestLogger.updateSessionLog(message2);
 	  }
     }
 
