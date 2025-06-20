@@ -2212,6 +2212,9 @@ public class FightRequest extends GenericRequest {
           Preferences.increment("_cyberZone3Turns");
           currentRAM = calculateInitialRAM();
         }
+        case AdventurePool.SMOOCH_ARMY_HQ -> {
+          Preferences.increment("_smoochArmyHQCombats", 1, 50, false);
+        }
       }
 
       // Wearing any piece of papier equipment really messes up the results
@@ -3554,7 +3557,7 @@ public class FightRequest extends GenericRequest {
     Preferences.setBoolean("_lastCombatLost", lost);
 
     if (!won) {
-      QuestManager.updateQuestFightLost(responseText, monsterName);
+      QuestManager.updateQuestFightLost(responseText, monster);
     } else {
       if (responseText.contains("monstermanuel.gif")) {
         GoalManager.updateProgress(GoalManager.GOAL_FACTOID);
@@ -4343,7 +4346,7 @@ public class FightRequest extends GenericRequest {
         }
       }
 
-      QuestManager.updateQuestData(FightRequest.lastResponseText, monsterName);
+      QuestManager.updateQuestData(FightRequest.lastResponseText, monster);
     }
 
     if (KoLCharacter.isEd()) {
