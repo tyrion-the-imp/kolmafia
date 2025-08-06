@@ -26,10 +26,10 @@ public class SetPreferencesCommand extends AbstractCommand {
     int splitIndex = parameters.indexOf("=");
     if (splitIndex == -1) {
       // Allow reading of system properties
-
       if (parameters.startsWith("System.")) {
         RequestLogger.printLine(System.getProperty(parameters.substring(7)));
       } else if (Preferences.isUserEditable(parameters)) {
+        Preferences.warnIfDeprecated(parameters);
         RequestLogger.printLine(Preferences.getString(parameters));
       }
 
@@ -89,6 +89,8 @@ public class SetPreferencesCommand extends AbstractCommand {
       KoLCharacter.recalculateAdjustments();
       KoLCharacter.updateStatus();
     }
+
+    Preferences.warnIfDeprecated(name);
 
     if (Preferences.getString(name).equals(value)) {
       return;
