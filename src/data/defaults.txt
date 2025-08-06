@@ -501,6 +501,7 @@ user	commerceGhostCombats	0	roa
 user	considerShadowNoodles	false
 user	controlRoomUnlock	false
 user	cookbookbatIngredientsCharge	0	roa
+user	coolerYetiMode		roa
 user	counterScript
 user	concertVisited	false	ld
 user	controlPanel1	false
@@ -1113,6 +1114,8 @@ user	lttQuestStageCount	0
 user	maelstromOfLoversBoss		roa
 user	madnessBakeryAvailable	false	roa
 user	makeFriendsMonster
+user	makeHandheldRadiosHardcore	false
+user	makeHandheldRadiosSoftcore	false
 user	makePocketWishesHardcore	false
 user	makePocketWishesSoftcore	false
 user	manaBurnSummonThreshold	10
@@ -1639,6 +1642,7 @@ user	statusWasteProcessing	0
 user	stenchAirportAlways	false
 user	stenchCursedMonster
 user	stillsuitFamiliar
+user	stockCertificateTurn	-1
 user	stopForFixedWanderer	false
 user	stopForUltraRare	true
 user	streamCrossDefaultTarget	ProtonicBot
@@ -1816,6 +1820,9 @@ user	_xenomorphCharge	0
 user	_alienAnimalMilkUsed	false
 user	_alienPlantPodUsed	false
 user	_allYearSucker	false
+user	_alliedRadioDropsUsed	0
+user	_alliedRadioMaterielIntel	false
+user	_alliedRadioWildsunBoon	false
 user	_ancestralRecallCasts	0
 user	_antihangoverBonus	5
 user	_aprilShower	false
@@ -2020,6 +2027,7 @@ user	_cookbookbatCombatsUntilNewQuest	0
 user	_cookbookbatQuestLastLocation
 user	_cookbookbatQuestMonster
 user	_cookbookbatQuestIngredient
+user	_coolerYetiAdventures	false
 user	_corruptedStardustUsed	false
 user	_cosmicBowlingSkillsUsed	0
 user	_cosmicSixPackConjured	false
@@ -2309,6 +2317,7 @@ user	_lastCombatLost	false
 user	_lastCombatStarted
 user	_lastCombatWon	true
 user	_lastDailyDungeonRoom	0
+user	_lastMobiusStripTurn	0
 user	_lastPirateRealmIsland
 user	_lastSausageMonsterTurn	0
 user	_lastZomboEye	0
@@ -2387,6 +2396,7 @@ user	_miniKiwiIntoxicatingSpiritsBought	false
 user	_miniMartiniDrops	0
 user	_missGravesVermouthDrunk	false
 user	_missileLauncherUsed	false
+user	_mobiusStripEncounters	0
 user	_molehillMountainUsed	false
 user	_momFoodReceived	false
 user	_monkeyPawWishesUsed	0
@@ -2653,6 +2663,7 @@ user	_tiedUpFlamingLeafletFought	false
 user	_tiedUpFlamingMonsteraFought	false
 user	_tiedUpLeaviathanFought	false
 user	_timeHelmetAdv	0
+user	_timeCopsFoughtToday	0
 user	_timeSpinnerFoodAvailable
 user	_timeSpinnerMinutesUsed	0
 user	_timeSpinnerReplicatorUsed	false
