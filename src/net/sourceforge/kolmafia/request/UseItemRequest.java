@@ -4777,12 +4777,16 @@ public class UseItemRequest extends GenericRequest {
         // curls out and burns the scroll to ashes.
 
         if (responseText.contains("I guess you're the Mer-kin High Priest now")) {
+          Preferences.setBoolean("isMerkinHighPriest", true);
+          // The following is not applicable in the Sea path
           Preferences.setString("merkinQuestPath", "scholar");
           break;
         }
 
         if (!Preferences.getString("merkinQuestPath").equals("done")
             && responseText.contains("The sigil burned into your forehead")) {
+          Preferences.setBoolean("isMerkinGladiatorChampion", true);
+          // The following is not applicable in the Sea path
           Preferences.setString("merkinQuestPath", "gladiator");
           Preferences.setInteger("lastColosseumRoundWon", 15);
           break;
@@ -6804,6 +6808,11 @@ public class UseItemRequest extends GenericRequest {
         KoLAdventure.locationLogged = true;
         break;
 
+      case ItemPool.DREADSCROLL:
+        useString = "[" + KoLAdventure.getAdventureCount() + "] Mer-kin dreadscroll";
+        KoLAdventure.locationLogged = true;
+        break;
+
       case ItemPool.JACKING_MAP:
         UseItemRequest.lastFruit = null;
         Matcher m = UseItemRequest.FRUIT_TUBING_PATTERN.matcher(urlString);
@@ -7074,6 +7083,7 @@ public class UseItemRequest extends GenericRequest {
           ItemPool.CURSED_PIECE_OF_THIRTEEN,
           ItemPool.DECK_OF_EVERY_CARD,
           ItemPool.DOLPHIN_WHISTLE,
+          ItemPool.DURABLE_DOLPHIN_WHISTLE,
           ItemPool.ENVYFISH_EGG,
           ItemPool.FRATHOUSE_BLUEPRINTS,
           ItemPool.GENIE_BOTTLE,

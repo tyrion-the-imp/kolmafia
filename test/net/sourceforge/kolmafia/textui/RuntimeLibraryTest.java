@@ -19,6 +19,7 @@ import static internal.helpers.Player.withFamiliar;
 import static internal.helpers.Player.withFamiliarInTerrarium;
 import static internal.helpers.Player.withFamiliarInTerrariumWithItem;
 import static internal.helpers.Player.withFight;
+import static internal.helpers.Player.withGlobalDay;
 import static internal.helpers.Player.withHandlingChoice;
 import static internal.helpers.Player.withHardcore;
 import static internal.helpers.Player.withHttpClientBuilder;
@@ -1130,6 +1131,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     }
 
     @Test
+    void numericErrorsWithNone() {
+      String input = "numeric_modifier($item[ring of the Skeleton Lord], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("numeric modifier required"));
+    }
+
+    @Test
     void canCallBooleanWithModifier() {
       String input = "boolean_modifier($item[Brimstone Beret], $modifier[Four Songs])";
       String output = execute(input);
@@ -1141,6 +1149,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     @Test
     void booleanErrorsWithWrongModifierType() {
       String input = "boolean_modifier($item[Brimstone Beret], $modifier[Moxie])";
+      String output = execute(input);
+      assertThat(output, startsWith("boolean modifier required"));
+    }
+
+    @Test
+    void booleanErrorsWithNone() {
+      String input = "boolean_modifier($item[Brimstone Beret], $modifier[none])";
       String output = execute(input);
       assertThat(output, startsWith("boolean modifier required"));
     }
@@ -1165,6 +1180,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     }
 
     @Test
+    void stringErrorsWithNone() {
+      String input = "string_modifier(\"Sign:Marmot\", $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
     void canCallEffectWithModifier() {
       String input = "effect_modifier($item[blackberry polite], $modifier[Effect])";
       String output = execute(input);
@@ -1174,6 +1196,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     @Test
     void effectErrorsWithWrongModifierType() {
       String input = "effect_modifier($item[blackberry polite], $modifier[Meat Drop])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void effectErrorsWithNone() {
+      String input = "effect_modifier($item[blackberry polite], $modifier[none])";
       String output = execute(input);
       assertThat(output, startsWith("string modifier required"));
     }
@@ -1193,6 +1222,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     }
 
     @Test
+    void classErrorsWithNone() {
+      String input = "class_modifier($item[chintzy noodle ring], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
     void canCallSkillWithModifier() {
       String input = "skill_modifier($item[alien source code printout], $modifier[Skill])";
       String output = execute(input);
@@ -1202,6 +1238,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     @Test
     void skillErrorsWithWrongModifierType() {
       String input = "skill_modifier($item[alien source code printout], $modifier[Maximum MP])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void skillErrorsWithNone() {
+      String input = "skill_modifier($item[alien source code printout], $modifier[none])";
       String output = execute(input);
       assertThat(output, startsWith("string modifier required"));
     }
@@ -1223,6 +1266,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     }
 
     @Test
+    void statErrorsWithNone() {
+      String input = "stat_modifier($effect[Stabilizing Oiliness], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
     void canCallMonsterWithModifier() {
       String input = "monster_modifier($effect[A Lovely Day for a Beatnik], $modifier[Avatar])";
       String output = execute(input);
@@ -1232,6 +1282,13 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     @Test
     void monsterErrorsWithWrongModifierType() {
       String input = "monster_modifier($effect[A Lovely Day for a Beatnik], $modifier[Muscle])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void monsterErrorsWithNone() {
+      String input = "monster_modifier($effect[A Lovely Day for a Beatnik], $modifier[none])";
       String output = execute(input);
       assertThat(output, startsWith("string modifier required"));
     }
@@ -2222,6 +2279,44 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
 
         Preferences.deprecationNotices.remove(pref);
       }
+    }
+  }
+
+  @Nested
+  class FuturisticWardrobe {
+    @Test
+    void generatesFuturisticClothingModifiersToday() {
+      // 7600 = 2023-02-12
+      var cleanups = withGlobalDay(7600);
+
+      try (cleanups) {
+        assertThat(
+            execute("futuristic_wardrobe($slot[shirt], 5)").trim(),
+            is(
+                """
+              Returned: aggregate int [modifier]
+              Hot Resistance => 5
+              MP Regen Max => 26
+              MP Regen Min => 15
+              Maximum HP => 92
+              Monster Level => 24
+              Mysticality => 50"""));
+      }
+    }
+
+    @Test
+    void generatesFuturisticClothingModifiersForDay() {
+      assertThat(
+          execute("futuristic_wardrobe(7600, $slot[shirt], 5)").trim(),
+          is(
+              """
+              Returned: aggregate int [modifier]
+              Hot Resistance => 5
+              MP Regen Max => 26
+              MP Regen Min => 15
+              Maximum HP => 92
+              Monster Level => 24
+              Mysticality => 50"""));
     }
   }
 }

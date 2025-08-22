@@ -654,6 +654,7 @@ user	dreadScroll5	0	roa
 user	dreadScroll6	0	roa
 user	dreadScroll7	0	roa
 user	dreadScroll8	0	roa
+user	dreadScrollGuesses		roa
 user	dripAdventuresSinceAscension	0	roa
 user	drippingHallAdventuresSinceAscension	0	roa
 user	drippingHallUnlocked	false
@@ -797,6 +798,21 @@ user	goreCollected	0
 user	gourdItemCount	5
 user	grabCloversHardcore	false
 user	grabCloversSoftcore	true
+user	grandpaUnlockedBlankPrescriptionSheet	false
+user	grandpaUnlockedEelSauce	false
+user	grandpaUnlockedFishyWand	false
+user	grandpaUnlockedGlowingSyringe	false
+user	grandpaUnlockedGroupieSpangles	false
+user	grandpaUnlockedHairOfTheFish	false
+user	grandpaUnlockedHalibut	false
+user	grandpaUnlockedHeavilyInvestedInPunFutures	false
+user	grandpaUnlockedJellyfishGel	false
+user	grandpaUnlockedMarineAquamarine	false
+user	grandpaUnlockedMidgetClownfish	false
+user	grandpaUnlockedSeaRadish	false
+user	grandpaUnlockedTrophyFish	false
+user	grandpaUnlockedWaterPoloCap	false
+user	grandpaUnlockedWaterPoloMitt	false
 user	greyYouPoints	0
 user	grimoire1Summons	0	ld
 user	grimoire2Summons	0	ld
@@ -885,6 +901,8 @@ user	implementGlitchItem	false
 user	intenseCurrents	false	roa
 user	invalidBuffMessage	You sent an amount which does not correspond to a valid buff amount.
 user	ironicSwagger	0
+user	isMerkinGladiatorChampion	false	roa
+user	isMerkinHighPriest	false	roa
 user	itemBoughtPerAscension637	false	roa
 user	itemBoughtPerAscension8266	false	roa
 user	itemBoughtPerAscension10790	false	roa
@@ -1448,6 +1466,7 @@ user	redSnapperPhylum
 user	redSnapperProgress	0	roa
 user	relayChatCLITrigger	cli
 user	relayCounters
+user	relayDecorateJsCommands	true
 user	relayPort	0
 user	relayShowSpoilers	false
 user	relayShowWarnings	true
@@ -1497,6 +1516,7 @@ user	scriptMRULength	0
 user	scriptMRUList
 user	seahorseName		roa
 user	seaodesFound	0	ld
+user	seaPoints	0
 user	SeasoningSwagger	0
 user	serverAddsCustomCombat	false
 user	serverAddsBothCombat	false
@@ -1516,6 +1536,7 @@ user	shrubGarland
 user	shrubGifts
 user	shrubLights
 user	shrubTopper
+user	shubJigguwattDefeated	false	roa
 user	sideDefeated	neither
 user	sidequestArenaCompleted	none
 user	sidequestFarmCompleted	none
@@ -1782,6 +1803,7 @@ user	yearbookCameraAscensions	0
 user	yearbookCameraPending	false	roa
 user	yearbookCameraTarget		roa
 user	yearbookCameraUpgrades	0
+user	yogUrtDefeated	false	roa
 user	yourFavoriteBird
 user	yourFavoriteBirdMods
 user	youRobotBody	0	roa
@@ -2099,6 +2121,7 @@ user	_drippyPilsnerUsed	false
 user	_drippyPlumUsed	false
 user	_drippyWineUsed	false
 user	_drunkPygmyBanishes	0
+user	_durableDolphinWhistleUsed	0
 user	_edDefeats	0
 user	_edLashCount	0
 user	_eldritchHorrorEvoked	false
@@ -3618,6 +3641,7 @@ user	lastNoncombat257	0	roa
 user	lastNoncombat270	0	roa
 user	lastNoncombat273	0	roa
 user	lastNoncombat280	0	roa
+user	lastNoncombat283	0	roa
 user	lastNoncombat297	0	roa
 user	lastNoncombat322	0	roa
 user	lastNoncombat323	0	roa
@@ -3627,12 +3651,16 @@ user	lastNoncombat343	0	roa
 user	lastNoncombat384	0	roa
 user	lastNoncombat386	0	roa
 user	lastNoncombat391	0	roa
+user	lastNoncombat392	0	roa
+user	lastNoncombat394	0	roa
 user	lastNoncombat405	0	roa
 user	lastNoncombat406	0	roa
+user	lastNoncombat408	0	roa
 user	lastNoncombat439	0	roa
 user	lastNoncombat440	0	roa
 user	lastNoncombat441	0	roa
 user	lastNoncombat450	0	roa
+user	lastNoncombat528	0	roa
 user	lastNoncombat533	0	roa
 user	lastNoncombat539	0	roa
 user	lastNoncombat540	0	roa

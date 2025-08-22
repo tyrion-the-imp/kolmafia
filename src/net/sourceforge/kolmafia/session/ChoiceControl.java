@@ -1308,17 +1308,29 @@ public abstract class ChoiceControl {
       case 703 -> {
         // Mer-kin dreadscroll
         if (text.contains("I guess you're the Mer-kin High Priest now")) {
+          Preferences.setBoolean("isMerkinHighPriest", true);
+          // The following is not applicable in the Sea path
           Preferences.setString("merkinQuestPath", "scholar");
           ResultProcessor.processItem(ItemPool.DREADSCROLL, -1);
-          return;
+        } else {
+          DreadScrollManager.recordFailure(urlString, text);
         }
       }
 
-      case 709,
-          // You Beat Shub to a Stub, Bub
-          713,
-          // You Brought Her To Her Kn-kn-kn-kn-knees, Knees.
-          717 -> {
+      case 709 -> {
+        // You Beat Shub to a Stub, Bub
+        Preferences.setBoolean("shubJigguwattDefeated", true);
+        // The following is not applicable in the Sea path
+        Preferences.setString("merkinQuestPath", "done");
+      }
+
+      case 713 -> {
+        // You Brought Her To Her Kn-kn-kn-kn-knees, Knees.
+        Preferences.setBoolean("yogUrtDefeated", true);
+        // The following is not applicable in the Sea path
+        Preferences.setString("merkinQuestPath", "done");
+      }
+      case 717 -> {
         // Over. Over Now.
         Preferences.setString("merkinQuestPath", "done");
       }
@@ -6735,6 +6747,14 @@ public abstract class ChoiceControl {
         // Request Supply Drop
         String req = request.getFormField("request");
         AlliedRadioRequest.postChoice(text, true, req);
+      }
+
+      case 1565 -> {
+        // The Council of Loathing
+        if (text.contains(
+            "You free King Ralph, signalling a triumphant end to your submaritime adventure")) {
+          KoLCharacter.liberateKing();
+        }
       }
     }
   }
