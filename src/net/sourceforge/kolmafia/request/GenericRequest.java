@@ -2206,6 +2206,9 @@ public class GenericRequest implements Runnable {
     } else if (urlString.startsWith("api.php")) {
       ApiRequest.parseResponse(urlString, this.responseText);
       return;
+    } else if (urlString.startsWith("adventure.php")) {
+      // A non-combat
+      this.itemMonster = null;
     }
 
     EventManager.checkForNewEvents(this.responseText);
@@ -2906,6 +2909,7 @@ public class GenericRequest implements Runnable {
         name = "mimic egg";
         ChoiceControl.updateMimicMonsters(location, -1);
         ResultProcessor.processResult(ItemPool.get(ItemPool.MIMIC_EGG, -1));
+        EncounterManager.ignoreSpecialMonsters();
         break;
 
       default:
