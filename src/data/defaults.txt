@@ -1203,6 +1203,7 @@ user	mineState6
 user	miniAdvClass	0	roa
 user	miniKiwiAiolisUsed	0	roa
 user	miniMartinisDrunk	0
+user	mixedBerryJellyUses	0	roa
 user	moleTunnelLevel	0
 user	moonTuned	false	roa
 user	momSeaMonkeeProgress	0	roa
@@ -1514,6 +1515,8 @@ user	screechCombats	0	ld
 user	scriptCascadingMenus	true
 user	scriptMRULength	0
 user	scriptMRUList
+user	seadentConstructKills	0	roa
+user	seadentLevel	1	roa
 user	seahorseName		roa
 user	seaodesFound	0	ld
 user	seaPoints	0
@@ -2574,6 +2577,8 @@ user	_sausageFights	0
 user	_sausagesEaten	0
 user	_sausagesMade	0
 user	_savageBeastMods
+user	_seadentLightningUsed	0
+user	_seadentWaveUsed	false
 user	_seaJellyHarvested	false
 user	_sealFigurineUses	0
 user	_sealScreeches	0

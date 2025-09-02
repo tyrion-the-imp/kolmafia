@@ -547,6 +547,8 @@ public abstract class KoLCharacter {
     if (!KoLCharacter.canEat()) return false;
     // Robots can eat size-0 magical sausages but have no fullness
     if (inRobocore()) return false;
+    // Spies can eat size-0 magical sausages but have no fullness
+    if (inBondcore()) return false;
     // Grey Goo can "eat" things but they don't go into a stomach.
     if (isGreyGoo()) return false;
 
@@ -2835,6 +2837,10 @@ public abstract class KoLCharacter {
         Preferences.increment("garlandUpgrades", 1, 10, false);
         oldPath.incrementPoints(points);
       }
+      case UNDER_THE_SEA -> {
+        // Points incremented when you defeat the Nautical Seaceress,
+        // not when you free the King
+      }
       default -> {
         oldPath.incrementPoints(points);
       }
@@ -3437,7 +3443,7 @@ public abstract class KoLCharacter {
       return false;
     }
 
-    if (KoLCharacter.inNoobcore() || KoLCharacter.inBondcore()) {
+    if (KoLCharacter.inNoobcore()) {
       return false;
     }
 
