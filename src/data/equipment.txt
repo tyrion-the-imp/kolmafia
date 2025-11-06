@@ -2299,6 +2299,7 @@ shadowy seal eye	100	Mus: 35
 Shield of Icy Fate	120	none	shield
 shield of the Skeleton Lord	300	Mus: 50	shield
 Shrub's Premium Baked Beans	50	none	can of beans
+shrunken head	0	none
 signal receiver	0	none
 silver cow creamer	200	Mys: 85
 Silver HP-35 Calculator	0	none
@@ -2546,6 +2547,7 @@ blackberry galoshes	180	Mox: 60
 blackberry moccasins	180	Mys: 75
 blackberry slippers	180	Mys: 75
 Bling of the New Wave	150	Mox: 45
+blood cubic zirconia	100	none
 Blue Diamond of Honesty	200	Mys: 85
 blue glowstick	20	none
 blue plastic baby	20	none

@@ -655,7 +655,20 @@ public class SkillPool {
   public static final int RIGHT_KICK = 7560;
   public static final int PUNCH_OUT_YOUR_FOE = 7561;
   public static final int CREATE_AN_AFTERIMAGE = 7562;
+  public static final int BERET_BLAST = 7563;
+  public static final int BERET_BOAST = 7564;
+  public static final int TRY_TO_REMEMBER = 7567;
   public static final int SEADENT_LIGHTNING = 7568;
+  public static final int BCZ__BLOOD_GEYSER = 7571;
+  public static final int BCZ__REFRACTED_GAZE = 7572;
+  public static final int BCZ__SWEAT_BULLETS = 7573;
+  public static final int BCZ__BLOOD_BATH = 7574;
+  public static final int BCZ__DIAL_IT_UP_TO_11 = 7575;
+  public static final int BCZ__SWEAT_EQUITY = 7576;
+  public static final int BCZ__CREATE_BLOOD_THINNER = 7577;
+  public static final int BCZ__PREPARE_SPINAL_TAPAS = 7578;
+  public static final int BCZ__CRAFT_A_PHEROMONE_COCKTAIL = 7579;
+  public static final int MARK_YOUR_TERRITORY = 7580;
 
   public static final int GOOD_SINGING_VOICE = 11016;
   public static final int BANISHING_SHOUT = 11020;

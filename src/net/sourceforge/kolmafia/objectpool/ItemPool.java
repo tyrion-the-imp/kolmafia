@@ -3939,13 +3939,22 @@ public class ItemPool {
   public static final int ALLIED_RADIO_BACKPACK = 11933;
   public static final int MOBIUS_RING = 11942;
   public static final int HANDHELD_ALLIED_RADIO = 11946;
+  public static final int LIFE_GOALS_PAMPHLET = 11948;
+  public static final int BULLY_BADGE = 11949;
+  public static final int STOCK_CERTIFICATE = 11951;
   public static final int MIXED_BERRY_JELLY = 11952;
+  public static final int CUP_OF_SUGAR = 11954;
+  public static final int SUSIES_CUPCAKE = 11955;
   public static final int CLOCK = 11956;
+  public static final int THE_GUN = 11957;
+  public static final int FANCY_OLD_WINE = 11958;
   public static final int SAND_PENNY = 11961;
   public static final int DURABLE_DOLPHIN_WHISTLE = 11972;
   public static final int MONODENT_OF_THE_SEA = 11975;
   public static final int UNBLEMISHED_PEARL = 11976;
   public static final int DENTADENT = 11977;
+  public static final int PHEROMONE_COCKTAIL = 12045;
+  public static final int SHRUNKEN_HEAD = 12048;
 
   private ItemPool() {}
 

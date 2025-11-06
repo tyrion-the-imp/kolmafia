@@ -6515,7 +6515,6 @@ public class FightRequest extends GenericRequest {
   }
 
   private static void processChildren(final Element node, final TagStatus status) {
-    StringBuffer action = status.action;
     for (Node child : node.childNodes()) {
       if (child instanceof Comment object) {
         FightRequest.processComment(object, status);
@@ -6595,7 +6594,14 @@ public class FightRequest extends GenericRequest {
 
         if (str.startsWith("You notice a button on your doctor bag that you hadn't seen before")) {
           Preferences.setBoolean("_bloodBagDoctorBag", true);
-          FightRequest.logText(str);
+          FightRequest.logText(str, status);
+          continue;
+        }
+
+        if (str.startsWith("Your zombie has taken too much damage, and falls to pieces")) {
+          FightRequest.logText(str, status);
+          // refresh the charpane to get zombie details
+          RequestThread.postRequest(new CharPaneRequest());
           continue;
         }
 
@@ -7107,6 +7113,10 @@ public class FightRequest extends GenericRequest {
     }
 
     if (FightRequest.handleUnblemishedPearlProgress(node, status)) {
+      return;
+    }
+
+    if (FightRequest.handleShrunkenHeadZombieCreation(node, status)) {
       return;
     }
 
@@ -7688,6 +7698,38 @@ public class FightRequest extends GenericRequest {
     FightRequest.logText(text, status);
 
     return true;
+  }
+
+  private static final Pattern OFFHAND_SWAP_PATTERN =
+      Pattern.compile("You pick up your (.+) in your off-hand again");
+
+  private static boolean handleShrunkenHeadZombieCreation(Element node, TagStatus status) {
+    var text = node.wholeText();
+    if (text.startsWith("You toss your shrunken head at your foe")) {
+      FightRequest.logText(text, status);
+
+      // find out which slot has the shrunken head equipped, and unequip it
+      if (EquipmentManager.getEquipment(Slot.OFFHAND).getItemId() == ItemPool.SHRUNKEN_HEAD) {
+        var nextPara = node.nextElementSibling();
+        var equip = EquipmentRequest.UNEQUIP;
+        if (nextPara != null) {
+          Matcher matcher = OFFHAND_SWAP_PATTERN.matcher(nextPara.text());
+          if (matcher.find()) {
+            String itemName = matcher.group(1);
+            equip = ItemPool.get(itemName);
+          }
+        }
+        EquipmentManager.setEquipment(Slot.OFFHAND, equip);
+      } else if (KoLCharacter.getFamiliar().getId() == FamiliarPool.LEFT_HAND
+          && EquipmentManager.getFamiliarItem().getItemId() == ItemPool.SHRUNKEN_HEAD) {
+        EquipmentManager.setEquipment(Slot.FAMILIAR, EquipmentRequest.UNEQUIP);
+      }
+
+      // refresh the charpane to get zombie details
+      RequestThread.postRequest(new CharPaneRequest());
+      return true;
+    }
+    return false;
   }
 
   private static void handleVillainLairRadio(Element node, TagStatus status) {
@@ -9971,6 +10013,12 @@ public class FightRequest extends GenericRequest {
           BanishManager.banishMonster(monster, Banisher.SEADENT_LIGHTNING);
         }
       }
+      case SkillPool.MARK_YOUR_TERRITORY -> {
+        if (responseText.contains("spew a heaping helping of your pheromones") || skillSuccess) {
+          BanishManager.banishMonster(monster, Banisher.MARK_YOUR_TERRITORY);
+          Preferences.decrement("markYourTerritoryCharges");
+        }
+      }
       case SkillPool.POCKET_CRUMBS -> {
         if (responseText.contains("pocket next to the crumbs")) {
           // No casting limit, can drop items up to 10 times a day
@@ -10862,6 +10910,40 @@ public class FightRequest extends GenericRequest {
         if (responseText.contains("absorb all the photons") || skillSuccess) {
           Preferences.decrement("phosphorTracesUses");
           Preferences.setString("_chainedAfterimageMonster", monsterName);
+        }
+      }
+      case SkillPool.BERET_BLAST -> {
+        if (responseText.contains("You focus your decades") || skillSuccess) {
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.BERET_BOAST -> {
+        if (responseText.contains("You brag about your beret until") || skillSuccess) {
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.BCZ__BLOOD_GEYSER -> {
+        if (responseText.contains("shoot blood out of your fingers")
+            || responseText.contains("flow of blood geysers")
+            || responseText.contains("shoot a stream of blood")
+            || skillSuccess) {
+          Preferences.increment("_bczBloodGeyserCasts");
+        }
+      }
+      case SkillPool.BCZ__REFRACTED_GAZE -> {
+        if (responseText.contains("give yourself a spinal tap")
+            || responseText.contains("stab yourself in the spine")
+            || responseText.contains("tap your spinal fluid")
+            || skillSuccess) {
+          Preferences.increment("_bczRefractedGazeCasts");
+        }
+      }
+      case SkillPool.BCZ__SWEAT_BULLETS -> {
+        if (responseText.contains("sweat literal bullets")
+            || responseText.contains("fire off some sweat bullets")
+            || responseText.contains("fire sweat bullets")
+            || skillSuccess) {
+          Preferences.increment("_bczSweatBulletsCasts");
         }
       }
 
