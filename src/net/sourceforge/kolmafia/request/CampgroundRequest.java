@@ -1,6 +1,13 @@
 package net.sourceforge.kolmafia.request;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1071,6 +1078,16 @@ public class CampgroundRequest extends GenericRequest {
         Preferences.decrement("_nightmareFuelCharges");
       }
 
+      if (responseText.contains("onClick='descitem(693029493)'")) {
+        Preferences.increment("_knuckleboneRests", 1, 5);
+        Preferences.increment("_knuckleboneDrops", 1, 100);
+      }
+
+      // It looks like another mini kiwi has sprung up next to your tiny kiwi tipi!
+      if (responseText.contains("next to your tiny kiwi tipi")) {
+        Preferences.setBoolean("_miniKiwiTipiDrop", true);
+      }
+
       handleCinchoRest(responseText);
 
       var m = HOUSING_PATTERN.matcher(responseText);
@@ -1548,9 +1565,10 @@ public class CampgroundRequest extends GenericRequest {
       case 15 -> itemId = ItemPool.GIANT_PILGRIM_HAT;
       case 16 -> itemId = ItemPool.HOUSE_SIZED_MUSHROOM;
       case 17 -> itemId = ItemPool.MINI_KIWI_TIPI;
-      default -> KoLmafia.updateDisplay(
-          MafiaState.ERROR,
-          "Unrecognized housing type (" + CampgroundRequest.currentDwellingLevel + ")!");
+      default ->
+          KoLmafia.updateDisplay(
+              MafiaState.ERROR,
+              "Unrecognized housing type (" + CampgroundRequest.currentDwellingLevel + ")!");
     }
 
     if (itemId != -1) {
@@ -1828,7 +1846,8 @@ public class CampgroundRequest extends GenericRequest {
           ItemPool.SPIRIT_BED,
           ItemPool.SPOOKY_BEDDING,
           ItemPool.STENCH_BEDDING,
-          ItemPool.WET_BLANKET -> true;
+          ItemPool.WET_BLANKET ->
+          true;
       default -> false;
     };
   }

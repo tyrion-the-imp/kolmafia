@@ -27,7 +27,13 @@ import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.OutfitPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
-import net.sourceforge.kolmafia.persistence.*;
+import net.sourceforge.kolmafia.persistence.AdventureDatabase;
+import net.sourceforge.kolmafia.persistence.AdventureSpentDatabase;
+import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
+import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
+import net.sourceforge.kolmafia.persistence.ModifierDatabase;
+import net.sourceforge.kolmafia.persistence.MonsterDatabase;
+import net.sourceforge.kolmafia.persistence.QuestDatabase;
 import net.sourceforge.kolmafia.persistence.QuestDatabase.Quest;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.AdventureRequest;
@@ -102,8 +108,8 @@ public class QuestManager {
     if (redirectLocation != null) {
       if (location.startsWith("adventure")) {
         switch (locationId) {
-          case AdventurePool.PALINDOME -> QuestDatabase.setQuestIfBetter(
-              Quest.PALINDOME, QuestDatabase.STARTED);
+          case AdventurePool.PALINDOME ->
+              QuestDatabase.setQuestIfBetter(Quest.PALINDOME, QuestDatabase.STARTED);
           case AdventurePool.EL_VIBRATO_ISLAND -> handleElVibratoChange(location, "");
         }
       }
@@ -380,7 +386,7 @@ public class QuestManager {
           case "sea_oldman" -> handleSeaChange(location, responseText);
           case "spacegate" -> handleSpacegateChange(location, responseText);
           case "speakeasy" -> handleSpeakeasyChange(responseText);
-            // don't catch town_wrong, town_right, or town_market
+          // don't catch town_wrong, town_right, or town_market
           case "town" -> handleTownChange(location, responseText);
           case "town_right" -> handleTownRightChange(location, responseText);
           case "town_wrong" -> handleTownWrongChange(location, responseText);
@@ -1804,7 +1810,7 @@ public class QuestManager {
    * After we win a fight, some quests may need to be updated. Centralize handling for it here.
    *
    * @param responseText The text from (at least) the winning round of the fight
-   * @param monsterName The monster which <s>died</s>got beaten up.
+   * @param monster The monster which <s>died</s>got beaten up.
    */
   public static void updateQuestData(String responseText, MonsterData monster) {
     if (monster == null) {
@@ -2737,8 +2743,8 @@ public class QuestManager {
   public static void updateQuestItemEquipped(final int itemId) {
     switch (itemId) {
       case ItemPool.GORE_BUCKET -> QuestDatabase.setQuestIfBetter(Quest.GORE, "step1");
-      case ItemPool.MINI_CASSETTE_RECORDER -> QuestDatabase.setQuestIfBetter(
-          Quest.JUNGLE_PUN, "step1");
+      case ItemPool.MINI_CASSETTE_RECORDER ->
+          QuestDatabase.setQuestIfBetter(Quest.JUNGLE_PUN, "step1");
       case ItemPool.GPS_WATCH -> QuestDatabase.setQuestIfBetter(Quest.OUT_OF_ORDER, "step1");
       case ItemPool.TRASH_NET -> QuestDatabase.setQuestIfBetter(Quest.FISH_TRASH, "step1");
       case ItemPool.LUBE_SHOES -> QuestDatabase.setQuestIfBetter(Quest.SUPER_LUBER, "step1");

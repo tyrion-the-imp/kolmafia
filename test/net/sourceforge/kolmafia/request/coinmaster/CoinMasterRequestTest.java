@@ -1,4 +1,4 @@
-package net.sourceforge.kolmafia.request;
+package net.sourceforge.kolmafia.request.coinmaster;
 
 import static internal.helpers.Networking.assertPostRequest;
 import static internal.helpers.Networking.html;
@@ -25,6 +25,7 @@ import net.sourceforge.kolmafia.AscensionPath.Path;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.preferences.Preferences;
+import net.sourceforge.kolmafia.request.GenericRequest;
 import net.sourceforge.kolmafia.request.coinmaster.shop.Crimbo23ElfArmoryRequest;
 import net.sourceforge.kolmafia.request.coinmaster.shop.GeneticFiddlingRequest;
 import net.sourceforge.kolmafia.session.InventoryManager;
@@ -230,7 +231,8 @@ public class CoinMasterRequestTest {
 
         var text = SessionLoggerOutput.stopStream();
 
-        var expected = """
+        var expected =
+            """
     Created an empty checkpoint.
 
     Visiting Elf Guard Armory""";
@@ -267,7 +269,8 @@ public class CoinMasterRequestTest {
         visit.run();
 
         var text = SessionLoggerOutput.stopStream();
-        var expected = """
+        var expected =
+            """
     Visiting Elf Guard Armory""";
 
         assertThat(text, containsString(expected));

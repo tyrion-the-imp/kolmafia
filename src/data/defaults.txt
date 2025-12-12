@@ -694,6 +694,7 @@ user	essenceOfBearAvailable	true
 user	essenceOfBearCost	1000
 user	EVEDirections	LLRLR0
 user	everfullDartPerks		roa
+user	eweItem		roa
 user	expressCardUsed	false	ld
 user	extraCosmeticModifiers
 user	extraRolloverAdventures	0	ld
@@ -720,6 +721,7 @@ user	fistTeachingsSlums	false	roa
 user	fistTeachingsFratHouse	false	roa
 user	fistTeachingsRoad	false	roa
 user	fistTeachingsNinjaSnowmen	false	roa
+user	flagellateFlagonsActive	0 roa
 user	flickeringPixel1	false
 user	flickeringPixel2	false
 user	flickeringPixel3	false
@@ -864,6 +866,7 @@ user	hasMaydayContract	false
 user	hasOven	false	roa
 user	hasRange	false	roa
 user	hasShaker	false	roa
+user	hasShrunkenHead	false
 user	hasSushiMat	false	roa
 user	hasTwinkleVision	false
 user	haveBoxingDaydreamHardcore	false
@@ -1045,6 +1048,9 @@ user	lastQuartetAscension	-1
 user	lastQuartetRequest	0
 user	lastSecondFloorUnlock	-1
 user	lastShadowForgeUnlockAdventure	-1	roa
+user	lastKOLHSArtClassUnlockAdventure	-1	roa
+user	lastKOLHSChemClassUnlockAdventure	-1	roa
+user	lastKOLHSShopClassUnlockAdventure	-1	roa
 user	lastSkateParkReset	-1
 user	lastSlimeVial3885
 user	lastSlimeVial3886
@@ -2083,6 +2089,12 @@ user	_cosmicSixPackConjured	false
 user	_crappyCameraUsed	false
 user	_creepyVoodooDollUsed	false
 user	_crimbo21ColdResistance	0
+user	_crimboPastDailySpecial	false
+user	_crimboPastDailySpecialItem	-1
+user	_crimboPastDailySpecialPrice	0
+user	_crimboPastMedicalGruel	false
+user	_crimboPastPrizeTurkey	false
+user	_crimboPastSmokingPope	false
 user	_crimboTraining	false
 user	_crimboTree	false
 user	_crToday	false
@@ -2195,6 +2207,7 @@ user	_fireworksShopHatBought	false
 user	_fireworksShopEquipmentBought	false
 user	_fireworkUsed	false
 user	_fishyPipeUsed	false
+user	_flagellateFlagonUsed	false
 user	_floristPlantsUsed
 user	_floundryItemCreated	false
 user	_floundryItemUsed	false
@@ -2354,6 +2367,8 @@ user	_kgbTranquilizerDartUses	0
 user	_klawSummons	0
 user	_kloopCharge	0
 user	_kloopDrops	0
+user	_knuckleboneDrops	0
+user	_knuckleboneRests	0
 user	_kolConSixPackUsed	false
 user	_kolhsAdventures	0
 user	_kolhsCutButNotDried	false
@@ -2444,6 +2459,7 @@ user	_mimicEggsDonated	0
 user	_mimicEggsObtained	0
 user	_miniKiwiDrops	0
 user	_miniKiwiIntoxicatingSpiritsBought	false
+user	_miniKiwiTipiDrop	false
 user	_miniMartiniDrops	0
 user	_missGravesVermouthDrunk	false
 user	_missileLauncherUsed	false

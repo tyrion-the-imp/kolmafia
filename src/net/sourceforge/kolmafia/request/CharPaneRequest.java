@@ -164,10 +164,6 @@ public class CharPaneRequest extends GenericRequest {
       return true;
     }
 
-    if (KoLCharacter.getLimitMode() == LimitMode.SPELUNKY) {
-      KoLCharacter.setLimitMode(LimitMode.NONE);
-    }
-
     // We can deduce whether we are in compact charpane mode
 
     CharPaneRequest.compactCharacterPane = responseText.contains("<br>Lvl. ");
@@ -957,10 +953,11 @@ public class CharPaneRequest extends GenericRequest {
     }
 
     switch (effectId) {
-      case EffectPool.BLESSING_OF_THE_BIRD -> ResultProcessor.updateBird(
-          EffectPool.BLESSING_OF_THE_BIRD, effectName, "_birdOfTheDay");
-      case EffectPool.BLESSING_OF_YOUR_FAVORITE_BIRD -> ResultProcessor.updateBird(
-          EffectPool.BLESSING_OF_YOUR_FAVORITE_BIRD, effectName, "yourFavoriteBird");
+      case EffectPool.BLESSING_OF_THE_BIRD ->
+          ResultProcessor.updateBird(EffectPool.BLESSING_OF_THE_BIRD, effectName, "_birdOfTheDay");
+      case EffectPool.BLESSING_OF_YOUR_FAVORITE_BIRD ->
+          ResultProcessor.updateBird(
+              EffectPool.BLESSING_OF_YOUR_FAVORITE_BIRD, effectName, "yourFavoriteBird");
     }
 
     return EffectPool.get(effectId, duration);

@@ -469,7 +469,8 @@ public class ConcoctionDatabase {
           ItemPool.MAYODIOL,
           ItemPool.MAYOSTAT,
           ItemPool.MAYOZAPINE,
-          ItemPool.MAYOFLEX -> true;
+          ItemPool.MAYOFLEX ->
+          true;
       default -> false;
     };
   }
@@ -640,7 +641,7 @@ public class ConcoctionDatabase {
         queue = ConcoctionDatabase.queuedPotions;
         queuedIngredients = ConcoctionDatabase.queuedPotionIngredients;
         break;
-        // Unreachable
+      // Unreachable
       default:
         return null;
     }
@@ -1152,15 +1153,15 @@ public class ConcoctionDatabase {
     }
 
     switch (itemId) {
-        // Items that affect creatability of other items, but
-        // aren't explicitly listed in their recipes:
+      // Items that affect creatability of other items, but
+      // aren't explicitly listed in their recipes:
       case ItemPool.WORTHLESS_TRINKET:
       case ItemPool.WORTHLESS_GEWGAW:
       case ItemPool.WORTHLESS_KNICK_KNACK:
 
-        // Interchangeable ingredients, which might have been missed
-        // by the getKnownUses check because the recipes are set to
-        // use the other possible ingredient:
+      // Interchangeable ingredients, which might have been missed
+      // by the getKnownUses check because the recipes are set to
+      // use the other possible ingredient:
       case ItemPool.SCHLITZ:
       case ItemPool.WILLER:
       case ItemPool.KETCHUP:
@@ -1667,7 +1668,6 @@ public class ConcoctionDatabase {
     permitNoCost(CraftingType.STARCHART);
     permitNoCost(CraftingType.MULTI_USE);
     permitNoCost(CraftingType.SINGLE_USE);
-    permitNoCost(CraftingType.SUGAR_FOLDING);
 
     // Pixel recipes are not available in Kingdom of Exploathing
     if (!KoLCharacter.isKingdomOfExploathing()) {
@@ -1930,41 +1930,6 @@ public class ConcoctionDatabase {
     }
     ConcoctionDatabase.EXCUSE.put(CraftingType.GRANDMA, "You must rescue Grandma first.");
 
-    // KOLHS concoctions are "permitted" so that we can calculate
-    // how many items are allowed given available ingredients
-    // But only in KOLHS!
-    if (KoLCharacter.inHighschool()) {
-      permitNoCost(CraftingType.CHEMCLASS);
-      permitNoCost(CraftingType.ARTCLASS);
-      permitNoCost(CraftingType.SHOPCLASS);
-    }
-    ConcoctionDatabase.EXCUSE.put(
-        CraftingType.CHEMCLASS, "You cannot make that as you are not at school.");
-    ConcoctionDatabase.EXCUSE.put(
-        CraftingType.ARTCLASS, "You cannot make that as you are not at school.");
-    ConcoctionDatabase.EXCUSE.put(
-        CraftingType.SHOPCLASS, "You cannot make that as you are not at school.");
-
-    // Making stuff with Beer Garden ingredients needs
-    permitNoCost(CraftingType.BEER);
-
-    // Making stuff with the Junk Magazine requires the magazine
-    if (InventoryManager.hasItem(ItemPool.WORSE_HOMES_GARDENS)) {
-      permitNoCost(CraftingType.JUNK);
-    }
-    ConcoctionDatabase.EXCUSE.put(
-        CraftingType.JUNK, "You can't make that without a copy of Worse Homes and Gardens.");
-
-    // Making stuff with Winter Garden ingredients is always allowed
-    permitNoCost(CraftingType.WINTER);
-
-    // Making stuff with Rumplestiltskin's Workshop is allowed when have access to it
-    if (Preferences.getString("grimstoneMaskPath").equals("gnome")) {
-      permitNoCost(CraftingType.RUMPLE);
-    }
-    ConcoctionDatabase.EXCUSE.put(
-        CraftingType.RUMPLE, "You need access to Rumplestiltskin's Workshop to make that.");
-
     // You trade tokens to Coin Masters if you have opted in to do so,
 
     if (Preferences.getBoolean("autoSatisfyWithCoinmasters")) {
@@ -2002,15 +1967,6 @@ public class ConcoctionDatabase {
     // Making stuff with globs of melted wax is always allowed
     permitNoCost(CraftingType.WAX);
 
-    // Making stuff with spant chitin/tendons is always allowed
-    permitNoCost(CraftingType.SPANT);
-
-    // Making stuff with Xes/Os is always allowed
-    permitNoCost(CraftingType.XO);
-
-    // Making stuff with Slime is always allowed
-    permitNoCost(CraftingType.SLIEMCE);
-
     // Making stuff with burning newspaper is always allowed
     permitNoCost(CraftingType.NEWSPAPER);
 
@@ -2022,15 +1978,6 @@ public class ConcoctionDatabase {
 
     // Making stuff with grubby wool is always allowed
     permitNoCost(CraftingType.WOOL);
-
-    // Making stuff at The Shadow Forge is only allowed if you have not
-    // spent any adventures since you last encountered it.
-    if (Preferences.getInteger("lastShadowForgeUnlockAdventure") == KoLCharacter.getCurrentRun()) {
-      permitNoCost(CraftingType.SHADOW_FORGE);
-    } else {
-      ConcoctionDatabase.EXCUSE.put(
-          CraftingType.SHADOW_FORGE, "You need to be at The Shadow Forge to make that.");
-    }
 
     // You need a gnome to pick a gnome part and can only do so once per day.
     if (Preferences.getBoolean("_gnomePart")) {
@@ -2113,19 +2060,6 @@ public class ConcoctionDatabase {
       }
     }
     ConcoctionDatabase.EXCUSE.put(CraftingType.JARLS, "You are not an Avatar of Jarlsberg");
-
-    if (Preferences.getBoolean("coldAirportAlways")
-        || Preferences.getBoolean("hotAirportAlways")
-        || Preferences.getBoolean("spookyAirportAlways")
-        || Preferences.getBoolean("stenchAirportAlways")
-        || Preferences.getBoolean("sleazeAirportAlways")
-        || Preferences.getBoolean("_coldAirportToday")
-        || Preferences.getBoolean("_hotAirportToday")
-        || Preferences.getBoolean("_spookyAirportToday")
-        || Preferences.getBoolean("_stenchAirportToday")
-        || Preferences.getBoolean("_sleazeAirportToday")) {
-      permitNoCost(CraftingType.DUTYFREE);
-    }
 
     // It's Crimbo, so allow creation!
     // permitNoCost( CraftingType.CRIMBO16 );
@@ -2428,12 +2362,7 @@ public class ConcoctionDatabase {
       case MALUS -> result.append("Malus of Forethought");
       case JEWELRY -> result.append("Jewelry-making pliers");
       case STARCHART -> result.append("star chart");
-      case SUGAR_FOLDING -> result.append("sugar sheet");
       case PIXEL -> result.append("Crackpot Mystic");
-      case CHEMCLASS -> result.append("Chemistry Class");
-      case ARTCLASS -> result.append("Art Class");
-      case SHOPCLASS -> result.append("Shop Class");
-      case RUMPLE -> result.append("Rumpelstiltskin's Workshop");
       case ROLLING_PIN -> result.append("rolling pin/unrolling pin");
       case GNOME_TINKER -> result.append("Supertinkering");
       case STAFF -> result.append("Rodoric, the Staffcrafter");
@@ -2453,20 +2382,13 @@ public class ConcoctionDatabase {
       case CLIPART -> result.append("Summon Clip Art");
       case JARLS -> result.append("Jarlsberg's Kitchen");
       case GRANDMA -> result.append("Grandma Sea Monkee");
-      case BEER -> result.append("Beer Garden");
-      case JUNK -> result.append("Worse Homes and Gardens");
-      case WINTER -> result.append("Winter Garden");
       case FIVE_D -> result.append("Xiblaxian 5D printer");
       case VYKEA -> result.append("VYKEA");
-      case DUTYFREE -> result.append("Elemental International Airport Duty Free Shop");
       case FLOUNDRY -> result.append("Clan Floundry");
       case TERMINAL -> result.append("Source Terminal");
       case BARREL -> result.append("shrine to the Barrel god");
       case WAX -> result.append("globs of wax");
-      case SPANT -> result.append("spant pieces");
       case SPACEGATE -> result.append("Spacegate Equipment Requisition");
-      case XO -> result.append("XO Shop");
-      case SLIEMCE -> result.append("Mad Sliemce");
       case NEWSPAPER -> result.append("burning newspaper");
       case METEOROID -> result.append("metal meteoroid");
       case SAUSAGE_O_MATIC -> result.append("Kramco Sausage-o-Matic");
@@ -2475,7 +2397,6 @@ public class ConcoctionDatabase {
       case KRINGLE -> result.append("Kringle's workshop");
       case STILLSUIT -> result.append("tiny stillsuit");
       case WOOL -> result.append("grubby wool");
-      case SHADOW_FORGE -> result.append("The Shadow Forge");
       case BURNING_LEAVES -> result.append("Pile of Burning Leaves");
       case TINKERING_BENCH -> result.append("Tinkering Bench");
       case MAYAM -> result.append("Mayam Calendar");
@@ -2615,18 +2536,22 @@ public class ConcoctionDatabase {
 
     for (int i = 0; i < ingredients.length; ++i) {
       switch (ingredients[i].getItemId()) {
-        case ItemPool.SCHLITZ, ItemPool.WILLER -> ingredients[i] =
-            ConcoctionDatabase.getBetterIngredient(
-                ItemPool.SCHLITZ, ItemPool.WILLER, availableIngredients);
-        case ItemPool.KETCHUP, ItemPool.CATSUP -> ingredients[i] =
-            ConcoctionDatabase.getBetterIngredient(
-                ItemPool.KETCHUP, ItemPool.CATSUP, availableIngredients);
-        case ItemPool.DYSPEPSI_COLA, ItemPool.CLOACA_COLA -> ingredients[i] =
-            ConcoctionDatabase.getBetterIngredient(
-                ItemPool.DYSPEPSI_COLA, ItemPool.CLOACA_COLA, availableIngredients);
-        case ItemPool.TITANIUM_UMBRELLA, ItemPool.GOATSKIN_UMBRELLA -> ingredients[i] =
-            ConcoctionDatabase.getBetterIngredient(
-                ItemPool.TITANIUM_UMBRELLA, ItemPool.GOATSKIN_UMBRELLA, availableIngredients);
+        case ItemPool.SCHLITZ, ItemPool.WILLER ->
+            ingredients[i] =
+                ConcoctionDatabase.getBetterIngredient(
+                    ItemPool.SCHLITZ, ItemPool.WILLER, availableIngredients);
+        case ItemPool.KETCHUP, ItemPool.CATSUP ->
+            ingredients[i] =
+                ConcoctionDatabase.getBetterIngredient(
+                    ItemPool.KETCHUP, ItemPool.CATSUP, availableIngredients);
+        case ItemPool.DYSPEPSI_COLA, ItemPool.CLOACA_COLA ->
+            ingredients[i] =
+                ConcoctionDatabase.getBetterIngredient(
+                    ItemPool.DYSPEPSI_COLA, ItemPool.CLOACA_COLA, availableIngredients);
+        case ItemPool.TITANIUM_UMBRELLA, ItemPool.GOATSKIN_UMBRELLA ->
+            ingredients[i] =
+                ConcoctionDatabase.getBetterIngredient(
+                    ItemPool.TITANIUM_UMBRELLA, ItemPool.GOATSKIN_UMBRELLA, availableIngredients);
       }
     }
     return ingredients;
@@ -2678,177 +2603,171 @@ public class ConcoctionDatabase {
     // Items anybody can create using meat paste or The Plunger
     switch (mix) {
       case "COMBINE" -> ConcoctionDatabase.mixingMethod = CraftingType.COMBINE;
-        // Items anybody can create with an E-Z Cook Oven or Dramatic Range
+      // Items anybody can create with an E-Z Cook Oven or Dramatic Range
       case "COOK" -> ConcoctionDatabase.mixingMethod = CraftingType.COOK;
-        // Items anybody can create with a Shaker or Cocktailcrafting Kit
+      // Items anybody can create with a Shaker or Cocktailcrafting Kit
       case "MIX" -> ConcoctionDatabase.mixingMethod = CraftingType.MIX;
-        // Items anybody can create with a tenderizing hammer or via Innabox
+      // Items anybody can create with a tenderizing hammer or via Innabox
       case "SMITH" -> ConcoctionDatabase.mixingMethod = CraftingType.SMITH;
-        // Items that can only be created with a tenderizing hammer, not via Innabox
+      // Items that can only be created with a tenderizing hammer, not via Innabox
       case "SSMITH" -> ConcoctionDatabase.mixingMethod = CraftingType.SSMITH;
-        // Items requiring access to Nash Crosby's Still
+      // Items requiring access to Nash Crosby's Still
       case "STILL" -> ConcoctionDatabase.mixingMethod = CraftingType.STILL;
-        // Items requiring access to the Malus of Forethought
+      // Items requiring access to the Malus of Forethought
       case "MALUS" -> ConcoctionDatabase.mixingMethod = CraftingType.MALUS;
-        // Items anybody can create with jewelry-making pliers
+      // Items anybody can create with jewelry-making pliers
       case "JEWEL" -> ConcoctionDatabase.mixingMethod = CraftingType.JEWELRY;
-        // Items anybody can create with starcharts, stars, and lines
+      // Items anybody can create with starcharts, stars, and lines
       case "STAR" -> ConcoctionDatabase.mixingMethod = CraftingType.STARCHART;
-        // Items anybody can create by folding sugar sheets
-      case "SUGAR" -> ConcoctionDatabase.mixingMethod = CraftingType.SUGAR_FOLDING;
-        // Items anybody can create with pixels
+      // Items anybody can create with pixels
       case "PIXEL" -> ConcoctionDatabase.mixingMethod = CraftingType.PIXEL;
-        // Items anybody can create in KOLHS
-      case "CHEMCLASS" -> ConcoctionDatabase.mixingMethod = CraftingType.CHEMCLASS;
-      case "ARTCLASS" -> ConcoctionDatabase.mixingMethod = CraftingType.ARTCLASS;
-      case "SHOPCLASS" -> ConcoctionDatabase.mixingMethod = CraftingType.SHOPCLASS;
-        // Items created with a rolling pin or and an unrolling pin
+      // Items created with a rolling pin or and an unrolling pin
       case "ROLL" -> ConcoctionDatabase.mixingMethod = CraftingType.ROLLING_PIN;
-        // Items requiring access to the Gnome supertinker
+      // Items requiring access to the Gnome supertinker
       case "TINKER" -> ConcoctionDatabase.mixingMethod = CraftingType.GNOME_TINKER;
-        // Items requiring access to Roderick the Staffmaker
+      // Items requiring access to Roderick the Staffmaker
       case "STAFF" -> ConcoctionDatabase.mixingMethod = CraftingType.STAFF;
-        // Items anybody can create with a sushi-rolling mat
+      // Items anybody can create with a sushi-rolling mat
       case "SUSHI" -> ConcoctionDatabase.mixingMethod = CraftingType.SUSHI;
-        // Items created by single (or multi) using a single item.
-        // Extra ingredients might also be consumed.
-        // Multi-using multiple of the item creates multiple results.
+      // Items created by single (or multi) using a single item.
+      // Extra ingredients might also be consumed.
+      // Multi-using multiple of the item creates multiple results.
       case "SUSE" -> ConcoctionDatabase.mixingMethod = CraftingType.SINGLE_USE;
-        // Items created by multi-using specific # of a single item.
-        // Extra ingredients might also be consumed.
-        // You must create multiple result items one at a time.
+      // Items created by multi-using specific # of a single item.
+      // Extra ingredients might also be consumed.
+      // You must create multiple result items one at a time.
       case "MUSE" -> ConcoctionDatabase.mixingMethod = CraftingType.MULTI_USE;
       case "SEWER" -> ConcoctionDatabase.mixingMethod = CraftingType.SEWER;
-        // Items formerly creatable in Crimbo Town during Crimbo 2005
+      // Items formerly creatable in Crimbo Town during Crimbo 2005
       case "CRIMBO05" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO05;
-        // Items formerly creatable in Crimbo Town during Crimbo 2006
+      // Items formerly creatable in Crimbo Town during Crimbo 2006
       case "CRIMBO06" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO06;
-        // Items formerly creatable in Crimbo Town during Crimbo 2007
+      // Items formerly creatable in Crimbo Town during Crimbo 2007
       case "CRIMBO07" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO07;
-        // Items formerly creatable in Crimbo Town during Crimbo 2012
+      // Items formerly creatable in Crimbo Town during Crimbo 2012
       case "CRIMBO12" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO12;
-        // Items creatable in Crimbo Town during Crimbo 2016
+      // Items creatable in Crimbo Town during Crimbo 2016
       case "CRIMBO16" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO16;
-        // Items requiring access to Phineas
+      // Items requiring access to Phineas
       case "PHINEAS" -> ConcoctionDatabase.mixingMethod = CraftingType.PHINEAS;
-        // Items that require a Dramatic Range
+      // Items that require a Dramatic Range
       case "COOK_FANCY" -> ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
-        // Items that require a Cocktailcrafting Kit
+      // Items that require a Cocktailcrafting Kit
       case "MIX_FANCY" -> ConcoctionDatabase.mixingMethod = CraftingType.MIX_FANCY;
-        // Un-untinkerable Meatpasting
+      // Un-untinkerable Meatpasting
       case "ACOMBINE" -> ConcoctionDatabase.mixingMethod = CraftingType.ACOMBINE;
-        // Summon Clip Art items
+      // Summon Clip Art items
       case "CLIPART" -> ConcoctionDatabase.mixingMethod = CraftingType.CLIPART;
       case "MALE" -> ConcoctionDatabase.requirements.add(CraftingRequirements.MALE);
       case "FEMALE" -> ConcoctionDatabase.requirements.add(CraftingRequirements.FEMALE);
-        // Can only be made on St. Sneaky Pete's Day
+      // Can only be made on St. Sneaky Pete's Day
       case "SSPD" -> ConcoctionDatabase.requirements.add(CraftingRequirements.SSPD);
-        // Requires tenderizing hammer (implied for SMITH & SSMITH)
+      // Requires tenderizing hammer (implied for SMITH & SSMITH)
       case "HAMMER" -> ConcoctionDatabase.requirements.add(CraftingRequirements.HAMMER);
-        // Requires depleted Grimacite hammer
+      // Requires depleted Grimacite hammer
       case "GRIMACITE" -> ConcoctionDatabase.requirements.add(CraftingRequirements.GRIMACITE);
-        // Requires Torso Awareness
+      // Requires Torso Awareness
       case "TORSO" -> ConcoctionDatabase.requirements.add(CraftingRequirements.TORSO);
-        // Requires Super-Advanced Meatsmithing
+      // Requires Super-Advanced Meatsmithing
       case "WEAPON" -> ConcoctionDatabase.requirements.add(CraftingRequirements.SUPER_MEATSMITHING);
-        // Requires Armorcraftiness
+      // Requires Armorcraftiness
       case "ARMOR" -> ConcoctionDatabase.requirements.add(CraftingRequirements.ARMORCRAFTINESS);
-        // Requires Eldritch Intellect
+      // Requires Eldritch Intellect
       case "ELDRITCH" -> ConcoctionDatabase.requirements.add(CraftingRequirements.ELDRITCH);
-        // Requires Really Expensive Jewelrycrafting
+      // Requires Really Expensive Jewelrycrafting
       case "EXPENSIVE" -> ConcoctionDatabase.requirements.add(CraftingRequirements.EXPENSIVE);
-        // Requires Advanced Saucecrafting
+      // Requires Advanced Saucecrafting
       case "REAGENT" -> ConcoctionDatabase.requirements.add(CraftingRequirements.REAGENT);
-        // Requires The Way of Sauce
+      // Requires The Way of Sauce
       case "WAY" -> ConcoctionDatabase.requirements.add(CraftingRequirements.WAY);
-        // Requires Deep Saucery
+      // Requires Deep Saucery
       case "DEEP" -> ConcoctionDatabase.requirements.add(CraftingRequirements.DEEP_SAUCERY);
-        // Requires Pastamastery but not dry noodles
+      // Requires Pastamastery but not dry noodles
       case "PASTAMASTERY" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK;
         ConcoctionDatabase.requirements.add(CraftingRequirements.PASTA);
       }
-        // Items requiring Pastamastery
+      // Items requiring Pastamastery
       case "PASTA" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.PASTA);
       }
-        // Requires Transcendental Noodlecraft
-        // Requires Tempuramancy
+      // Requires Transcendental Noodlecraft
+      // Requires Tempuramancy
       case "TEMPURAMANCY" -> ConcoctionDatabase.requirements.add(CraftingRequirements.TEMPURAMANCY);
-        // Requires Patent Medicine
+      // Requires Patent Medicine
       case "PATENT" -> ConcoctionDatabase.requirements.add(CraftingRequirements.PATENT);
-        // Requires Advanced Cocktailcrafting
+      // Requires Advanced Cocktailcrafting
       case "AC" -> ConcoctionDatabase.requirements.add(CraftingRequirements.AC);
-        // Requires Superhuman Cocktailcrafting
+      // Requires Superhuman Cocktailcrafting
       case "SHC" -> ConcoctionDatabase.requirements.add(CraftingRequirements.SHC);
-        // Requires Salacious Cocktailcrafting
+      // Requires Salacious Cocktailcrafting
       case "SALACIOUS" -> ConcoctionDatabase.requirements.add(CraftingRequirements.SALACIOUS);
-        // Items creatable only if not on Bees Hate You path
+      // Items creatable only if not on Bees Hate You path
       case "NOBEE" -> ConcoctionDatabase.requirements.add(CraftingRequirements.NOBEE);
-        // Saucerors make 3 of this item at a time
+      // Saucerors make 3 of this item at a time
       case "SX3" -> ConcoctionDatabase.info.add(CraftingMisc.TRIPLE_SAUCE);
-        // Recipe unexpectedly does not appear in Discoveries, even though
-        // it uses a discoverable crafting type
+      // Recipe unexpectedly does not appear in Discoveries, even though
+      // it uses a discoverable crafting type
       case "NODISCOVERY" -> ConcoctionDatabase.info.add(CraftingMisc.NODISCOVERY);
-        // Recipe should never be used automatically
+      // Recipe should never be used automatically
       case "MANUAL" -> ConcoctionDatabase.info.add(CraftingMisc.MANUAL);
-        // Items requiring Transcendental Noodlecraft
+      // Items requiring Transcendental Noodlecraft
       case "TNOODLE", "TRANSNOODLE" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.TRANSNOODLE);
       }
-        // Items requiring Tempuramancy
+      // Items requiring Tempuramancy
       case "TEMPURA" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.TEMPURAMANCY);
       }
-        // Items requiring Super-Advanced Meatsmithing
+      // Items requiring Super-Advanced Meatsmithing
       case "WSMITH" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.SSMITH;
         ConcoctionDatabase.requirements.add(CraftingRequirements.SUPER_MEATSMITHING);
       }
-        // Items requiring Armorcraftiness
+      // Items requiring Armorcraftiness
       case "ASMITH" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.SSMITH;
         ConcoctionDatabase.requirements.add(CraftingRequirements.ARMORCRAFTINESS);
       }
-        // Items requiring Advanced Cocktailcrafting
+      // Items requiring Advanced Cocktailcrafting
       case "ACOCK" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.MIX_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.AC);
       }
-        // Items requiring Superhuman Cocktailcrafting
+      // Items requiring Superhuman Cocktailcrafting
       case "SCOCK" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.MIX_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.SHC);
       }
-        // Items requiring Salacious Cocktailcrafting
+      // Items requiring Salacious Cocktailcrafting
       case "SACOCK" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.MIX_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.SALACIOUS);
       }
-        // Items requiring Tiki Mixology
+      // Items requiring Tiki Mixology
       case "TIKI" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.MIX;
         ConcoctionDatabase.requirements.add(CraftingRequirements.TIKI);
       }
-        // Items requiring pliers and Really Expensive Jewelrycrafting
+      // Items requiring pliers and Really Expensive Jewelrycrafting
       case "EJEWEL" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.JEWELRY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.EXPENSIVE);
       }
-        // Items requiring Advanced Saucecrafting
+      // Items requiring Advanced Saucecrafting
       case "SAUCE" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.REAGENT);
       }
-        // Items requiring The Way of Sauce
+      // Items requiring The Way of Sauce
       case "SSAUCE" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.WAY);
       }
-        // Items requiring Deep Saucery
+      // Items requiring Deep Saucery
       case "DSAUCE" -> {
         ConcoctionDatabase.mixingMethod = CraftingType.COOK_FANCY;
         ConcoctionDatabase.requirements.add(CraftingRequirements.DEEP_SAUCERY);
@@ -2892,19 +2811,11 @@ public class ConcoctionDatabase {
       }
       case "GRANDMA" -> ConcoctionDatabase.mixingMethod = CraftingType.GRANDMA;
       case "KRINGLE" -> ConcoctionDatabase.mixingMethod = CraftingType.KRINGLE;
-      case "BEER" -> ConcoctionDatabase.mixingMethod = CraftingType.BEER;
-      case "JUNK" -> ConcoctionDatabase.mixingMethod = CraftingType.JUNK;
-      case "WINTER" -> ConcoctionDatabase.mixingMethod = CraftingType.WINTER;
-      case "RUMPLE" -> ConcoctionDatabase.mixingMethod = CraftingType.RUMPLE;
       case "5D" -> ConcoctionDatabase.mixingMethod = CraftingType.FIVE_D;
       case "VYKEA" -> ConcoctionDatabase.mixingMethod = CraftingType.VYKEA;
-      case "DUTYFREE" -> ConcoctionDatabase.mixingMethod = CraftingType.DUTYFREE;
       case "TERMINAL" -> ConcoctionDatabase.mixingMethod = CraftingType.TERMINAL;
       case "BARREL" -> ConcoctionDatabase.mixingMethod = CraftingType.BARREL;
       case "WAX" -> ConcoctionDatabase.mixingMethod = CraftingType.WAX;
-      case "SPANT" -> ConcoctionDatabase.mixingMethod = CraftingType.SPANT;
-      case "XOSHOP" -> ConcoctionDatabase.mixingMethod = CraftingType.XO;
-      case "SLIEMCE" -> ConcoctionDatabase.mixingMethod = CraftingType.SLIEMCE;
       case "SPACEGATE" -> ConcoctionDatabase.mixingMethod = CraftingType.SPACEGATE;
       case "NEWSPAPER" -> ConcoctionDatabase.mixingMethod = CraftingType.NEWSPAPER;
       case "METEOROID" -> ConcoctionDatabase.mixingMethod = CraftingType.METEOROID;
@@ -2912,7 +2823,6 @@ public class ConcoctionDatabase {
       case "FANTASY_REALM" -> ConcoctionDatabase.mixingMethod = CraftingType.FANTASY_REALM;
       case "STILLSUIT" -> ConcoctionDatabase.mixingMethod = CraftingType.STILLSUIT;
       case "WOOL" -> ConcoctionDatabase.mixingMethod = CraftingType.WOOL;
-      case "SHADOW_FORGE" -> ConcoctionDatabase.mixingMethod = CraftingType.SHADOW_FORGE;
       case "BURNING_LEAVES" -> ConcoctionDatabase.mixingMethod = CraftingType.BURNING_LEAVES;
       case "TINKERING_BENCH" -> ConcoctionDatabase.mixingMethod = CraftingType.TINKERING_BENCH;
       case "MAYAM" -> ConcoctionDatabase.mixingMethod = CraftingType.MAYAM;

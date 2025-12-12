@@ -2,10 +2,25 @@ package net.sourceforge.kolmafia.persistence;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
-import net.sourceforge.kolmafia.*;
+import net.sourceforge.kolmafia.AdventureResult;
+import net.sourceforge.kolmafia.AscensionClass;
+import net.sourceforge.kolmafia.KoLCharacter;
+import net.sourceforge.kolmafia.KoLConstants;
+import net.sourceforge.kolmafia.PastaThrallData;
+import net.sourceforge.kolmafia.RequestLogger;
+import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.equipment.Slot;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
@@ -134,26 +149,29 @@ public class SkillDatabase {
             SkillPool.TASTEFUL,
             SkillPool.CARDS,
             SkillPool.GEEKY,
-            SkillPool.CONFISCATOR -> Category.MR_SKILLS;
+            SkillPool.CONFISCATOR ->
+            Category.MR_SKILLS;
         case SkillPool.OBSERVATIOGN,
             SkillPool.GNEFARIOUS_PICKPOCKETING,
             SkillPool.TORSO,
             SkillPool.GNOMISH_HARDINESS,
-            SkillPool.COSMIC_UNDERSTANDING -> Category.GNOME_SKILLS;
+            SkillPool.COSMIC_UNDERSTANDING ->
+            Category.GNOME_SKILLS;
         case SkillPool.LUST,
             SkillPool.GLUTTONY,
             SkillPool.GREED,
             SkillPool.SLOTH,
             SkillPool.WRATH,
             SkillPool.ENVY,
-            SkillPool.PRIDE -> Category.BAD_MOON;
+            SkillPool.PRIDE ->
+            Category.BAD_MOON;
         case SkillPool.MUG_FOR_THE_AUDIENCE -> Category.AVATAR_OF_SNEAKY_PETE;
         default ->
 
-        // Moxious maneuver has a 7000 id, but
-        // it's not gained by equipment.
+            // Moxious maneuver has a 7000 id, but
+            // it's not gained by equipment.
 
-        Category.VALUES[categoryId];
+            Category.VALUES[categoryId];
       };
     }
   }
@@ -750,7 +768,8 @@ public class SkillDatabase {
           SkillPool.BRICKOS,
           SkillPool.DICE,
           SkillPool.RESOLUTIONS,
-          SkillPool.TAFFY -> true;
+          SkillPool.TAFFY ->
+          true;
       default -> false;
     };
   }
@@ -765,7 +784,8 @@ public class SkillDatabase {
           SkillPool.DART_PART6,
           SkillPool.DART_PART7,
           SkillPool.DART_PART8,
-          SkillPool.DART_BULLSEYE -> true;
+          SkillPool.DART_BULLSEYE ->
+          true;
       default -> false;
     };
   }
@@ -1228,11 +1248,12 @@ public class SkillDatabase {
           SkillPool.MIST_FORM,
           SkillPool.SPECTRAL_AWARENESS,
           SkillPool.WOLF_FORM,
-          SkillPool.BLOOD_BUCATINI -> 10;
+          SkillPool.BLOOD_BUCATINI ->
+          10;
       case SkillPool.PERCEIVE_SOUL -> 15;
       case SkillPool.BALEFUL_HOWL, SkillPool.ENSORCEL -> 30;
 
-        // Vampyre Book Skills
+      // Vampyre Book Skills
       case SkillPool.BLOOD_FRENZY, SkillPool.BLOOD_BOND, SkillPool.BLOOD_BUBBLE -> 30;
       case SkillPool.BLOOD_BLADE, SkillPool.BRAMS_BLOODY_BAGATELLE -> 50;
       default -> 0;
@@ -1243,10 +1264,12 @@ public class SkillDatabase {
     return switch (skillId) {
       case SkillPool.HAMMER_THROW_COMBAT,
           SkillPool.JUGGLE_FIREBALLS_COMBAT,
-          SkillPool.SPIN_JUMP_COMBAT -> 1;
+          SkillPool.SPIN_JUMP_COMBAT ->
+          1;
       case SkillPool.ULTRA_SMASH_COMBAT,
           SkillPool.FIREBALL_BARRAGE_COMBAT,
-          SkillPool.MULTI_BOUNCE_COMBAT -> 2;
+          SkillPool.MULTI_BOUNCE_COMBAT ->
+          2;
       default -> 0;
     };
   }
@@ -1291,7 +1314,8 @@ public class SkillDatabase {
           SkillPool.RECRUIT_ZOMBIE,
           SkillPool.CHECK_MIRROR,
           SkillPool.RAIN_MAN,
-          SkillPool.EVOKE_ELDRITCH_HORROR -> 1;
+          SkillPool.EVOKE_ELDRITCH_HORROR ->
+          1;
       default -> 0;
     };
   }
@@ -1715,7 +1739,8 @@ public class SkillDatabase {
           SkillPool.COMPRESS,
           SkillPool.DUPLICATE,
           SkillPool.PORTSCAN,
-          SkillPool.TURBO -> true;
+          SkillPool.TURBO ->
+          true;
       default -> false;
     };
   }

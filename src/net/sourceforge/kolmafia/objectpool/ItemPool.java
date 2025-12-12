@@ -597,6 +597,7 @@ public class ItemPool {
   public static final int VANGOGHBITUSSIN = 1950;
   public static final int PINOT_RENOIR = 1951;
   public static final int FLAT_CHAMPAGNE = 1953;
+  public static final int SNIFTER_BRANDY = 1956;
   public static final int QUILL_PEN = 1957;
   public static final int INKWELL = 1958;
   public static final int SCRAP_OF_PAPER = 1959;
@@ -656,6 +657,7 @@ public class ItemPool {
   public static final int CALAVERA_CONCERTINA = 2234;
   public static final int TURTLE_PHEROMONES = 2236;
   public static final int PHOTOGRAPH_OF_GOD = 2259;
+  public static final int LION_OIL = 2263;
   public static final int WET_STUNT_NUT_STEW = 2266;
   public static final int MEGA_GEM = 2267;
   public static final int STAFF_OF_FATS = 2268;
@@ -1153,6 +1155,7 @@ public class ItemPool {
   public static final int PARASITIC_HEADGNAWER = 3626;
   public static final int PARASITIC_STRANGLEWORM = 3627;
   public static final int BURROWGRUB_HIVE = 3629;
+  public static final int ELVEN_SOCKS = 3633;
   public static final int JAMFISH_JAM = 3641;
   public static final int DRAGONFISH_CAVIAR = 3642;
   public static final int GRIMACITE_KNEECAPPING_STICK = 3644;
@@ -3854,6 +3857,7 @@ public class ItemPool {
   public static final int MINI_KIWI_TIPI = 11600;
   public static final int MINI_KIWI_INTOXICATING_SPIRITS = 11602;
   public static final int ROMAN_CANDELABRA = 11609;
+  public static final int FLAGELLATE_FLAGON = 11616;
   public static final int SYNAPTIC_SOUP = 11621;
   public static final int MUSCULAR_SOUP = 11622;
   public static final int FLAGELLATE_SOUP = 11623;
@@ -3955,6 +3959,10 @@ public class ItemPool {
   public static final int DENTADENT = 11977;
   public static final int PHEROMONE_COCKTAIL = 12045;
   public static final int SHRUNKEN_HEAD = 12048;
+  public static final int KNUCKLEBONE = 12051;
+  public static final int SMOKING_POPE = 12052;
+  public static final int PRIZE_TURKEY = 12053;
+  public static final int MEDICAL_GRUEL = 12054;
 
   private ItemPool() {}
 
