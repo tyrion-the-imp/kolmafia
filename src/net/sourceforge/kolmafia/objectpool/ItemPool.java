@@ -373,6 +373,7 @@ public class ItemPool {
   public static final int PREGNANT_STINKY_MUSHROOM = 1120;
   public static final int INEXPLICABLY_GLOWING_ROCK = 1121;
   public static final int SPOOKY_GLOVE = 1125;
+  public static final int STAR_SHIRT = 1133;
   public static final int SPOOKY_BICYCLE_CHAIN = 1137;
   public static final int FLAMING_MUSHROOM_WINE = 1139;
   public static final int ICY_MUSHROOM_WINE = 1140;
@@ -2518,6 +2519,13 @@ public class ItemPool {
   public static final int XIBLAXIAN_SCHEMATIC_WHISKEY = 7747;
   public static final int XIBLAXIAN_SCHEMATIC_RESIDENCE = 7748;
   public static final int XIBLAXIAN_SCHEMATIC_GOGGLES = 7749;
+  public static final int XIBLAXIAN_XENO_GOGGLES = 7752;
+  public static final int XIBLAXIAN_STEALTH_COWL = 7753;
+  public static final int XIBLAXIAN_STEALTH_TROUSERS = 7754;
+  public static final int XIBLAXIAN_STEALTH_VEST = 7755;
+  public static final int XIBLAXIAN_ULTRABURRITO = 7756;
+  public static final int XIBLAXIAN_SPACE_WHISKEY = 7757;
+  public static final int XIBLAXIAN_RESIDENCE_CUBE = 7758;
   public static final int FIVE_D_PRINTER = 7750;
   public static final int RESIDENCE_CUBE = 7758;
   public static final int XIBLAXIAN_HOLOWRIST_PUTER = 7765;

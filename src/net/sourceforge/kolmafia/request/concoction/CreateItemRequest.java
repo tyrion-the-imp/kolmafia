@@ -31,13 +31,8 @@ import net.sourceforge.kolmafia.request.PulverizeRequest;
 import net.sourceforge.kolmafia.request.PurchaseRequest;
 import net.sourceforge.kolmafia.request.UseItemRequest;
 import net.sourceforge.kolmafia.request.concoction.shop.Crimbo12Request;
-import net.sourceforge.kolmafia.request.concoction.shop.Crimbo16Request;
-import net.sourceforge.kolmafia.request.concoction.shop.FiveDPrinterRequest;
-import net.sourceforge.kolmafia.request.concoction.shop.GrandmaRequest;
 import net.sourceforge.kolmafia.request.concoction.shop.JarlsbergRequest;
-import net.sourceforge.kolmafia.request.concoction.shop.KringleRequest;
 import net.sourceforge.kolmafia.request.concoction.shop.PixelRequest;
-import net.sourceforge.kolmafia.request.concoction.shop.StarChartRequest;
 import net.sourceforge.kolmafia.request.concoction.shop.StillRequest;
 import net.sourceforge.kolmafia.request.concoction.shop.TinkeringBenchRequest;
 import net.sourceforge.kolmafia.session.EquipmentManager;
@@ -220,7 +215,6 @@ public class CreateItemRequest extends GenericRequest implements Comparable<Crea
     return switch (conc.getMixingMethod()) {
       case NOCREATE -> null;
       case STILL -> new StillRequest(conc);
-      case STARCHART -> new StarChartRequest(conc);
       case PIXEL -> new PixelRequest(conc);
       case GNOME_TINKER -> new GnomeTinkerRequest(conc);
       case STAFF -> new ChefStaffRequest(conc);
@@ -232,13 +226,9 @@ public class CreateItemRequest extends GenericRequest implements Comparable<Crea
       case CRIMBO06 -> new Crimbo06Request(conc);
       case CRIMBO07 -> new Crimbo07Request(conc);
       case CRIMBO12 -> new Crimbo12Request(conc);
-      case CRIMBO16 -> new Crimbo16Request(conc);
       case PHINEAS -> new PhineasRequest(conc);
       case CLIPART -> new ClipArtRequest(conc);
       case JARLS -> new JarlsbergRequest(conc);
-      case GRANDMA -> new GrandmaRequest(conc);
-      case KRINGLE -> new KringleRequest(conc);
-      case FIVE_D -> new FiveDPrinterRequest(conc);
       case VYKEA -> new VYKEARequest(conc);
       case FLOUNDRY -> new FloundryRequest(conc);
       case TERMINAL -> new TerminalExtrudeRequest(conc);

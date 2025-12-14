@@ -468,7 +468,6 @@ public interface KoLConstants extends UtilityConstants {
     STILL, // Items requiring access to Nash Crosby's Still
     MALUS, // Items requiring access to the Malus of Forethought
     JEWELRY, // Items created with jewelry-making pliers
-    STARCHART, // Items anybody can create with starcharts, stars, and lines
     PIXEL, // Items anybody can create with pixels
     ROLLING_PIN, // Items created with a rolling pin or and an unrolling pin
     GNOME_TINKER, // Items requiring access to the Gnome supertinker
@@ -487,7 +486,6 @@ public interface KoLConstants extends UtilityConstants {
     CRIMBO06, // Items formerly creatable in Crimbo Town during Crimbo 2006
     CRIMBO07, // Items formerly creatable in Crimbo Town during Crimbo 2007
     CRIMBO12, // Items creatable in Crimbo Town during Crimbo 2012
-    CRIMBO16, // Items creatable in Crimbo Town during Crimbo 2016
     PHINEAS, // Items requiring access to Phineas
     COOK_FANCY, // Items created with an Dramatic Range
     MIX_FANCY, // Items created with a Cocktailcrafting Kit
@@ -495,8 +493,6 @@ public interface KoLConstants extends UtilityConstants {
     COINMASTER, // Coinmaster purchase
     CLIPART, // Tome of Clip Art summons
     JARLS, // Items that can only be made by an Avatar of Jarlsberg
-    GRANDMA, // Items made by Grandma Sea Monkee
-    FIVE_D, // Xiblaxian 5d Printer
     VYKEA, // Items made with VYKEA instructions
     FLOUNDRY, // Items made in Clan Floundry
     TERMINAL, // Items extruded from Source Terminal
@@ -507,7 +503,6 @@ public interface KoLConstants extends UtilityConstants {
     METEOROID, // Items made from metal meteoroid
     FANTASY_REALM, // Items made by visiting FantasyRealm welcome center
     SAUSAGE_O_MATIC, // Items made by Kramco Sausage-o-Matic
-    KRINGLE, // Items made from waterlogged items
     STILLSUIT, // Distillate from the stillsuit
     WOOL, // Items made from grubby wool
     BURNING_LEAVES, // Items made at the Pile of Burning Leaves

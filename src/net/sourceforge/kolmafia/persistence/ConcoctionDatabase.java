@@ -43,7 +43,6 @@ import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
-import net.sourceforge.kolmafia.persistence.QuestDatabase.Quest;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.CampgroundRequest;
 import net.sourceforge.kolmafia.request.ChezSnooteeRequest;
@@ -1663,9 +1662,6 @@ public class ConcoctionDatabase {
       ConcoctionDatabase.REQUIREMENT_MET.add(CraftingRequirements.EXPENSIVE);
     }
 
-    // Star chart recipes are always available to all players.
-
-    permitNoCost(CraftingType.STARCHART);
     permitNoCost(CraftingType.MULTI_USE);
     permitNoCost(CraftingType.SINGLE_USE);
 
@@ -1924,12 +1920,6 @@ public class ConcoctionDatabase {
     ConcoctionDatabase.EXCUSE.put(
         CraftingType.SUSHI, "You cannot make sushi without a sushi-rolling mat.");
 
-    // You can ask Grandma to make stuff if you have rescued her.
-    if (QuestDatabase.isQuestLaterThan(Quest.SEA_MONKEES, "step8")) {
-      permitNoCost(CraftingType.GRANDMA);
-    }
-    ConcoctionDatabase.EXCUSE.put(CraftingType.GRANDMA, "You must rescue Grandma first.");
-
     // You trade tokens to Coin Masters if you have opted in to do so,
 
     if (Preferences.getBoolean("autoSatisfyWithCoinmasters")) {
@@ -1949,11 +1939,6 @@ public class ConcoctionDatabase {
     }
     ConcoctionDatabase.EXCUSE.put(
         CraftingType.SAUSAGE_O_MATIC, "You do not have a Kramco Sausage-o-Matic&trade;.");
-
-    if (InventoryManager.getCount(ItemPool.FIVE_D_PRINTER) > 0) {
-      permitNoCost(CraftingType.FIVE_D);
-    }
-    ConcoctionDatabase.EXCUSE.put(CraftingType.FIVE_D, "You do not have a Xiblaxian 5D printer.");
 
     if (VYKEACompanionData.currentCompanion() != VYKEACompanionData.NO_COMPANION) {
       ConcoctionDatabase.EXCUSE.put(
@@ -2061,9 +2046,6 @@ public class ConcoctionDatabase {
     }
     ConcoctionDatabase.EXCUSE.put(CraftingType.JARLS, "You are not an Avatar of Jarlsberg");
 
-    // It's Crimbo, so allow creation!
-    // permitNoCost( CraftingType.CRIMBO16 );
-
     boolean clanFloundry =
         ClanLoungeRequest.hasClanLoungeItem(ItemPool.get(ItemPool.CLAN_FLOUNDRY, 1));
     boolean gotFloundryItem =
@@ -2140,12 +2122,6 @@ public class ConcoctionDatabase {
       ConcoctionDatabase.EXCUSE.put(
           CraftingType.FANTASY_REALM, "You do not have access to Fantasy Realm welcome center.");
     }
-
-    // You can't use Kringle's workshop on demand; it is a shop
-    // found in a non-combat adventure. However, if you are in
-    // that shop, you can "create" the item normally.
-    permitNoCost(CraftingType.KRINGLE);
-    ConcoctionDatabase.EXCUSE.put(CraftingType.KRINGLE, "You must be in Kringle's workshop.");
 
     boolean stillsuitUsable =
         StandardRequest.isAllowed(RestrictedItemType.ITEMS, "tiny stillsuit")
@@ -2361,7 +2337,6 @@ public class ConcoctionDatabase {
       case STILL -> result.append("Nash Crosby's Still");
       case MALUS -> result.append("Malus of Forethought");
       case JEWELRY -> result.append("Jewelry-making pliers");
-      case STARCHART -> result.append("star chart");
       case PIXEL -> result.append("Crackpot Mystic");
       case ROLLING_PIN -> result.append("rolling pin/unrolling pin");
       case GNOME_TINKER -> result.append("Supertinkering");
@@ -2373,7 +2348,6 @@ public class ConcoctionDatabase {
       case CRIMBO06 -> result.append("Uncle Crimbo's Mobile Home (Crimboween 2006)");
       case CRIMBO07 -> result.append("Uncle Crimbo's Mobile Home (Crimbo 2007)");
       case CRIMBO12 -> result.append("Uncle Crimbo's Futuristic Trailer (Crimboku 2012)");
-      case CRIMBO16 -> result.append("Crimbo Lumps Shop (Crimbo 2016)");
       case PHINEAS -> result.append("Phineas");
       case COOK_FANCY -> result.append("Cooking (fancy)");
       case MIX_FANCY -> result.append("Mixing (fancy)");
@@ -2381,8 +2355,6 @@ public class ConcoctionDatabase {
       case COINMASTER -> result.append("Coin Master purchase");
       case CLIPART -> result.append("Summon Clip Art");
       case JARLS -> result.append("Jarlsberg's Kitchen");
-      case GRANDMA -> result.append("Grandma Sea Monkee");
-      case FIVE_D -> result.append("Xiblaxian 5D printer");
       case VYKEA -> result.append("VYKEA");
       case FLOUNDRY -> result.append("Clan Floundry");
       case TERMINAL -> result.append("Source Terminal");
@@ -2394,7 +2366,6 @@ public class ConcoctionDatabase {
       case SAUSAGE_O_MATIC -> result.append("Kramco Sausage-o-Matic");
       case SEWER -> result.append("chewing gum");
       case FANTASY_REALM -> result.append("Fantasy Realm Welcome Center");
-      case KRINGLE -> result.append("Kringle's workshop");
       case STILLSUIT -> result.append("tiny stillsuit");
       case WOOL -> result.append("grubby wool");
       case BURNING_LEAVES -> result.append("Pile of Burning Leaves");
@@ -2617,8 +2588,6 @@ public class ConcoctionDatabase {
       case "MALUS" -> ConcoctionDatabase.mixingMethod = CraftingType.MALUS;
       // Items anybody can create with jewelry-making pliers
       case "JEWEL" -> ConcoctionDatabase.mixingMethod = CraftingType.JEWELRY;
-      // Items anybody can create with starcharts, stars, and lines
-      case "STAR" -> ConcoctionDatabase.mixingMethod = CraftingType.STARCHART;
       // Items anybody can create with pixels
       case "PIXEL" -> ConcoctionDatabase.mixingMethod = CraftingType.PIXEL;
       // Items created with a rolling pin or and an unrolling pin
@@ -2646,8 +2615,6 @@ public class ConcoctionDatabase {
       case "CRIMBO07" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO07;
       // Items formerly creatable in Crimbo Town during Crimbo 2012
       case "CRIMBO12" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO12;
-      // Items creatable in Crimbo Town during Crimbo 2016
-      case "CRIMBO16" -> ConcoctionDatabase.mixingMethod = CraftingType.CRIMBO16;
       // Items requiring access to Phineas
       case "PHINEAS" -> ConcoctionDatabase.mixingMethod = CraftingType.PHINEAS;
       // Items that require a Dramatic Range
@@ -2809,9 +2776,6 @@ public class ConcoctionDatabase {
         ConcoctionDatabase.mixingMethod = CraftingType.JARLS;
         ConcoctionDatabase.requirements.add(CraftingRequirements.SLICE);
       }
-      case "GRANDMA" -> ConcoctionDatabase.mixingMethod = CraftingType.GRANDMA;
-      case "KRINGLE" -> ConcoctionDatabase.mixingMethod = CraftingType.KRINGLE;
-      case "5D" -> ConcoctionDatabase.mixingMethod = CraftingType.FIVE_D;
       case "VYKEA" -> ConcoctionDatabase.mixingMethod = CraftingType.VYKEA;
       case "TERMINAL" -> ConcoctionDatabase.mixingMethod = CraftingType.TERMINAL;
       case "BARREL" -> ConcoctionDatabase.mixingMethod = CraftingType.BARREL;
