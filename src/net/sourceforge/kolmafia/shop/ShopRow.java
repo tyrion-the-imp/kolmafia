@@ -45,6 +45,10 @@ public class ShopRow implements Comparable<ShopRow> {
     return this.costs;
   }
 
+  public void setCosts(AdventureResult[] costs) {
+    this.costs = costs;
+  }
+
   public boolean isMeatPurchase() {
     return costs.length == 1 && costs[0].isMeat();
   }
@@ -76,7 +80,9 @@ public class ShopRow implements Comparable<ShopRow> {
       if (cost.isMeat()) {
         price = NPCPurchaseRequest.currentDiscountedPrice(price);
       }
-      max = Math.min(max, available / price);
+      if (price > 0) {
+        max = Math.min(max, available / price);
+      }
     }
 
     return max;

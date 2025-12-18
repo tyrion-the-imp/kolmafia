@@ -106,6 +106,7 @@ public class CoinmastersFrame extends GenericFrame implements ChangeListener {
     addPanel(new DimemasterPanel());
     addPanel(new QuartersmasterPanel());
     addPanel(new BURTPanel());
+    addPanel(new JarlsbergPanel());
     addPanel(new KOLHSArtPanel());
     addPanel(new KOLHSChemPanel());
     addPanel(new KOLHSShopPanel());
@@ -206,6 +207,7 @@ public class CoinmastersFrame extends GenericFrame implements ChangeListener {
     addPanel(new TravelingTraderPanel());
     addPanel(new fdkolPanel());
     addPanel(new WarbearBoxPanel());
+    addPanel(new Crimbo25SammyPanel());
 
     // Removed coinmasters
     this.selectorPanel.addSeparator();
@@ -457,6 +459,20 @@ public class CoinmastersFrame extends GenericFrame implements ChangeListener {
   public class BURTPanel extends CoinmasterPanel {
     public BURTPanel() {
       super(BURTRequest.BURT);
+    }
+  }
+
+  public class JarlsbergPanel extends CoinmasterPanel {
+    public JarlsbergPanel() {
+      super(JarlsbergRequest.DATA);
+    }
+
+    @Override
+    public int buyMax(final AdventureResult item, final int max) {
+      return switch (item.getItemId()) {
+        case ItemPool.COSMIC_SIX_PACK -> 1;
+        default -> max;
+      };
     }
   }
 
@@ -1478,6 +1494,12 @@ public class CoinmastersFrame extends GenericFrame implements ChangeListener {
     }
   }
 
+  private class Crimbo25SammyPanel extends CoinmasterPanel {
+    public Crimbo25SammyPanel() {
+      super(Crimbo25SammyRequest.DATA);
+    }
+  }
+
   private class KiwiKwikiMartPanel extends CoinmasterPanel {
     public KiwiKwikiMartPanel() {
       super(KiwiKwikiMartRequest.DATA);
@@ -1698,6 +1720,9 @@ public class CoinmastersFrame extends GenericFrame implements ChangeListener {
 
       RequestThread.postRequest(request);
 
+      if (this.shopRowPanel != null) {
+        this.shopRowPanel.filterItems();
+      }
       if (this.buyPanel != null) {
         this.buyPanel.filterItems();
       }
