@@ -246,6 +246,7 @@ public class SkillBuffFrame extends GenericFrame {
       addItem("Songs");
       addItem("Expressions");
       addItem("Walks");
+      addItem("Shanties");
       addActionListener(new SkillTypeListener());
     }
 
@@ -279,6 +280,9 @@ public class SkillBuffFrame extends GenericFrame {
               case 7 ->
                   // Walk skills
                   (LockableListModel<UseSkillRequest>) KoLConstants.walkSkills;
+              case 8 ->
+                  // Shanty skills
+                  (LockableListModel<UseSkillRequest>) KoLConstants.shantySkills;
               default -> oldModel;
             };
         if (newModel != oldModel) {

@@ -505,7 +505,6 @@ public interface KoLConstants extends UtilityConstants {
     STILLSUIT, // Distillate from the stillsuit
     WOOL, // Items made from grubby wool
     BURNING_LEAVES, // Items made at the Pile of Burning Leaves
-    TINKERING_BENCH, // Items made at the Tinkering Bench
     MAYAM, // Items made at the Mayam Calendar
     PHOTO_BOOTH, // Items made at the Clan Photo Booth
     TAKERSPACE, // Items made at the TakerSpace
@@ -636,6 +635,7 @@ public interface KoLConstants extends UtilityConstants {
   List<UseSkillRequest> songSkills = LockableListFactory.getInstance(UseSkillRequest.class);
   List<UseSkillRequest> expressionSkills = LockableListFactory.getInstance(UseSkillRequest.class);
   List<UseSkillRequest> walkSkills = LockableListFactory.getInstance(UseSkillRequest.class);
+  List<UseSkillRequest> shantySkills = LockableListFactory.getInstance(UseSkillRequest.class);
   List<UseSkillRequest> availableSkills = LockableListFactory.getInstance(UseSkillRequest.class);
   Set<Integer> availableSkillsSet = new HashSet<>();
   // The list of combat skills displayed in skills dropdown from the current (last) fight.php

@@ -1087,18 +1087,16 @@ Internet Meme Shop	buy	5000	infinite BACON machine	ROW828
 
 # Things you can buy with cop dollars
 
-# These are conditionally available (must have previous lesser badge) and require a ShopRow coinmaster
-# Precinct Materiel Division	ROW832	bronze detective badge	plastic detective badge	detective roscoe	cop dollar (50)
-# Precinct Materiel Division	ROW831	silver detective badge	bronze detective badge	detective roscoe	cop dollar (200)
-# Precinct Materiel Division	ROW833	gold detective badge	silver detective badge	detective roscoe	cop dollar (400)
-
-Precinct Materiel Division	buy	4	hardboiled egg	ROW839
-Precinct Materiel Division	buy	4	Falcon&trade; Maltese Liquor	ROW835
-Precinct Materiel Division	buy	10	shoe gum	ROW834
-Precinct Materiel Division	buy	50	detective roscoe	ROW830
-Precinct Materiel Division	buy	200	noir fedora	ROW836
-Precinct Materiel Division	buy	200	trench coat	ROW837
-Precinct Materiel Division	buy	1000	detective tattoo	ROW838
+Precinct Materiel Division	ROW832	bronze detective badge	plastic detective badge	detective roscoe	cop dollar (50)
+Precinct Materiel Division	ROW831	silver detective badge	bronze detective badge	detective roscoe	cop dollar (200)
+Precinct Materiel Division	ROW833	gold detective badge	silver detective badge	detective roscoe	cop dollar (400)
+Precinct Materiel Division	ROW839	hardboiled egg	cop dollar (4)
+Precinct Materiel Division	ROW835	Falcon&trade; Maltese Liquor	cop dollar (4)
+Precinct Materiel Division	ROW834	shoe gum	cop dollar (10)
+Precinct Materiel Division	ROW830	detective roscoe	cop dollar (50)
+Precinct Materiel Division	ROW836	noir fedora	cop dollar (200)
+Precinct Materiel Division	ROW837	trench coat	cop dollar (200)
+Precinct Materiel Division	ROW838	detective tattoo	cop dollar (1000)
 
 # Things you can buy with cashews
 
@@ -1554,6 +1552,19 @@ Elf Guard Toy and Munitions Factory	buy	400	Lil' Snowball Factory	ROW1429
 Elf Guard Toy and Munitions Factory	buy	1000	Elf Guard safety bear	ROW1440
 Elf Guard Toy and Munitions Factory	buy	2000	Elf Guard temporary (permanent) tattoo	ROW1430
 
+# WereProfessor - Tinkering Bench
+
+Tinkering Bench	ROW1467	biphasic molecular oculus	smashed scientific equipment
+Tinkering Bench	ROW1468	triphasic molecular oculus	biphasic molecular oculus	smashed scientific equipment
+Tinkering Bench	ROW1476	focused magnetron pistol	smashed scientific equipment
+Tinkering Bench	ROW1475	motion sensor	smashed scientific equipment
+Tinkering Bench	ROW1472	quick-release belt pouch	smashed scientific equipment
+Tinkering Bench	ROW1473	quick-release fannypack	quick-release belt pouch	smashed scientific equipment
+Tinkering Bench	ROW1474	quick-release utility belt	quick-release fannypack	smashed scientific equipment
+Tinkering Bench	ROW1469	high-tension exoskeleton	smashed scientific equipment
+Tinkering Bench	ROW1470	ultra-high-tension exoskeleton	high-tension exoskeleton	smashed scientific equipment
+Tinkering Bench	ROW1471	irresponsible-tension exoskeleton	ultra-high-tension exoskeleton	smashed scientific equipment
+
 # Crimbo 2024
 
 Crimbo24 Cafe	ROW1527	chocolate ostrich egg	Spirit of Easter (15)
@@ -1698,12 +1709,28 @@ Skeleton of Crimbo Past	buy	5	medicinal gruel
 
 The HMS Bounty Hunter	ROW1661	messenger parrot egg	Crymbocurrency (200)
 The HMS Bounty Hunter	ROW1662	buryable chest	Crymbocurrency (300)
+The HMS Bounty Hunter	ROW1663	scorched skeleton mask	Crymbocurrency (1,000)
+The HMS Bounty Hunter	ROW1664	scorched skeleton shirt	Crymbocurrency (1,000)
+The HMS Bounty Hunter	ROW1665	scorched skeleton pants	Crymbocurrency (1,000)
 The HMS Bounty Hunter	ROW1672	&quot;salvaged&quot; wine	Crymbocurrency (3,000)
 The HMS Bounty Hunter	ROW1671	Crymbocurrency tattoo	Crymbocurrency (10,000)
 The HMS Bounty Hunter	ROW1657	counterskeleton elixir	Crymbocurrency (10)
 The HMS Bounty Hunter	ROW1652	volatile bone bomb	smoldering bone dust	100 Meat
+The HMS Bounty Hunter	ROW1653	fireproof bonesaw	Crymbocurrency (50)
+The HMS Bounty Hunter	ROW1656	heat-resistant harpoon pistol	Crymbocurrency (50)
+The HMS Bounty Hunter	ROW1655	cursed ship's lantern	Crymbocurrency (50)
+The HMS Bounty Hunter	ROW1654	vermiculite shield	Crymbocurrency (50)
+The HMS Bounty Hunter	ROW1673	undertakers' forceps	Crymbocurrency (1,500)
+The HMS Bounty Hunter	ROW1674	bone-polishing rag	Crymbocurrency (4,000)
+The HMS Bounty Hunter	ROW1666	Shanty: Let's Beat Up This Drunken Sailor	Crymbocurrency (5,000)
+The HMS Bounty Hunter	ROW1667	Shanty: I'm Smarter Than a Drunken Sailor	Crymbocurrency (5,000)
+The HMS Bounty Hunter	ROW1668	Shanty: Look At That Drunken Sailor Dance	Crymbocurrency (5,000)
+The HMS Bounty Hunter	ROW1669	Shanty: Who's Going to Pay This Drunken Sailor?	Crymbocurrency (5,000)
+The HMS Bounty Hunter	ROW1670	Shanty: Only Dogs Love a Drunken Sailor	Crymbocurrency (5,000)
 The HMS Bounty Hunter	ROW1643	Crymbocurrency	burnt incisor
 The HMS Bounty Hunter	ROW1644	Crymbocurrency (5)	burnt phalange
 The HMS Bounty Hunter	ROW1646	Crymbocurrency (10)	burnt radius
+The HMS Bounty Hunter	ROW1645	Crymbocurrency (20)	burnt rib
+The HMS Bounty Hunter	ROW1647	Crymbocurrency (50)	burnt skull
 The HMS Bounty Hunter	ROW1649	Crymbocurrency (5)	cold wad
 The HMS Bounty Hunter	ROW1650	Crymbocurrency (5)	twinkly wad (3)

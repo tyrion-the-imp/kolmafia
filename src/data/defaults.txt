@@ -2642,6 +2642,7 @@ user	_sleazeAirportToday	false
 user	_sloppyDinerBeachBucks	0
 user	_smilesOfMrA	0
 user	_smithsnessSummons	0
+user	_smolderingSkeletonsDefeated	0
 user	_smoochArmyHQCombats	0
 user	_snojoFreeFights	0
 user	_snojoParts	0
@@ -2820,6 +2821,7 @@ user	_VYKEACompanionLevel	0
 user	_VYKEACompanionName
 user	_VYKEALoungeRaided	false
 user	_walfordQuestStartedToday	false
+user	_wandOfPigificationUsed	0
 user	_warbearAutoAnvilCrafting	0
 user	_warbearBankUsed	false
 user	_warbearBreakfastMachineUsed	false
@@ -3620,6 +3622,7 @@ user	choiceAdventure1547	1
 user	choiceAdventure1548	1
 user	choiceAdventure1549	1
 user	choiceAdventure1550	1
+user	choiceAdventure1591	1
 user	lockedItem4637	true
 user	lockedItem4638	true
 user	lockedItem4639	true

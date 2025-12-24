@@ -4369,6 +4369,8 @@ public class FightRequest extends GenericRequest {
         case "ewe" -> {
           Preferences.setString("eweItem", "");
         }
+        case "smoldering skeletal monstrosity" ->
+            Preferences.increment("_smolderingSkeletonsDefeated");
       }
 
       if (KoLCharacter.hasEquipped(ItemPool.BONE_ABACUS, Slot.OFFHAND)
@@ -11202,6 +11204,11 @@ public class FightRequest extends GenericRequest {
         if (responseText.contains("pull a nuclear bomb out of the stockpile")
             || itemRunawaySuccess) {
           Preferences.increment("_nuclearStockpileUsed", 1, 10, false);
+        }
+      }
+      case ItemPool.WAND_OF_PIGIFICATION -> {
+        if (responseText.contains("a hot pink beam") || itemSuccess) {
+          Preferences.increment("_wandOfPigificationUsed");
         }
       }
       case ItemPool.AFFIRMATION_SUPERFICIALLY_INTERESTED -> {
