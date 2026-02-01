@@ -10043,6 +10043,7 @@ public class FightRequest extends GenericRequest {
       case SkillPool.SEADENT_LIGHTNING -> {
         if (responseText.contains("A bolt of lightning arcs out and burns your foe to ash.")
             || skillSuccess) {
+          skillSuccess = true;
           BanishManager.banishMonster(monster, Banisher.SEADENT_LIGHTNING);
         }
       }
@@ -10954,6 +10955,13 @@ public class FightRequest extends GenericRequest {
       }
       case SkillPool.BERET_BOAST -> {
         if (responseText.contains("You brag about your beret until") || skillSuccess) {
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.TRY_TO_REMEMBER -> {
+        if (responseText.contains("You close your eyes and try") || skillSuccess) {
+          TrackManager.trackMonster(monster, Tracker.TRY_TO_REMEMBER);
+          Preferences.decrement("tryToRememberCharges");
           skillSuccess = true;
         }
       }

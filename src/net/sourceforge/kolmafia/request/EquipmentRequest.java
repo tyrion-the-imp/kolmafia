@@ -519,7 +519,7 @@ public class EquipmentRequest extends PasswordHashRequest {
     this.itemId = gem.getItemId();
 
     this.requestType = EquipmentRequestType.CHANGE_ITEM;
-    this.changeItem = gem;
+    this.changeItem = gem.getCount() == 1 ? gem : gem.getInstance(1);
     this.addFormField("option", "1");
     this.addFormField("which", slotOpt);
     this.addFormField("iid", String.valueOf(this.itemId));
@@ -943,6 +943,7 @@ public class EquipmentRequest extends PasswordHashRequest {
 
     if (urlString.startsWith("choice.php") && urlString.contains("whichchoice=1588")) {
       // instead of parsing the page, get our updated gems from api.php
+      parseCodpiece(responseText);
       ApiRequest.updateStatus();
       return;
     }
@@ -1192,6 +1193,29 @@ public class EquipmentRequest extends PasswordHashRequest {
         EquipmentManager.setEquipment(slot, EquipmentRequest.UNEQUIP);
       }
     }
+  }
+
+  private static final Pattern LOSE_PATTERN = Pattern.compile("You lose an item:.*?<b>(.*?)</b>");
+
+  public static void parseCodpiece(final String responseText) {
+    Matcher lostMatcher = EquipmentRequest.LOSE_PATTERN.matcher(responseText);
+    String lost = lostMatcher.find() ? lostMatcher.group(1) : null;
+    int lostId = ItemDatabase.getItemId(lost);
+
+    Matcher acquiredMatcher = EquipmentRequest.ACQUIRE_PATTERN.matcher(responseText);
+    String acquired = acquiredMatcher.find() ? acquiredMatcher.group(1) : null;
+    int acquiredId = ItemDatabase.getItemId(acquired);
+
+    AdventureResult newItem = lost != null ? ItemPool.get(lostId) : EquipmentRequest.UNEQUIP;
+    AdventureResult oldItem =
+        acquired != null ? ItemPool.get(acquiredId) : EquipmentRequest.UNEQUIP;
+
+    if (newItem != EquipmentRequest.UNEQUIP) {
+      AdventureResult remove = oldItem.getInstance(-1);
+      AdventureResult.addResultToList(KoLConstants.tally, remove);
+      AdventureResult.addResultToList(KoLConstants.inventory, remove);
+    }
+    EquipmentRequest.switchItem(oldItem, newItem);
   }
 
   public static void parseEquipment(final String location, final String responseText) {

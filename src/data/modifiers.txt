@@ -1023,7 +1023,7 @@ Item	dreadful sweater	HP Regen Min: 10, HP Regen Max: 20, MP Regen Min: 10, MP R
 Item	duct tape shirt	Moxie: +9, Meat Drop: +20
 Item	embers-only jacket	Hot Damage: +10, Hot Resistance: +3, Hot Spell Damage: +20, Lasts Until Rollover, Last Available: "2024-09"
 Item	extra-see-thru nightie	Moxie Percent: +15, Last Available: "2011-10"
-Item	extra-thick Crimbo sweater	Maximum HP: +1000, Last Available: "2025-12"
+Item	extra-thick Crimbo sweater	Maximum HP: +60, Last Available: "2025-12"
 Item	eXtreme Bi-Polar Fleece Vest	Cold Resistance: +2
 Item	extremely wet T-shirt	Moxie Percent: +10, Sleaze Damage: +25, HP Regen Min: 5, HP Regen Max: 10, MP Regen Min: 5, MP Regen Max: 10, Last Available: "2014-05"
 Item	famous blue raincoat	Spooky Resistance: +2, Stench Resistance: +2, Hot Resistance: +2, Cold Resistance: +2, Sleaze Resistance: +2, Item Drop: +10, Initiative: +40, Lasts Until Rollover
@@ -4877,7 +4877,7 @@ Familiar	Chocolate Lab	Last Available: "2016-12", Sprinkle Drop: [W]
 Familiar	Coffee Pixie	Last Available: "2005-10"
 Familiar	Comma Chameleon	Last Available: "2006-08"
 Familiar	Cookbookbat	Food Fairy Effectiveness: 1.5, Last Available: "2022-11"
-Familiar	Cooler Yeti	Cold Resistance: [floor(W/11)], Last Available: "2025-07"
+Familiar	Cooler Yeti	Cold Resistance: [floor(W/11)+1], Last Available: "2025-07"
 Familiar	Cornbeefadon	Last Available: "2018-03"
 Familiar	Cotton Candy Carnie	Last Available: "2008-08"
 Familiar	Crimbo Elf	Last Available: "2004-12"
@@ -6851,14 +6851,14 @@ Effect	Hoppyness	Initiative: +100
 Effect	Hornswaggled	Moxie Percent: +50, Muscle Percent: -50
 Effect	Horrid, Torrid	Weapon Damage Percent: +10
 Effect	Hot Blooded	Muscle Percent: +30, Mysticality Percent: +10, Moxie Percent: +20, Hot Damage: +10, Hot Resistance: +2
-Effect	Hot Bones	Muscle Percent: +500
-Effect	Hot Brains	Mysticality Percent: +500
+Effect	Hot Bones	Muscle Percent: +50
+Effect	Hot Brains	Mysticality Percent: +50
 # Hot Breath: Can breathe fire in combat
 Effect	Hot Buttoned	Hot Damage: +10, Hot Spell Damage: +10
 Effect	Hot Hands	Hot Damage: +10, Hot Spell Damage: +20, Cold Resistance: +2, Spooky Resistance: +2
 Effect	Hot in Herre	Hot Damage: +20, Hot Spell Damage: +20, Spooky Resistance: +5, Cold Resistance: +5, Experience Percent (Muscle): +10, Experience Percent (Mysticality): +10, Experience Percent (Moxie): +10
 Effect	Hot Jellied	Experience (Muscle): +3, Hot Damage: +5, Muscle Percent: +30
-Effect	Hot Joints	Moxie Percent: +500
+Effect	Hot Joints	Moxie Percent: +50
 Effect	Hot Soupy Garbage	Stench Damage: +10, Cold Resistance: +2
 Effect	Hot Sweat	Hot Resistance: +7
 Effect	Hot-Headed	Hot Resistance: +3, Hot Damage: +15, Hot Spell Damage: +15
@@ -15793,6 +15793,7 @@ RobotCPU	robot_hp2	Maximum HP: +30
 
 # Eternity Codpiece
 
+EternityCodpiece	18-picohertz resonator crystal	Cold Damage: +5, Cold Spell Damage: +5
 EternityCodpiece	alien gemstone	Experience (Muscle): +1
 EternityCodpiece	angry agate	PvP Fights: +1
 EternityCodpiece	autumn years wisdom	Experience (Mysticality): +1
@@ -15808,7 +15809,9 @@ EternityCodpiece	blood cubic zirconia	Spooky Resistance: +3, Spooky Damage: +5
 EternityCodpiece	BRICKO pearl	Candy Drop: +20
 EternityCodpiece	brown crock marble	Initiative: +2
 EternityCodpiece	bumblebee marble	Initiative: +5
+EternityCodpiece	chlorine crystal	Stench Damage: +5, Stench Spell Damage: +5
 EternityCodpiece	control crystal	Mysticality: +5
+EternityCodpiece	crystalline cheer	Sleaze Damage: +5, Sleaze Spell Damage: +5
 EternityCodpiece	crystalline seal eye	Damage vs. Seals: +25
 EternityCodpiece	crystallized memory	Muscle: +5
 EternityCodpiece	crystallized pumpkin spice	Food Drop: +20
@@ -15823,6 +15826,7 @@ EternityCodpiece	glimmering golden crystal	Experience (familiar): +1
 EternityCodpiece	glowing new age crystal	MP Regen Min: 5, MP Regen Max: 10
 EternityCodpiece	green peawee marble	Initiative: +1
 EternityCodpiece	hamethyst	Muscle Percent: +11
+EternityCodpiece	heart of the volcano	Hot Damage: +5, Hot Spell Damage: +5
 EternityCodpiece	incredibly dense meat gem	Meat Drop: +30
 EternityCodpiece	jet bennie marble	Initiative: +6
 EternityCodpiece	kumquartz	Cold Spell Damage: +10
@@ -15858,4 +15862,5 @@ EternityCodpiece	Tuesday's ruby	Monster Level: +5
 EternityCodpiece	unblemished pearl	Adventures: +1
 EternityCodpiece	unearthly onyx	Spooky Resistance: +2
 EternityCodpiece	vampire pearl	Damage vs. Vampires: +25
+EternityCodpiece	void stone	Spooky Damage: +5, Spooky Spell Damage: +5
 EternityCodpiece	Xiblaxian crystal	Damage vs. Bugbears: +25

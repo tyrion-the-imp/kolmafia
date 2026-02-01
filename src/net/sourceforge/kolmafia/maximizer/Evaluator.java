@@ -200,7 +200,7 @@ public class Evaluator {
     this.totalMax = Double.POSITIVE_INFINITY;
   }
 
-  Evaluator(String expr) {
+  public Evaluator(String expr) {
     this();
 
     Evaluator tiebreaker = new Evaluator();
@@ -1281,7 +1281,8 @@ public class Evaluator {
             if (this.effective) {
               if (id != ItemPool.FOURTH_SABER
                   && id != ItemPool.REPLICA_FOURTH_SABER
-                  && id != ItemPool.JUNE_CLEAVER) {
+                  && !ModifierDatabase.getBooleanModifier(
+                      ModifierType.ITEM, id, BooleanModifier.ATTACKS_CANT_MISS)) {
                 // Always uses best stat, so always considered effective
                 if (KoLCharacter.getAdjustedMoxie() >= KoLCharacter.getAdjustedMuscle()
                     && weaponType != WeaponType.RANGED
