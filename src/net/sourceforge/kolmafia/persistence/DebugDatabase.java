@@ -51,7 +51,6 @@ import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.modifiers.Lookup;
 import net.sourceforge.kolmafia.modifiers.ModifierList;
 import net.sourceforge.kolmafia.modifiers.ModifierList.ModifierValue;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
@@ -2728,10 +2727,8 @@ public class DebugDatabase {
         mismatch.compare("quest", mQuest, quest);
         mismatch.compare("gift", mGift, gift);
         var autosell = entry.getIntValue("autosell");
-        var mAutosell = ItemDatabase.getPriceById(id);
-        if (discard || mDiscard) {
-          mismatch.compare("autosell", mAutosell, autosell);
-        }
+        var mAutosell = ItemDatabase.getRawPriceById(id);
+        mismatch.compare("autosell", mAutosell, autosell);
       }
     }
   }
@@ -3042,7 +3039,7 @@ public class DebugDatabase {
       // Potions grant an effect. Check for a new effect.
       String itemName = ItemDatabase.getItemDataName(id);
       String effectName =
-          ModifierDatabase.getStringModifier(ModifierType.ITEM, itemId, MultiStringModifier.EFFECT);
+          ModifierDatabase.getStringModifier(ModifierType.ITEM, itemId, StringModifier.EFFECT);
       if (!effectName.isEmpty() && EffectDatabase.getEffectId(effectName, true) == -1) {
         String rawText = DebugDatabase.rawItemDescriptionText(itemId);
         String effectDescid = DebugDatabase.parseEffectDescid(rawText);

@@ -35,8 +35,6 @@ import net.sourceforge.kolmafia.modifiers.DerivedModifier;
 import net.sourceforge.kolmafia.modifiers.DoubleModifier;
 import net.sourceforge.kolmafia.modifiers.Lookup;
 import net.sourceforge.kolmafia.modifiers.Modifier;
-import net.sourceforge.kolmafia.modifiers.MultiDoubleModifier;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.moods.HPRestoreItemList;
 import net.sourceforge.kolmafia.moods.MPRestoreItemList;
@@ -401,6 +399,7 @@ public abstract class KoLCharacter {
     KoLConstants.storage.clear();
     KoLCharacter.storageMeat = 0;
     KoLConstants.freepulls.clear();
+    KoLConstants.nopulls.clear();
     KoLConstants.collection.clear();
     KoLConstants.pulverizeQueue.clear();
     KoLCharacter.sessionMeat = 0;
@@ -565,6 +564,8 @@ public abstract class KoLCharacter {
     if (inRobocore()) return false;
     // Spies can eat size-0 magical sausages but have no fullness
     if (inBondcore()) return false;
+    // Meat Golems can eat size-0 magical sausages but have no fullness
+    if (isMeat()) return false;
     // Grey Goo can "eat" things but they don't go into a stomach.
     if (isGreyGoo()) return false;
 
@@ -2148,11 +2149,11 @@ public abstract class KoLCharacter {
     return KoLCharacter.currentModifiers.getString(mod);
   }
 
-  public static List<String> currentMultiStringModifier(final MultiStringModifier mod) {
+  public static List<String> currentMultiStringModifier(final StringModifier mod) {
     return KoLCharacter.currentModifiers.getStrings(mod);
   }
 
-  public static List<Double> currentMultiDoubleModifier(final MultiDoubleModifier mod) {
+  public static List<Double> currentMultiDoubleModifier(final DoubleModifier mod) {
     return KoLCharacter.currentModifiers.getDoubles(mod);
   }
 
@@ -2180,6 +2181,10 @@ public abstract class KoLCharacter {
 
   public static final int getFamiliarWeightPercentAdjustment() {
     return (int) KoLCharacter.currentModifiers.getDouble(DoubleModifier.FAMILIAR_WEIGHT_PCT);
+  }
+
+  public static final int getFamiliarExperienceAdjustment() {
+    return (int) KoLCharacter.currentModifiers.getDouble(DoubleModifier.FAMILIAR_EXP);
   }
 
   public static final int getManaCostAdjustment() {
@@ -3442,6 +3447,10 @@ public abstract class KoLCharacter {
     return KoLCharacter.ascensionPath == Path.UNDER_THE_SEA;
   }
 
+  public static final boolean isMeat() {
+    return KoLCharacter.ascensionPath == Path.ADVENTURER_MEATS_WORLD;
+  }
+
   public static final boolean noExperience() {
     return inZootomist();
   }
@@ -3500,7 +3509,10 @@ public abstract class KoLCharacter {
       return false;
     }
 
-    if (KoLCharacter.inNoobcore() || KoLCharacter.isPlumber() || KoLCharacter.inRobocore()) {
+    if (KoLCharacter.inNoobcore()
+        || KoLCharacter.isPlumber()
+        || KoLCharacter.inRobocore()
+        || KoLCharacter.isMeat()) {
       return false;
     }
 
@@ -3516,7 +3528,7 @@ public abstract class KoLCharacter {
       return false;
     }
 
-    if (KoLCharacter.inNoobcore() || KoLCharacter.inRobocore()) {
+    if (KoLCharacter.inNoobcore() || KoLCharacter.inRobocore() || KoLCharacter.isMeat()) {
       return false;
     }
 
@@ -4452,7 +4464,8 @@ public abstract class KoLCharacter {
             || KoLCharacter.getLimitMode() == LimitMode.BIRD
             || KoLCharacter.hasEquipped(ItemPool.FOCUSED_MAGNETRON_PISTOL, Slot.WEAPON)
             || KoLCharacter.hasEquipped(ItemPool.TINY_BLACK_HOLE, Slot.OFFHAND)
-            || KoLCharacter.hasEquipped(ItemPool.MIME_ARMY_INFILTRATION_GLOVE));
+            || KoLCharacter.hasEquipped(ItemPool.MIME_ARMY_INFILTRATION_GLOVE)
+            || KoLCharacter.hasSkill(SkillPool.CHICKEN_FINGERS));
   }
 
   public static final boolean isTorsoAware() {

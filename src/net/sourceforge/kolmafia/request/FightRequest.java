@@ -1220,7 +1220,8 @@ public class FightRequest extends GenericRequest {
 
     if (FightRequest.nextAction.contains("steal")
         && !FightRequest.nextAction.contains("stealth")
-        && !FightRequest.nextAction.contains("accordion")) {
+        && !FightRequest.nextAction.contains("accordion")
+        && !FightRequest.nextAction.contains("heart")) {
       if (FightRequest.canStillSteal() && MonsterStatusTracker.shouldSteal()) {
         FightRequest.nextAction = "steal";
         this.addFormField("action", "steal");
@@ -3099,7 +3100,7 @@ public class FightRequest extends GenericRequest {
     if (responseText.contains("The mulled wine you drank") && KoLCharacter.getCurrentHP() > 0) {
       Preferences.decrement("getsYouDrunkTurnsLeft", 1, 1);
     } else if (garbledCombat) {
-      Preferences.decrement("ghostPepperTurnsLeft", 1, 0);
+      Preferences.decrement("getsYouDrunkTurnsLeft", 1, 0);
     } else {
       Preferences.setInteger("getsYouDrunkTurnsLeft", 0);
     }
@@ -3551,6 +3552,14 @@ public class FightRequest extends GenericRequest {
       }
     }
 
+    if (!Preferences.getBoolean("_mobiusRingPrimed")) {
+      // ring is primed on completion of any combat, win or lose
+      if (KoLCharacter.hasEquipped(ItemPool.MOBIUS_RING)) {
+        Preferences.setBoolean("_mobiusRingPrimed", true);
+        Preferences.setInteger("_mobiusRingPrimedTurn", KoLCharacter.getTurnsPlayed());
+      }
+    }
+
     if (free) {
       String updateMessage = "This combat did not cost a turn";
       RequestLogger.updateSessionLog(updateMessage);
@@ -3956,6 +3965,8 @@ public class FightRequest extends GenericRequest {
           Preferences.setInteger("_nanorhinoCharge", newCharge);
         }
         case FamiliarPool.CUBELING -> Preferences.increment("cubelingProgress");
+        case FamiliarPool.MECHANICAL_SONGBIRD ->
+            Preferences.increment("mechanicalSongbirdProgress");
         case FamiliarPool.REANIMATOR -> {
           if (responseText.contains("injects an arm")
               || responseText.contains("reanimates an arm")
@@ -4888,6 +4899,13 @@ public class FightRequest extends GenericRequest {
             && Preferences.getInteger("gladiatorBladeMovesKnown") + 7090 < skillId) {
           Preferences.setInteger("gladiatorBallMovesKnown", skillId - 7090);
         }
+      }
+      // If Heartstone skills present, they've been unlocked
+      switch (skillId) {
+        case SkillPool.HEARTSTONE_KILL -> Preferences.setBoolean("heartstoneKillUnlocked", true);
+        case SkillPool.HEARTSTONE_BANISH ->
+            Preferences.setBoolean("heartstoneBanishUnlocked", true);
+        case SkillPool.HEARTSTONE_STUN -> Preferences.setBoolean("heartstoneStunUnlocked", true);
       }
     }
   }
@@ -7783,7 +7801,7 @@ public class FightRequest extends GenericRequest {
   private static Set<Integer> getAdvancedResearchedMonsters() {
     String value = Preferences.getString("wereProfessorAdvancedResearch");
     Set<Integer> monsterIds =
-        Arrays.stream(value.split("\\s*,\\s*"))
+        Arrays.stream(StringUtilities.splitByComma(value))
             .filter(s -> !s.isEmpty())
             .map(Integer::valueOf)
             .filter(i -> i != 0)
@@ -9572,6 +9590,9 @@ public class FightRequest extends GenericRequest {
   private static final AdventureResult METEOR_SHOWERED =
       EffectPool.get(EffectPool.METEOR_SHOWERED, 1);
 
+  private static final Pattern STEAL_LETTER_PATTERN =
+      Pattern.compile("You rip the heart \\(([A-Z])\\) right out of your foe");
+
   private static void payActionCost(final String responseText) {
     // If we don't know what we tried, punt now.
     if (FightRequest.nextAction == null || FightRequest.nextAction.isEmpty()) {
@@ -10041,7 +10062,7 @@ public class FightRequest extends GenericRequest {
         }
       }
       case SkillPool.SEADENT_LIGHTNING -> {
-        if (responseText.contains("A bolt of lightning arcs out and burns your foe to ash.")
+        if (responseText.contains("A bolt of lightning arcs out and burns your foe")
             || skillSuccess) {
           skillSuccess = true;
           BanishManager.banishMonster(monster, Banisher.SEADENT_LIGHTNING);
@@ -11097,6 +11118,39 @@ public class FightRequest extends GenericRequest {
         if (responseText.contains("you've already defeated")
             || responseText.contains("about fifteen seconds")
             || skillSuccess) {
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.STEAL_HEART -> {
+        Matcher heartMatcher = STEAL_LETTER_PATTERN.matcher(responseText);
+        if (heartMatcher.find()) {
+          var letter = heartMatcher.group(1);
+          var curLetters = Preferences.getString("heartstoneLetters");
+          if (curLetters.length() > 3) {
+            curLetters = "";
+          }
+          Preferences.setString("heartstoneLetters", curLetters + letter);
+        }
+      }
+      case SkillPool.HEARTSTONE_KILL -> {
+        if (responseText.contains("You focus your attention on your Heartstone") || skillSuccess) {
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.HEARTSTONE_BANISH -> {
+        if (responseText.contains("A ray blasts out of the stone") || skillSuccess) {
+          BanishManager.banishMonster(monster, Banisher.HEARTSTONE_BANISH);
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.HEARTSTONE_STUN -> {
+        if (responseText.contains("You touch your Heartstone and think the word") || skillSuccess) {
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.MEAT_CUTE -> {
+        if (responseText.contains("flex and ripple") || skillSuccess) {
+          TrackManager.trackMonster(monster, Tracker.MEAT_CUTE);
           skillSuccess = true;
         }
       }

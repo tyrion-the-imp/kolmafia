@@ -4713,6 +4713,13 @@ public abstract class ChoiceControl {
           break;
         }
       }
+
+      case 1596 -> {
+        // Dig at Zone
+        if (ChoiceManager.lastDecision != 4) {
+          Preferences.increment("_archSpadeDigs", 1, 11);
+        }
+      }
     }
   }
 
@@ -4799,6 +4806,8 @@ public abstract class ChoiceControl {
   private static final Pattern DIGGING_GIFT_PATTERN =
       Pattern.compile(
           "Looks like they left a note: <div style=\"padding: 1em; margin: 1em; border: 1px solid black\">(.*?)</div>");
+  private static final Pattern ARCH_SPADE_PATTERN =
+      Pattern.compile("wherewithal to dig <b>(\\d+)</b> more");
 
   private static final Pattern MAYAM_SYMBOLS =
       Pattern.compile("<img data-pos=\"\\d\" class=\"(used)?\"? alt=\"([^\\s]+)\\s");
@@ -6784,7 +6793,14 @@ public abstract class ChoiceControl {
       case 1562 -> {
         // Time is a Möbius Strip
         if (text.contains("stock certificate")) {
-          Preferences.setInteger("stockCertificateTurn", KoLCharacter.getTurnsPlayed());
+          var turnsPlayed = KoLCharacter.getTurnsPlayed();
+          Preferences.setInteger("stockCertificateTurn", turnsPlayed);
+          var turnsPref = Preferences.getString("stockCertificateTurns");
+          if (turnsPref.isEmpty()) {
+            Preferences.setString("stockCertificateTurns", String.valueOf(turnsPlayed));
+          } else {
+            Preferences.setString("stockCertificateTurns", turnsPref + "," + turnsPlayed);
+          }
         } else if (text.contains("In an effort to repair the timeline")) {
           Preferences.increment("tryToRememberCharges", 3);
         }
@@ -6819,6 +6835,11 @@ public abstract class ChoiceControl {
         }
       }
 
+      case 1588 -> {
+        // Decorate Your Eternity Codpiece
+        EquipmentRequest.parseCodpiece(text);
+      }
+
       case 1591 -> {
         // Diggin' up a Gift!
         if (ChoiceManager.lastDecision == 1) {
@@ -6830,6 +6851,9 @@ public abstract class ChoiceControl {
           }
         }
       }
+
+      case 1595 -> // Meat, meat. Meat?
+          handleAfterAvatar(ChoiceManager.lastDecision);
     }
   }
 
@@ -8721,6 +8745,17 @@ public abstract class ChoiceControl {
         // Visiting the Skeleton of Crimbo Past
         SkeletonOfCrimboPastRequest.visit(text);
       }
+
+      case 1596 -> {
+        {
+          // Dig at Zone
+          Matcher matcher = ARCH_SPADE_PATTERN.matcher(text);
+          if (matcher.find()) {
+            Preferences.setInteger(
+                "_archSpadeDigs", 11 - StringUtilities.parseInt(matcher.group(1)));
+          }
+        }
+      }
     }
   }
 
@@ -9943,6 +9978,9 @@ public abstract class ChoiceControl {
       case 1563: // Request Supply Drop
       case 1567: // Visiting the Skeleton of Crimbo Past
       case 1588: // Decorate Your Eternity Codpiece
+      case 1592: // Flesh Workbench
+      case 1593: // Amino Sac
+      case 1596: // Dig at Zone
         return true;
 
       default:

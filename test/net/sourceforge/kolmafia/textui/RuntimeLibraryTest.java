@@ -10,6 +10,7 @@ import static internal.helpers.Player.withAdventuresLeft;
 import static internal.helpers.Player.withAdventuresSpent;
 import static internal.helpers.Player.withBanishedPhyla;
 import static internal.helpers.Player.withClass;
+import static internal.helpers.Player.withCurrentEncounter;
 import static internal.helpers.Player.withCurrentRun;
 import static internal.helpers.Player.withDay;
 import static internal.helpers.Player.withEffect;
@@ -2629,6 +2630,125 @@ public class RuntimeLibraryTest extends AbstractCommandTestBase {
     void skillWithTwoEffects() {
       String output = execute("$skill[Sauce Contemplation].to_effects()");
       assertThat(output, containsString("aggregate effect [2]"));
+    }
+  }
+
+  @Nested
+  class HeartstoneMiddleLetter {
+    @Test
+    void middleLetterMonsterSuccess() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[Orcish Frat Boy (Paddler)])").trim(),
+          is("Returned: F"));
+    }
+
+    @Test
+    void middleLetterMonsterEvenIsBlank() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[Ninja Snowman (Chopsticks)])").trim(),
+          is("Returned:"));
+    }
+
+    @Test
+    void middleLetterMonsterNonAlphaIsBlank() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[War Frat 151st Captain])").trim(),
+          is("Returned:"));
+    }
+
+    @Test
+    void middleLetterMonsterNoneIsBlank() {
+      assertThat(execute("heartstone_middle_letter($monster[none])").trim(), is("Returned:"));
+    }
+
+    @Test
+    void middleLetterStringWorks() {
+      assertThat(execute("heartstone_middle_letter(\"crate\")").trim(), is("Returned: A"));
+    }
+
+    @Test
+    void parameterlessUsesCurrentEncounter() {
+      var cleanups = withCurrentEncounter("wet jock");
+
+      try (cleanups) {
+        assertThat(execute("heartstone_middle_letter()").trim(), is("Returned: J"));
+      }
+    }
+
+    @Test
+    void middleLetterUsesBytes() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[Legstrong™ stationary bicycle])").trim(),
+          containsString("Returned: A"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"Wardröb nightstand,", "wet Wardröb nightstand,B", "haunted Wardröb nightstand,"})
+    public void wardröbNightstandTests(String monster, String letter) {
+      if (letter != null) {
+        letter = " " + letter;
+      } else {
+        letter = "";
+      }
+      assertThat(
+          execute("heartstone_middle_letter(\"" + monster + "\")").trim(),
+          is("Returned:" + letter));
+    }
+  }
+
+  @Nested
+  class MobiusRingNoncombat {
+    @Test
+    void withoutPrimingTakesInfinity() {
+      var cleanups = withProperty("_mobiusRingPrimed", false);
+
+      try (cleanups) {
+        assertThat(
+            execute("turns_until_mobius_noncombat_available()").trim(),
+            is("Returned: " + Integer.MAX_VALUE));
+      }
+    }
+
+    @Test
+    void calculatesFirstNcCorrectly() {
+      var cleanups =
+          new Cleanups(
+              withProperty("_mobiusRingPrimed", true),
+              withProperty("_mobiusRingPrimedTurn", 20),
+              withTurnsPlayed(21));
+
+      try (cleanups) {
+        assertThat(execute("turns_until_mobius_noncombat_available()").trim(), is("Returned: 3"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+      "1,10,15,2",
+      "1,10,20,0",
+      "2,10,15,8",
+      "3,10,15,14",
+      "4,10,15,20",
+      "5,10,15,26",
+      "6,10,15,36",
+      "8,10,15,36",
+      "11,10,15,46",
+      "17,10,15,71",
+    })
+    void calculatesFutureNcsCorrectly(
+        int numEncounters, int stripTurn, int turnsPlayed, int expected) {
+      var cleanups =
+          new Cleanups(
+              withProperty("_mobiusRingPrimed", true),
+              withProperty("_mobiusStripEncounters", numEncounters),
+              withProperty("_lastMobiusStripTurn", stripTurn),
+              withTurnsPlayed(turnsPlayed));
+
+      try (cleanups) {
+        assertThat(
+            execute("turns_until_mobius_noncombat_available()").trim(),
+            is("Returned: " + expected));
+      }
     }
   }
 }

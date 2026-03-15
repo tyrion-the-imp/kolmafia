@@ -88,8 +88,6 @@ import net.sourceforge.kolmafia.modifiers.DoubleModifier;
 import net.sourceforge.kolmafia.modifiers.Modifier;
 import net.sourceforge.kolmafia.modifiers.ModifierList.ModifierValue;
 import net.sourceforge.kolmafia.modifiers.ModifierValueType;
-import net.sourceforge.kolmafia.modifiers.MultiDoubleModifier;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.moods.Mood;
 import net.sourceforge.kolmafia.moods.MoodManager;
@@ -1393,6 +1391,9 @@ public abstract class RuntimeLibrary {
 
     params = List.of();
     functions.add(new LibraryFunction("get_free_pulls", DataTypes.ITEM_TO_INT_TYPE, params));
+
+    params = List.of();
+    functions.add(new LibraryFunction("get_no_pulls", DataTypes.ITEM_TO_INT_TYPE, params));
 
     params = List.of();
     functions.add(new LibraryFunction("get_shop", DataTypes.ITEM_TO_INT_TYPE, params));
@@ -3977,6 +3978,22 @@ public abstract class RuntimeLibrary {
     functions.add(
         new LibraryFunction(
             "shrunken_head_zombie", new AggregateType(DataTypes.STRING_TYPE, 0), params));
+
+    params = List.of();
+    functions.add(new LibraryFunction("heartstone_middle_letter", DataTypes.STRING_TYPE, params));
+
+    params = List.of(namedParam("monster", DataTypes.MONSTER_TYPE));
+    functions.add(new LibraryFunction("heartstone_middle_letter", DataTypes.STRING_TYPE, params));
+
+    params = List.of(namedParam("monster", DataTypes.STRING_TYPE));
+    functions.add(new LibraryFunction("heartstone_middle_letter", DataTypes.STRING_TYPE, params));
+
+    params = List.of();
+    functions.add(
+        new LibraryFunction("turns_until_mobius_noncombat_available", DataTypes.INT_TYPE, params));
+
+    params = List.of();
+    functions.add(new LibraryFunction("have_campground", DataTypes.BOOLEAN_TYPE, params));
   }
 
   public static Method findMethod(final String name, final Class<?>[] args)
@@ -6349,6 +6366,19 @@ public abstract class RuntimeLibrary {
 
     AdventureResult[] items = new AdventureResult[KoLConstants.freepulls.size()];
     KoLConstants.freepulls.toArray(items);
+
+    for (AdventureResult item : items) {
+      value.aset(DataTypes.makeItemValue(item.getItemId(), true), new Value(item.getCount()));
+    }
+
+    return value;
+  }
+
+  public static Value get_no_pulls(ScriptRuntime controller) {
+    MapValue value = new MapValue(DataTypes.ITEM_TO_INT_TYPE);
+
+    AdventureResult[] items = new AdventureResult[KoLConstants.nopulls.size()];
+    KoLConstants.nopulls.toArray(items);
 
     for (AdventureResult item : items) {
       value.aset(DataTypes.makeItemValue(item.getItemId(), true), new Value(item.getCount()));
@@ -10684,11 +10714,7 @@ public abstract class RuntimeLibrary {
       throw controller.runtimeException("numeric modifier required");
     }
     String mod = modifier.toString();
-    var num = ModifierDatabase.numericByCaselessName(mod);
-    if (num != null) {
-      return num;
-    }
-    return MultiDoubleModifier.byCaselessName(mod);
+    return ModifierDatabase.numericByCaselessName(mod);
   }
 
   private static BooleanModifier getBooleanModifier(
@@ -10719,39 +10745,35 @@ public abstract class RuntimeLibrary {
       throw controller.runtimeException("string modifier required");
     }
     String mod = modifier.toString();
-    var str = StringModifier.byCaselessName(mod);
-    if (str != null) {
-      return str;
-    }
-    return MultiStringModifier.byCaselessName(mod);
+    return StringModifier.byCaselessName(mod);
   }
 
-  private static MultiStringModifier getMultiStringModifier(
+  private static StringModifier getMultiStringModifier(
       ScriptRuntime controller, final Value modifier) {
     Type type = modifier.getType();
     if (type.equals(DataTypes.MODIFIER_TYPE)) {
       Modifier content = (Modifier) modifier.content;
       if (content != null && content.getType() == ModifierValueType.MULTISTRING) {
-        return (MultiStringModifier) content;
+        return (StringModifier) content;
       }
-      throw controller.runtimeException("string modifier required");
+      throw controller.runtimeException("multistring modifier required");
     }
     String mod = modifier.toString();
-    return MultiStringModifier.byCaselessName(mod);
+    return StringModifier.byCaselessName(mod);
   }
 
-  private static MultiDoubleModifier getMultiDoubleModifier(
+  private static DoubleModifier getMultiDoubleModifier(
       ScriptRuntime controller, final Value modifier) {
     Type type = modifier.getType();
     if (type.equals(DataTypes.MODIFIER_TYPE)) {
       Modifier content = (Modifier) modifier.content;
       if (content != null && content.getType() == ModifierValueType.MULTINUMERIC) {
-        return (MultiDoubleModifier) content;
+        return (DoubleModifier) content;
       }
-      throw controller.runtimeException("numeric modifier required");
+      throw controller.runtimeException("multinumeric modifier required");
     }
     String mod = modifier.toString();
-    return MultiDoubleModifier.byCaselessName(mod);
+    return DoubleModifier.byCaselessName(mod);
   }
 
   public static Value numeric_modifier(ScriptRuntime controller, final Value modifier) {
@@ -11968,7 +11990,7 @@ public abstract class RuntimeLibrary {
   public static Value dart_parts_to_skills(ScriptRuntime controller) {
     MapValue value = new MapValue(DataTypes.STRING_TO_SKILL_TYPE);
 
-    String[] darts = Preferences.getString("_currentDartboard").split("\\s*,\\s*");
+    String[] darts = StringUtilities.splitByComma(Preferences.getString("_currentDartboard"));
     for (String dart : darts) {
       int colon = dart.indexOf(":");
       if (colon != -1) {
@@ -11985,7 +12007,7 @@ public abstract class RuntimeLibrary {
   public static Value dart_skills_to_parts(ScriptRuntime controller) {
     MapValue value = new MapValue(DataTypes.SKILL_TO_STRING_TYPE);
 
-    String[] darts = Preferences.getString("_currentDartboard").split("\\s*,\\s*");
+    String[] darts = StringUtilities.splitByComma(Preferences.getString("_currentDartboard"));
     for (String dart : darts) {
       int colon = dart.indexOf(":");
       if (colon != -1) {
@@ -12104,5 +12126,79 @@ public abstract class RuntimeLibrary {
   private static Value shrunken_head_zombie(int monsterId, int pathId) {
     var abilities = ShrunkenHeadDatabase.shrunkenHeadZombie(monsterId, pathId);
     return DataTypes.makeStringArrayValue(abilities);
+  }
+
+  public static Value heartstone_middle_letter(ScriptRuntime controller, final Value value) {
+    var valType = value.getType();
+    if (valType.equals(TypeSpec.MONSTER)) {
+      var data = ((MonsterData) value.content);
+      if (data == null) {
+        return DataTypes.STRING_INIT;
+      }
+      var monName = data.getManuelName();
+      return heartstone_middle_letter(monName);
+    }
+    return heartstone_middle_letter(value.toString());
+  }
+
+  public static Value heartstone_middle_letter(ScriptRuntime controller) {
+    return heartstone_middle_letter(FightRequest.currentEncounter);
+  }
+
+  private static Value heartstone_middle_letter(String monsterName) {
+    if (monsterName.isEmpty()) {
+      return DataTypes.STRING_INIT;
+    }
+    var noSpaces = monsterName.replaceAll(" ", "");
+    var bytes = noSpaces.getBytes(StandardCharsets.UTF_8);
+    var length = bytes.length;
+    // even length has no middle
+    if (length % 2 == 0) {
+      return DataTypes.STRING_INIT;
+    }
+    var middle =
+        new String(new byte[] {bytes[length / 2]}, StandardCharsets.UTF_8)
+            .toUpperCase(Locale.ENGLISH);
+    if (!middle.matches("[A-Z]")) {
+      return DataTypes.STRING_INIT;
+    }
+    return DataTypes.makeStringValue(middle);
+  }
+
+  public static Value turns_until_mobius_noncombat_available(ScriptRuntime controller) {
+    // if ring is not primed, cannot get NC
+    if (!Preferences.getBoolean("_mobiusRingPrimed")) {
+      return DataTypes.makeIntValue(Integer.MAX_VALUE);
+    }
+    var numEncounters = Preferences.getInteger("_mobiusStripEncounters");
+    var encounterDelay = mobiusDelay(numEncounters);
+    var turnsPlayed = KoLCharacter.getTurnsPlayed();
+    int encounterTurn;
+    if (numEncounters == 0) {
+      encounterTurn = Preferences.getInteger("_mobiusRingPrimedTurn");
+    } else {
+      encounterTurn = Preferences.getInteger("_lastMobiusStripTurn");
+    }
+    var turnsSince = turnsPlayed - encounterTurn;
+    var left = encounterDelay - turnsSince;
+    return DataTypes.makeIntValue(Math.max(left, 0));
+  }
+
+  private static int mobiusDelay(int numEncounters) {
+    return switch (numEncounters) {
+      case 0 -> 4;
+      case 1 -> 7;
+      case 2 -> 13;
+      case 3 -> 19;
+      case 4 -> 25;
+      case 5 -> 31;
+      case 6, 7, 8, 9, 10 -> 41;
+      case 11, 12, 13, 14, 15 -> 51;
+      default -> 76;
+    };
+  }
+
+  public static Value have_campground(ScriptRuntime controller) {
+    return DataTypes.makeBooleanValue(CampgroundRequest.haveCampground());
   }
 }

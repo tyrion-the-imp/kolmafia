@@ -24,10 +24,11 @@ import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.SpecialOutfit.Checkpoint;
 import net.sourceforge.kolmafia.Speculation;
 import net.sourceforge.kolmafia.equipment.Slot;
+import net.sourceforge.kolmafia.equipment.SlotSet;
 import net.sourceforge.kolmafia.modifiers.BooleanModifier;
 import net.sourceforge.kolmafia.modifiers.DerivedModifier;
 import net.sourceforge.kolmafia.modifiers.DoubleModifier;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
+import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.moods.HPRestoreItemList;
 import net.sourceforge.kolmafia.moods.MoodManager;
 import net.sourceforge.kolmafia.moods.RecoveryManager;
@@ -67,7 +68,7 @@ public class UseSkillRequest extends GenericRequest implements Comparable<UseSki
 
   private static final Pattern SKILLZ_PATTERN =
       Pattern.compile(
-          "rel=\\\"(\\d+)\\\".*?<span class=small>(.*?)</font></center></span>", Pattern.DOTALL);
+          "rel=\\\"(\\d+)\\\".*?<span class=small>(.*?)</center></span>", Pattern.DOTALL);
 
   private static final Pattern SWEAT_PATTERN = Pattern.compile("You get (\\d+)% less Sweaty.");
 
@@ -952,12 +953,30 @@ public class UseSkillRequest extends GenericRequest implements Comparable<UseSki
               .filter(
                   l ->
                       ModifierDatabase.getMultiStringModifier(
-                              l, MultiStringModifier.CONDITIONAL_SKILL_EQUIPPED)
+                              l, StringModifier.CONDITIONAL_SKILL_EQUIPPED)
                           .stream()
                           .mapToInt(SkillDatabase::getSkillId)
                           .anyMatch(i -> i == skillId))
               .map(l -> ItemPool.get(l.getIntKey()))
-              .toList();
+              .collect(Collectors.toList());
+
+      var codpiecePossible =
+          SlotSet.CODPIECE_SLOTS.stream()
+              .map(EquipmentManager::getEquipment)
+              .map(AdventureResult::getItemId)
+              .flatMap(
+                  id ->
+                      ModifierDatabase.getMultiStringModifier(
+                          ModifierType.ETERNITY_CODPIECE,
+                          id,
+                          StringModifier.CONDITIONAL_SKILL_EQUIPPED)
+                          .stream())
+              .mapToInt(SkillDatabase::getSkillId)
+              .anyMatch(i -> i == skillId);
+
+      if (codpiecePossible) {
+        possibleEquipment.add(ItemPool.get(ItemPool.THE_ETERNITY_CODPIECE));
+      }
 
       if (!possibleEquipment.isEmpty()) {
         possibleEquipment.stream()
@@ -1518,6 +1537,7 @@ public class UseSkillRequest extends GenericRequest implements Comparable<UseSki
           SkillPool.TRIPLE_SIZE,
           SkillPool.SEEK_OUT_A_BIRD,
           SkillPool.SUMMON_KOKOMO_RESORT_PASS,
+          SkillPool.GENERATE_IRONY,
           SkillPool.SWEAT_OUT_BOOZE,
           SkillPool.CINCHO_DISPENSE_SALT_AND_LIME,
           SkillPool.CINCHO_PARTY_SOUNDTRACK,
@@ -1777,8 +1797,18 @@ public class UseSkillRequest extends GenericRequest implements Comparable<UseSki
       // This is a skill list, parse skills for consequences.
       Matcher matcher = UseSkillRequest.SKILLZ_PATTERN.matcher(responseText);
       while (matcher.find()) {
-        ConsequenceManager.parseSkillDesc(
-            StringUtilities.parseInt(matcher.group(1)), matcher.group(2));
+        int id = StringUtilities.parseInt(matcher.group(1));
+        ConsequenceManager.parseSkillDesc(id, matcher.group(2));
+        // If Heartstone skills present, they've been unlocked
+        switch (id) {
+          case SkillPool.HEARTSTONE_KILL -> Preferences.setBoolean("heartstoneKillUnlocked", true);
+          case SkillPool.HEARTSTONE_BANISH ->
+              Preferences.setBoolean("heartstoneBanishUnlocked", true);
+          case SkillPool.HEARTSTONE_STUN -> Preferences.setBoolean("heartstoneStunUnlocked", true);
+          case SkillPool.HEARTSTONE_LUCK -> Preferences.setBoolean("heartstoneLuckUnlocked", true);
+          case SkillPool.HEARTSTONE_PALS -> Preferences.setBoolean("heartstonePalsUnlocked", true);
+          case SkillPool.HEARTSTONE_BUFF -> Preferences.setBoolean("heartstoneBuffUnlocked", true);
+        }
       }
     }
 

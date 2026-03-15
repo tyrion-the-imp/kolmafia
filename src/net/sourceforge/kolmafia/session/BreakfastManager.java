@@ -88,6 +88,7 @@ public class BreakfastManager {
         ItemPool.get(ItemPool.REFURBISHED_AIR_FRYER, 1),
         ItemPool.get(ItemPool.PUNCHING_MIRROR, 1),
         ItemPool.get(ItemPool.LIL_SNOWBALL_FACTORY, 1),
+        ItemPool.get(ItemPool.PORK_ELF_TOILETRIES_KIT, 1),
       };
 
   private static final AdventureResult VIP_LOUNGE_KEY = ItemPool.get(ItemPool.VIP_LOUNGE_KEY, 1);
@@ -365,9 +366,7 @@ public class BreakfastManager {
   }
 
   public static void harvestGarden() {
-    if (KoLCharacter.isEd()
-        || KoLCharacter.inNuclearAutumn()
-        || KoLCharacter.getLimitMode().limitCampground()) {
+    if (!CampgroundRequest.haveCampground()) {
       return;
     }
 
@@ -434,9 +433,7 @@ public class BreakfastManager {
   }
 
   public static void useSpinningWheel() {
-    if (KoLCharacter.isEd()
-        || KoLCharacter.inNuclearAutumn()
-        || KoLCharacter.getLimitMode().limitCampground()) {
+    if (!CampgroundRequest.haveWorkshed()) {
       return;
     }
 

@@ -32,7 +32,7 @@ import net.sourceforge.kolmafia.equipment.SlotSet;
 import net.sourceforge.kolmafia.listener.NamedListenerRegistry;
 import net.sourceforge.kolmafia.modifiers.BitmapModifier;
 import net.sourceforge.kolmafia.modifiers.BooleanModifier;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
+import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
@@ -453,8 +453,20 @@ public class EquipmentManager {
 
     if (add && !outfit.isWearing()) return;
 
-    outfitMods.getStrings(MultiStringModifier.CONDITIONAL_SKILL_EQUIPPED).stream()
+    outfitMods.getStrings(StringModifier.CONDITIONAL_SKILL_EQUIPPED).stream()
         .map(SkillDatabase::getSkillId)
+        .forEach(cb);
+  }
+
+  private static void applyNoncombatSkills(Modifiers mods, boolean add, Consumer<Integer> cb) {
+    if (mods == null) {
+      return;
+    }
+    mods.getStrings(StringModifier.CONDITIONAL_SKILL_EQUIPPED).stream()
+        .map(SkillDatabase::getSkillId)
+        .filter(Predicate.not(SkillDatabase::isNonCombat))
+        // always remove skills, or add skills available sometimes
+        .filter(x -> !add || EquipmentManager.shouldApplySkill(x))
         .forEach(cb);
   }
 
@@ -483,11 +495,24 @@ public class EquipmentManager {
     }
 
     var mods = ModifierDatabase.getItemModifiers(id);
-    if (mods != null) {
-      mods.getStrings(MultiStringModifier.CONDITIONAL_SKILL_EQUIPPED).stream()
-          .map(SkillDatabase::getSkillId)
-          .filter(Predicate.not(SkillDatabase::isNonCombat))
-          .forEach(cb);
+    applyNoncombatSkills(mods, add, cb);
+
+    // if it was a codpiece slot, add or remove the conditional skills
+    if (SlotSet.CODPIECE_SLOTS.contains(slot)) {
+      var gemMods = ModifierDatabase.getModifiers(ModifierType.ETERNITY_CODPIECE, id);
+      applyNoncombatSkills(gemMods, add, cb);
+    }
+
+    // if we are equipping the codpiece itself, add or remove all conditional skills
+    if (id == ItemPool.THE_ETERNITY_CODPIECE) {
+      SlotSet.CODPIECE_SLOTS.stream()
+          .map(EquipmentManager::getEquipment)
+          .map(AdventureResult::getItemId)
+          .forEach(
+              gemId -> {
+                var gemMods = ModifierDatabase.getModifiers(ModifierType.ETERNITY_CODPIECE, gemId);
+                applyNoncombatSkills(gemMods, add, cb);
+              });
     }
 
     manageConditionalSkillsFromOutfit(add, id, cb);
@@ -500,20 +525,6 @@ public class EquipmentManager {
           cb.accept(SkillPool.I_CAN_BEARLY_HEAR_YOU_OVER_THE_APPLAUSE);
         }
       }
-      case ItemPool.WARBEAR_OIL_PAN -> {
-        if (KoLCharacter.isSauceror()) {
-          cb.accept(SkillPool.SPRAY_HOT_GREASE);
-        }
-      }
-      case ItemPool.HEWN_MOON_RUNE_SPOON, ItemPool.REPLICA_HEWN_MOON_RUNE_SPOON -> {
-        if (KoLCharacter.isMuscleClass()) {
-          cb.accept(SkillPool.DRAGOON_PLATOON);
-        } else if (KoLCharacter.isMysticalityClass()) {
-          cb.accept(SkillPool.SPITTOON_MONSOON);
-        } else if (KoLCharacter.isMoxieClass()) {
-          cb.accept(SkillPool.FESTOON_BUFFOON);
-        }
-      }
       case ItemPool.KNOCK_OFF_RETRO_SUPERHERO_CAPE -> ItemDatabase.setCapeSkills();
       case ItemPool.SHERIFF_BADGE, ItemPool.SHERIFF_PISTOL, ItemPool.SHERIFF_MOUSTACHE -> {
         if (KoLCharacter.hasEquipped(ItemPool.SHERIFF_PISTOL)
@@ -523,6 +534,35 @@ public class EquipmentManager {
         }
       }
     }
+  }
+
+  private static boolean shouldApplySkill(Integer id) {
+    return switch (id) {
+      case SkillPool.BALL_BUST -> Preferences.getInteger("gladiatorBallMovesKnown") > 0;
+      case SkillPool.BALL_SWEAT -> Preferences.getInteger("gladiatorBallMovesKnown") > 1;
+      case SkillPool.BALL_SACK -> Preferences.getInteger("gladiatorBallMovesKnown") > 2;
+      case SkillPool.NET_GAIN -> Preferences.getInteger("gladiatorNetMovesKnown") > 0;
+      case SkillPool.NET_LOSS -> Preferences.getInteger("gladiatorNetMovesKnown") > 1;
+      case SkillPool.NET_NEUTRALITY -> Preferences.getInteger("gladiatorNetMovesKnown") > 2;
+      case SkillPool.BLADE_SLING -> Preferences.getInteger("gladiatorBladeMovesKnown") > 0;
+      case SkillPool.BLADE_RUNNER -> Preferences.getInteger("gladiatorBladeMovesKnown") > 1;
+      case SkillPool.BLADE_ROLLER -> Preferences.getInteger("gladiatorBladeMovesKnown") > 2;
+      case SkillPool.BLINDING_FLASH -> Preferences.getInteger("yearbookCameraUpgrades") >= 21;
+      case SkillPool.SPRAY_HOT_GREASE -> KoLCharacter.isSauceror();
+      case SkillPool.BECOME_WOLF, SkillPool.BECOME_MIST, SkillPool.BECOME_BAT ->
+          !KoLCharacter.inDarkGyffte();
+      case SkillPool.DRAGOON_PLATOON -> KoLCharacter.isMuscleClass();
+      case SkillPool.SPITTOON_MONSOON -> KoLCharacter.isMysticalityClass();
+      case SkillPool.FESTOON_BUFFOON -> KoLCharacter.isMoxieClass();
+      case SkillPool.ENGAGE_ULTRA_ATTRACTIVE_PARKA_MODE -> KoLCharacter.inDinocore();
+      case SkillPool.HEARTSTONE_KILL -> Preferences.getBoolean("heartstoneKillUnlocked");
+      case SkillPool.HEARTSTONE_BANISH -> Preferences.getBoolean("heartstoneBanishUnlocked");
+      case SkillPool.HEARTSTONE_STUN -> Preferences.getBoolean("heartstoneStunUnlocked");
+      case SkillPool.HEARTSTONE_LUCK -> Preferences.getBoolean("heartstoneLuckUnlocked");
+      case SkillPool.HEARTSTONE_PALS -> Preferences.getBoolean("heartstonePalsUnlocked");
+      case SkillPool.HEARTSTONE_BUFF -> Preferences.getBoolean("heartstoneBuffUnlocked");
+      default -> true;
+    };
   }
 
   public static final void transformEquipment(AdventureResult before, AdventureResult after) {

@@ -374,7 +374,8 @@ public class ResultProcessor {
             EffectPool.CITIZEN_OF_A_ZONE,
             EffectPool.GRAFTED,
             EffectPool.MILK_OF_FAMILIAR_CRUELTY,
-            EffectPool.MILK_OF_FAMILIAR_KINDNESS ->
+            EffectPool.MILK_OF_FAMILIAR_KINDNESS,
+            EffectPool.HEARTSTONE_ATTUNEMENT ->
             DebugDatabase.readEffectDescriptionText(effectId);
       }
 
@@ -2683,6 +2684,14 @@ public class ResultProcessor {
           ItemPool.CONFIDENCE_BUILDING_HUG ->
           BatManager.gainItem(result);
       case ItemPool.COWBOY_BOOTS -> EquipmentRequest.checkCowboyBoots();
+      case ItemPool.INTRICATE_CLOCKWORK_EGG -> {
+        if (adventureResults) {
+          if (KoLCharacter.currentFamiliar.getId() == FamiliarPool.MECHANICAL_SONGBIRD) {
+            // This will be updated to 0 in FightRequest later
+            Preferences.setInteger("mechanicalSongbirdProgress", -1);
+          }
+        }
+      }
       case ItemPool.ROBIN_EGG -> {
         if (adventureResults) {
           if (KoLCharacter.currentFamiliar.getId() == FamiliarPool.ROCKIN_ROBIN) {
@@ -2881,6 +2890,9 @@ public class ResultProcessor {
             && KoLCharacter.currentFamiliar.getId() == FamiliarPool.SKELETON_OF_CRIMBO_PAST) {
           Preferences.increment("_knuckleboneDrops", 1, 100);
         }
+      }
+      case ItemPool.THE_ETERNITY_CODPIECE -> {
+        InventoryManager.checkSkillGrantingEquipment(itemId);
       }
     }
 

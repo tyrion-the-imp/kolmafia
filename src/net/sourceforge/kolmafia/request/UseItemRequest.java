@@ -2914,7 +2914,8 @@ public class UseItemRequest extends GenericRequest {
               && !responseText.contains("reread the tale and really remember")
               && !responseText.contains("spirit of Kokomo to sink")
               && !responseText.contains("Beleven")
-              && !responseText.contains("absorb the residual paste into your soul")) {
+              && !responseText.contains("absorb the residual paste into your soul")
+              && !responseText.contains("Don't you think?")) {
             UseItemRequest.lastUpdate = "You can't learn that skill.";
             KoLmafia.updateDisplay(MafiaState.ERROR, UseItemRequest.lastUpdate);
             return;
@@ -3746,7 +3747,6 @@ public class UseItemRequest extends GenericRequest {
           return;
         }
 
-        CampgroundRequest.destroyFurnishings();
         CampgroundRequest.setCurrentDwelling(itemId);
         break;
 
@@ -4366,9 +4366,7 @@ public class UseItemRequest extends GenericRequest {
       case ItemPool.TALL_GRASS_SEEDS:
       case ItemPool.MUSHROOM_SPORES:
       case ItemPool.ROCK_SEEDS:
-        if (KoLCharacter.getLimitMode().limitCampground()
-            || KoLCharacter.isEd()
-            || KoLCharacter.inNuclearAutumn()) {
+        if (!CampgroundRequest.haveCampground()) {
           return;
         }
 
@@ -5348,6 +5346,10 @@ public class UseItemRequest extends GenericRequest {
 
       case ItemPool.PUNCHING_MIRROR:
         Preferences.setBoolean("_punchingMirrorUsed", true);
+        break;
+
+      case ItemPool.ELF_GUARD_HANGOVER_CURE:
+        Preferences.setBoolean("_elfGuardHangoverCureUsed", true);
         break;
 
       case ItemPool.SOURCE_TERMINAL_PRAM_CHIP:
@@ -6348,6 +6350,31 @@ public class UseItemRequest extends GenericRequest {
           Preferences.increment("_clocksUsed", 1, 2);
         }
         break;
+
+      case ItemPool.STOCK_CERTIFICATE:
+        // remove the first entry in the preference
+        var turnsPlayed = Preferences.getString("stockCertificateTurns");
+        var commaIndex = turnsPlayed.indexOf(",");
+        if (commaIndex != -1) {
+          Preferences.setString("stockCertificateTurns", turnsPlayed.substring(commaIndex + 1));
+        }
+        break;
+
+      case ItemPool.PORK_ELF_TOILETRIES_KIT:
+        Preferences.setBoolean("_porkElfToiletriesKitUsed", true);
+        return;
+
+      case ItemPool.GIANT_GNAWING_BONE:
+        Preferences.setBoolean("_giantGnawingBoneUsed", true);
+        return;
+
+      case ItemPool.PORK_ELF_NETI_POT:
+        Preferences.setBoolean("_porkElfNetiPotUsed", true);
+        return;
+
+      case ItemPool.FLEEK_MASCARA:
+        Preferences.setBoolean("_fleekMascaraUsed", true);
+        return;
     }
 
     if (CampgroundRequest.isWorkshedItem(itemId)) {

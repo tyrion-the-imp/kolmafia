@@ -873,6 +873,15 @@ user	hasSushiMat	false	roa
 user	hasTwinkleVision	false
 user	haveBoxingDaydreamHardcore	false
 user	haveBoxingDaydreamSoftcore	false
+user	heartstoneAttunementMods		roa
+user	heartstoneAttunementWord		roa
+user	heartstoneBanishUnlocked	false
+user	heartstoneBuffUnlocked	false
+user	heartstoneKillUnlocked	false
+user	heartstoneLetters		roa
+user	heartstoneLuckUnlocked	false
+user	heartstonePalsUnlocked	false
+user	heartstoneStunUnlocked	false
 user	heavyRainsStartingThunder	0
 user	heavyRainsStartingRain	0
 user	heavyRainsStartingLightning	0
@@ -1191,6 +1200,7 @@ user	mayoInMouth		roa
 user	mayoLevel	0	roa
 user	mayoMinderSetting		roa
 user	meansuckerPrice	400	roa
+user	mechanicalSongbirdProgress	0	roa
 user	merkinCatalogChoices		roa
 user	merkinElementaryBathroomUnlock	false	roa
 user	merkinElementaryJanitorUnlock	false	roa
@@ -1687,7 +1697,8 @@ user	statusWasteProcessing	0
 user	stenchAirportAlways	false
 user	stenchCursedMonster
 user	stillsuitFamiliar
-user	stockCertificateTurn	-1
+user	stockCertificateTurn	-1	deprecated:Use stockCertificateTurns instead
+user	stockCertificateTurns	
 user	stopForFixedWanderer	false
 user	stopForUltraRare	true
 user	streamCrossDefaultTarget	ProtonicBot
@@ -1885,6 +1896,7 @@ user	_aprilBandTomUses	0
 user	_aprilBandTubaUses	0
 user	_aprilBandStaffUses	0
 user	_aprilBandPiccoloUses	0
+user	_archSpadeDigs	0
 user	_armyToddlerCast	false
 user	_astralDrops	0
 user	_aug1Cast	false
@@ -2167,7 +2179,9 @@ user	_edLashCount	0
 user	_eldritchHorrorEvoked	false
 user	_eldritchTentacleFought	false
 user	_eldritchTentaclesFoughtToday	0
+user	_eleventRestEffectGained	false
 user	_elfGuardCookingUsed	0
+user	_elfGuardHangoverCureUsed	false
 user	_elronsCasts	0
 user	_emberingHulkFought	false
 user	_enamorangs	0
@@ -2186,6 +2200,7 @@ user	_eyeAndATwistUsed	false
 user	_fancyChessSetUsed	false
 user	_falloutShelterSpaUsed	false
 user	_fancyHotDogEaten	false
+user	_faradayCageRestEffectGained	false
 user	_farmerItemsCollected	false
 user	_favoriteBirdVisited	false
 user	_favorRareSummons	0
@@ -2214,6 +2229,7 @@ user	_fireworksShopEquipmentBought	false
 user	_fireworkUsed	false
 user	_fishyPipeUsed	false
 user	_flagellateFlagonUsed	false
+user	_fleekMascaraUsed	false
 user	_floristPlantsUsed
 user	_floundryItemCreated	false
 user	_floundryItemUsed	false
@@ -2245,6 +2261,7 @@ user	_garbageItemChanged	false
 user	_generateIronyUsed	0
 user	_genieFightsUsed	0
 user	_genieWishesUsed	0
+user	_giantGnawingBoneUsed	false
 user	_gibbererAdv	0
 user	_gibbererCharge	0
 user	_gingerBiggerAlligators	false
@@ -2253,6 +2270,7 @@ user	_gingerbreadCityTurns	0
 user	_gingerbreadClockAdvanced	false
 user	_gingerbreadClockVisited	false
 user	_gingerbreadColumnDestroyed	false
+user	_gingerbreadHouseRestEffectGained	false
 user	_gingerbreadMobHitUsed	false
 user	_glarkCableUses	0
 user	_glennGoldenDiceUsed	false
@@ -2287,6 +2305,12 @@ user	_guzzlrQuestAbandoned	false
 user	_hardKnocksDiplomaUsed	false
 user	_hareAdv	0
 user	_hareCharge	0
+user	_heartstoneBanishUsed	0
+user	_heartstoneBuffUsed	0
+user	_heartstoneKillUsed	0
+user	_heartstoneLuckUsed	false
+user	_heartstonePalsUsed	0
+user	_heartstoneStunUsed	0
 user	_highTopPumps	0
 user	_hippyMeatCollected	false
 user	_hipsterAdv	0
@@ -2299,6 +2323,7 @@ user	_holidayMultitaskingUsed	0
 user	_holoWristCrystal	false
 user	_holoWristDrops	0
 user	_holoWristProgress	0
+user	_hoboFortRestEffectsGained	0
 user	_horsery
 user	_horseryCrazyMox
 user	_horseryCrazyMus
@@ -2454,6 +2479,8 @@ user	_mcHugeLargeSkiPlowUses	0
 user	_mcHugeLargeSlashUses	0
 user	_meatballMachineUsed	false
 user	_meatifyMatterUsed	false
+user	_meatCuteUsed	0
+user	_meatLoafUsed	0
 user	_mediumSiphons	0
 user	_meteoriteAdesUsed	0
 user	_meteorShowerUses	0
@@ -2469,6 +2496,8 @@ user	_miniKiwiTipiDrop	false
 user	_miniMartiniDrops	0
 user	_missGravesVermouthDrunk	false
 user	_missileLauncherUsed	false
+user	_mobiusRingPrimed	false
+user	_mobiusRingPrimedTurn	-1
 user	_mobiusStripEncounters	0
 user	_molehillMountainUsed	false
 user	_momFoodReceived	false
@@ -2484,6 +2513,7 @@ user	_mummeryMods
 user	_mummeryUses
 user	_mushroomGardenVisited	false
 user	_mushroomGardenFights	0
+user	_mushroomHouseRestEffectGained	false
 user	_nanorhinoBanishedMonster
 user	_nanorhinoCharge	100
 user	_navelRunaways	0
@@ -2562,6 +2592,11 @@ user	_pocketProfessorLectures	0
 user	_poisonArrows	0
 user	_pokeGrowFertilizerDrops	0
 user	_poolGames	0
+user	_porkElfMedicineCabinetUsed	false
+user	_porkElfNetiPotUsed	false
+user	_porkElfSinkUsed	false
+user	_porkElfToiletriesKitUsed	false
+user	_porkElfToiletUsed	false
 user	_portableSteamUnitUsed	false
 user	_pottedPowerPlant
 user	_pottedTeaTreeUsed	false
@@ -2576,7 +2611,9 @@ user	_prToday	false
 user	_psychoJarFilled	false
 user	_psychoJarUsed	false
 user	_psychokineticHugUsed	false
+user	_pumpkinRestEffectGained	false
 user	_punchingMirrorUsed	false
+user	_pyramidRestEffectsGained	0
 user	_questESp
 user	_questPartyFair	unstarted
 user	_questPartyFairItemsOpened	0
@@ -2595,6 +2632,7 @@ user	_replicaSnowconeTomeUsed	false
 user	_replicaResolutionLibramUsed	false
 user	_replicaSmithsTomeUsed	false
 user	_requestSandwichSucceeded	false
+user	_residenceCubeRestEffectGained	false
 user	_resolutionAdv	0
 user	_resolutionRareSummons	0
 user	_rhinestonesAcquired	false
@@ -2655,6 +2693,7 @@ user	_snojoParts	0
 user	_snokebombUsed	0
 user	_snowballFactoryUsed	false
 user	_snowconeSummons	0
+user	_snowFortRestEffectGained	false
 user	_snowglobeDrops	0
 user	_snowmanHatPlaceUsed	0
 user	_snowSuitCount	0

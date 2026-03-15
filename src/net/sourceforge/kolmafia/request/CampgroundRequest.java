@@ -89,6 +89,7 @@ public class CampgroundRequest extends GenericRequest {
           // Bedding
           ItemPool.BEANBAG_CHAIR,
           ItemPool.COLD_BEDDING,
+          ItemPool.FOREST_CANOPY_BED,
           ItemPool.GAUZE_HAMMOCK,
           ItemPool.HOT_BEDDING,
           ItemPool.LAZYBONES_RECLINER,
@@ -117,6 +118,7 @@ public class CampgroundRequest extends GenericRequest {
           ItemPool.PICTURE_OF_YOU,
           ItemPool.TIN_ROOF,
           ItemPool.CRIMBO_CANDLE,
+          ItemPool.WET_BLANKET,
 
           // Inside dwelling: "Tasteful" items
           ItemPool.BLACK_BLUE_LIGHT,
@@ -164,37 +166,6 @@ public class CampgroundRequest extends GenericRequest {
 
           // Special item that aids resting
           ItemPool.COMFY_BLANKET);
-
-  public static final int[] transientFurnishings = {
-    // Bedding
-    ItemPool.BEANBAG_CHAIR,
-    ItemPool.COLD_BEDDING,
-    ItemPool.FOREST_CANOPY_BED,
-    ItemPool.GAUZE_HAMMOCK,
-    ItemPool.HOT_BEDDING,
-    ItemPool.LAZYBONES_RECLINER,
-    ItemPool.SALTWATERBED,
-    ItemPool.SLEAZE_BEDDING,
-    ItemPool.SLEEPING_STOCKING,
-    ItemPool.SPIRIT_BED,
-    ItemPool.SPOOKY_BEDDING,
-    ItemPool.STENCH_BEDDING,
-
-    // Inside dwelling: miscellaneous
-    ItemPool.BONSAI_TREE,
-    ItemPool.CUCKOO_CLOCK,
-    ItemPool.FENG_SHUI,
-    ItemPool.LED_CLOCK,
-    ItemPool.LUCKY_CAT_STATUE,
-    ItemPool.MEAT_GLOBE,
-    ItemPool.TIN_ROOF,
-    ItemPool.CRIMBO_CANDLE,
-
-    // Inside dwelling: "Tasteful" items
-    ItemPool.BLACK_BLUE_LIGHT,
-    ItemPool.LOUDMOUTH_LARRY,
-    ItemPool.PLASMA_BALL,
-  };
 
   public static class TallGrass extends AdventureResult {
     public TallGrass(int count) {
@@ -742,9 +713,8 @@ public class CampgroundRequest extends GenericRequest {
     } else {
       // Pick your crop
       CampgroundRequest request = new CampgroundRequest("garden");
-      while (count-- > 0) {
-        RequestThread.postRequest(request);
-      }
+      // the whole crop is picked at once
+      RequestThread.postRequest(request);
     }
   }
 
@@ -959,6 +929,119 @@ public class CampgroundRequest extends GenericRequest {
     }
   }
 
+  private static void handleDwellingRest(final String responseText) {
+    var dwellingId = getCurrentDwelling().getItemId();
+
+    // Pyramid
+    if (dwellingId == ItemPool.BRICKO_PYRAMID
+        && responseText.contains("Spending time in your pyramid")) {
+      // Limit of 3 per day
+      Preferences.increment("_pyramidRestEffectsGained", 1, 3);
+    }
+
+    // Ginormous Pumpkin
+    if (dwellingId == ItemPool.GINORMOUS_PUMPKIN
+        && responseText.contains("You are suffused with pumpkinliness")) {
+      Preferences.setBoolean("_pumpkinRestEffectGained", true);
+    }
+
+    // Giant Faraday Cage
+    if (dwellingId == ItemPool.GIANT_FARADAY_CAGE
+        && responseText.contains("All of the static electricity")) {
+      Preferences.setBoolean("_faradayCageRestEffectGained", true);
+    }
+
+    // Snow Fort
+    if (dwellingId == ItemPool.SNOW_FORT
+        && responseText.contains("Your snow fort makes you feel safe")) {
+      Preferences.setBoolean("_snowFortRestEffectGained", true);
+    }
+
+    // Elevent
+    if (dwellingId == ItemPool.ELEVENT
+        && responseText.contains("You get some sleep that is, like, 10% better")) {
+      Preferences.setBoolean("_eleventRestEffectGained", true);
+    }
+
+    // Tipi
+    // It looks like another mini kiwi has sprung up next to your tiny kiwi tipi!
+    if (dwellingId == ItemPool.MINI_KIWI_TIPI
+        && responseText.contains("next to your tiny kiwi tipi")) {
+      Preferences.setBoolean("_miniKiwiTipiDrop", true);
+    }
+
+    // Gingerbread House
+    // Your festively-decorated dwelling brings a smile to your face as you drift off.
+    if (dwellingId == ItemPool.GINGERBREAD_HOUSE
+        && responseText.contains("festively-decorated dwelling brings a smile to your face")) {
+      Preferences.setBoolean("_gingerbreadHouseRestEffectGained", true);
+    }
+
+    // Hobo Fortress
+    if (dwellingId == ItemPool.HOBO_FORTRESS
+        && responseText.contains("You stare up at the vaulted ceiling of your hobo fortress")) {
+      // No limit
+      Preferences.increment("_hoboFortRestEffectsGained");
+    }
+
+    // Residence-Cube
+    if (dwellingId == ItemPool.RESIDENCE_CUBE
+        && responseText.contains("the spinning would make it harder to relax")) {
+      Preferences.setBoolean("_residenceCubeRestEffectGained", true);
+    }
+
+    // Mushroom House
+    if (dwellingId == ItemPool.HOUSE_SIZED_MUSHROOM) {
+      // Mushroom house does not have an effect-specific message
+      Preferences.setBoolean("_mushroomHouseRestEffectGained", true);
+    }
+  }
+
+  private static void handleFurnishingRest(final String responseText) {
+    // Your black-and-blue light cycles wildly between
+    // black and blue, then emits a shower of sparks as it
+    // goes permanently black.
+    if (responseText.contains("goes permanently black")) {
+      CampgroundRequest.removeCampgroundItem(BLACK_BLUE_LIGHT);
+    }
+
+    // Your blue plasma ball crackles weakly, emits a whine
+    // that sounds like "pika...pika...pika..." and goes
+    // dark.
+    if (responseText.contains("crackles weakly")) {
+      CampgroundRequest.removeCampgroundItem(PLASMA_BALL);
+    }
+
+    // Your Loudmouth Larry Lamprey twitches and flops
+    // wildly, singing "Daisy, Daisy, tell me your answer
+    // true," in ever-slower, distorted loops. Looks like
+    // it's ready to go to its eternal fishy reward.
+    if (responseText.contains("eternal fishy reward")) {
+      CampgroundRequest.removeCampgroundItem(LOUDMOUTH_LARRY);
+    }
+
+    if (responseText.contains("lunge toward the clock")) {
+      CampgroundRequest.removeCampgroundItem(LED_CLOCK);
+      Preferences.setBoolean("_confusingLEDClockUsed", true);
+    }
+
+    // Sleeping near the medicine cabinet is making you healthy.
+    if (responseText.contains("Sleeping near the medicine cabinet")) {
+      Preferences.setBoolean("_porkElfMedicineCabinetUsed", true);
+    }
+
+    // You wash your hands after resting.
+    if (responseText.contains("You wash your hands")) {
+      Preferences.setBoolean("_porkElfSinkUsed", true);
+    }
+
+    // Your Pork Elf toilet allows you to digest super quickly.
+    if (responseText.contains("digest super quickly")) {
+      KoLCharacter.setFullness(KoLCharacter.getFullness() - 1);
+      Preferences.setBoolean("_porkElfToiletUsed", true);
+    }
+  }
+
   public static void parseResponse(final String urlString, final String responseText) {
     // Workshed may redirect to shop.php
     if (urlString.startsWith("shop.php")) {
@@ -1031,28 +1114,6 @@ public class CampgroundRequest extends GenericRequest {
         Preferences.increment("timesRested", 1);
       }
 
-      // Your black-and-blue light cycles wildly between
-      // black and blue, then emits a shower of sparks as it
-      // goes permanently black.
-      if (responseText.contains("goes permanently black")) {
-        CampgroundRequest.removeCampgroundItem(BLACK_BLUE_LIGHT);
-      }
-
-      // Your blue plasma ball crackles weakly, emits a whine
-      // that sounds like "pika...pika...pika..." and goes
-      // dark.
-      if (responseText.contains("crackles weakly")) {
-        CampgroundRequest.removeCampgroundItem(PLASMA_BALL);
-      }
-
-      // Your Loudmouth Larry Lamprey twitches and flops
-      // wildly, singing "Daisy, Daisy, tell me your answer
-      // true," in ever-slower, distorted loops. Looks like
-      // it's ready to go to its eternal fishy reward.
-      if (responseText.contains("eternal fishy reward")) {
-        CampgroundRequest.removeCampgroundItem(LOUDMOUTH_LARRY);
-      }
-
       // You dream that your teeth fall out, and you put them
       // in your pocket for safe keeping. Fortunately, when
       // you wake up, you appear to have grown a new set.
@@ -1064,11 +1125,6 @@ public class CampgroundRequest extends GenericRequest {
       // youse goes."
       if (responseText.contains("youse got some teeth")) {
         ResultProcessor.processItem(ItemPool.LOOSE_TEETH, -1);
-      }
-
-      if (responseText.contains("lunge toward the clock")) {
-        CampgroundRequest.removeCampgroundItem(LED_CLOCK);
-        Preferences.setBoolean("_confusingLEDClockUsed", true);
       }
 
       if (responseText.contains("razor-sharp-claw-tipped arms")
@@ -1083,10 +1139,8 @@ public class CampgroundRequest extends GenericRequest {
         Preferences.increment("_knuckleboneDrops", 1, 100);
       }
 
-      // It looks like another mini kiwi has sprung up next to your tiny kiwi tipi!
-      if (responseText.contains("next to your tiny kiwi tipi")) {
-        Preferences.setBoolean("_miniKiwiTipiDrop", true);
-      }
+      handleDwellingRest(responseText);
+      handleFurnishingRest(responseText);
 
       handleCinchoRest(responseText);
 
@@ -1178,6 +1232,11 @@ public class CampgroundRequest extends GenericRequest {
       return;
     }
 
+    if (action.equals("terminal")) {
+      CampgroundRequest.parseTerminal(responseText);
+      return;
+    }
+
     if (action.equals("monolith")) {
       Preferences.setBoolean("_blackMonolithUsed", true);
       return;
@@ -1232,14 +1291,8 @@ public class CampgroundRequest extends GenericRequest {
       updateElVibratoPortal();
     }
 
-    if (responseText.contains("campterminal.gif")
-        && Preferences.getString("sourceTerminalEducateKnown").equals("")) {
-      // There is a Terminal, but we don't know what upgrades it has, so find out
-      RequestThread.postRequest(new TerminalRequest("status"));
-      RequestThread.postRequest(new TerminalRequest("educate"));
-      RequestThread.postRequest(new TerminalRequest("enhance"));
-      RequestThread.postRequest(new TerminalRequest("enquiry"));
-      RequestThread.postRequest(new TerminalRequest("extrude"));
+    if (responseText.contains("campterminal.gif")) {
+      checkTerminalUpgrades();
     }
 
     findImage(responseText, "teatree", ItemPool.POTTED_TEA_TREE);
@@ -1266,6 +1319,17 @@ public class CampgroundRequest extends GenericRequest {
     }
 
     CampgroundRequest.parseDwelling(responseText);
+  }
+
+  private static void checkTerminalUpgrades() {
+    if (Preferences.getString("sourceTerminalEducateKnown").equals("")) {
+      // There is a Terminal, but we don't know what upgrades it has, so find out
+      RequestThread.postRequest(new TerminalRequest("status"));
+      RequestThread.postRequest(new TerminalRequest("educate"));
+      RequestThread.postRequest(new TerminalRequest("enhance"));
+      RequestThread.postRequest(new TerminalRequest("enquiry"));
+      RequestThread.postRequest(new TerminalRequest("extrude"));
+    }
   }
 
   private static boolean parseGarden(final String responseText) {
@@ -1463,6 +1527,14 @@ public class CampgroundRequest extends GenericRequest {
         || findRockGarden(responseText);
   }
 
+  private static void parseTerminal(final String responseText) {
+    findImage(responseText, "terminal_lightos.gif", ItemPool.SOURCE_TERMINAL);
+
+    if (responseText.contains("terminal_lightos.gif")) {
+      checkTerminalUpgrades();
+    }
+  }
+
   private static boolean findRockGarden(final String responseText) {
     if (!responseText.contains("/rockgarden/")) {
       return false;
@@ -1601,6 +1673,10 @@ public class CampgroundRequest extends GenericRequest {
 
         if (name.equals("Really Good Feng Shui")) {
           name = "Feng Shui for Big Dumb Idiots";
+        } else if (name.equals("Crimbo lights")) {
+          name = "string of Crimbo lights";
+        } else if (name.equals("Crimbo reindeer")) {
+          name = "plastic Crimbo reindeer";
         }
 
         AdventureResult ar = ItemPool.get(name, 1);
@@ -1755,13 +1831,6 @@ public class CampgroundRequest extends GenericRequest {
   public static void setCurrentDwelling(int itemId) {
     CampgroundRequest.currentDwelling = ItemPool.get(itemId, 1);
     CampgroundRequest.currentDwellingLevel = CampgroundRequest.dwellingLevel(itemId);
-  }
-
-  public static void destroyFurnishings() {
-    CampgroundRequest.setCurrentBed(null);
-    for (int itemId : CampgroundRequest.transientFurnishings) {
-      CampgroundRequest.removeCampgroundItem(ItemPool.get(itemId, 1));
-    }
   }
 
   public static AdventureResult getCurrentBed() {
@@ -1979,7 +2048,8 @@ public class CampgroundRequest extends GenericRequest {
 
     if (action.equals("inspectdwelling")
         || action.equals("inspectkitchen")
-        || action.equals("workshed")) {
+        || action.equals("workshed")
+        || action.equals("terminal")) {
       // Nothing to log.
       return true;
     }
@@ -2020,5 +2090,27 @@ public class CampgroundRequest extends GenericRequest {
     RequestLogger.updateSessionLog();
     RequestLogger.updateSessionLog(message);
     return true;
+  }
+
+  public static final boolean haveCampground() {
+    if (KoLCharacter.getLimitMode().limitCampground()) {
+      return false;
+    }
+    if (KoLCharacter.isEd()
+        || KoLCharacter.inRobocore()
+        || KoLCharacter.inNuclearAutumn()
+        || KoLCharacter.inSmallcore()
+        || KoLCharacter.inWereProfessor()
+        || KoLCharacter.isMeat()) {
+      return false;
+    }
+    return true;
+  }
+
+  public static final boolean haveWorkshed() {
+    if (KoLCharacter.inSmallcore()) {
+      return true;
+    }
+    return haveCampground();
   }
 }

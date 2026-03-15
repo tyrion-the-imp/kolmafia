@@ -108,11 +108,17 @@ Cast	Fire a fingertrap arrow	_fingertrapArrows	10
 Cast	Fire a poison arrow	_poisonArrows	10
 Cast	Fire the Jokester's Gun	_firedJokestersGun
 Cast	Fix Jukebox	_peteJukeboxFixed	3
-Cast	Generate Irony	_generateIronyUsed
+Cast	Generate Irony	_generateIronyUsed	[pref(skillLevel245)]
 Cast	Gingerbread Mob Hit	_gingerbreadMobHitUsed
 Cast	Give Your Opponent the Stinkeye	_stinkyCheeseBanisherUsed
 Cast	Grab a Cold One	_coldOne
 Cast	Gulp Latte	_latteDrinkUsed
+Cast	Heartstone: %kill	_heartstoneKillUsed	5
+Cast	Heartstone: %banish	_heartstoneBanishUsed	5
+Cast	Heartstone: %stun	_heartstoneStunUsed	5
+Cast	Heartstone: %luck	_heartstoneLuckUsed
+Cast	Heartstone: %pals	_heartstonePalsUsed	5
+Cast	Heartstone: %buff	_heartstoneBuffUsed	5
 Cast	Hugs and Kisses!	_xoHugsUsed	11
 Cast	Implode Universe	_universeImploded	[pref(skillLevel188)]
 Cast	Incite Riot	_peteRiotIncited
@@ -132,6 +138,8 @@ Cast	Map the Monsters	_monstersMapped	3
 Cast	McHugeLarge Avalanche	_mcHugeLargeAvalancheUses	3
 Cast	McHugeLarge Ski Plow	_mcHugeLargeSkiPlowUses	11
 Cast	McHugeLarge Slash	_mcHugeLargeSlashUses	3
+Cast	Meat Cute	_meatCuteUsed	5
+Cast	Meat Loaf	_meatLoafUsed	11
 Cast	Meatify Matter	_meatifyMatterUsed
 Cast	Meteor Shower	_meteorShowerUses	5
 Cast	Offer Latte to Opponent	_latteCopyUsed
@@ -264,6 +272,7 @@ Use	Clara's bell	_claraBellUsed
 Use	Crimbo training manual	_crimboTraining
 Use	Cuppa Sobrie tea	_sobrieTeaUsed
 Use	Cuppa Voraci tea	_voraciTeaUsed
+Use	Elf Guard hangover cure	_elfGuardHangoverCureUsed
 Use	Emblem of Ak'gyxoth	_akgyxothUsed
 Use	Frosty's frosty mug	_frostyMugUsed
 Use	Glenn's golden dice	_glennGoldenDiceUsed
@@ -351,7 +360,9 @@ Use	festive warbear bank	_warbearBankUsed
 Use	fish hatchet	_floundryItemUsed
 Use	fishy pipe	_fishyPipeUsed
 Use	flagellate flagon	_flagellateFlagonUsed
+Use	Fleek&trade; mascara	_fleekMascaraUsed
 Use	fudge spork	_fudgeSporkUsed
+Use	giant gnawing bone	_giantGnawingBoneUsed
 Use	glass gnoll eye	_gnollEyeUsed
 Use	green rocket	_fireworkUsed
 Use	handmade hobby horse	_hobbyHorseUsed
@@ -381,6 +392,8 @@ Use	perfectly fair coin	_perfectlyFairCoinUsed
 Use	picky tweezers	_pickyTweezersUsed
 Use	pirate dinghy	_pirateDinghyUsed
 Use	pixel orb	_pixelOrbUsed
+Use	Pork Elf neti pot	_porkElfNetiPotUsed
+Use	Pork Elf toiletries kit	_porkElfToiletriesKitUsed
 Use	portable ping-pong table	_pingPongGame
 Use	portable steam unit	_portableSteamUnitUsed
 Use	pressurized potion of pneumaticity	_pneumaticityPotionUsed

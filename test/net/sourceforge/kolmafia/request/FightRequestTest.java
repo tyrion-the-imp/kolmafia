@@ -4347,4 +4347,29 @@ public class FightRequestTest {
       assertThat(Preferences.getString("eweItem"), equalTo(""));
     }
   }
+
+  @Test
+  public void canDetectHeartstoneBanish() {
+    var cleanups = new Cleanups(withFight(), withBanishedMonsters(""));
+
+    try (cleanups) {
+      parseCombatData(
+          "request/test_fight_heartstone_banish.html", "fight.php?action=skill&whichskill=7587");
+
+      assertThat(
+          "banishedMonsters", hasStringValue(startsWith("pygmy bowler:Heartstone %banish:")));
+    }
+  }
+
+  @Test
+  public void canUpdateStolenLetters() {
+    var cleanups = new Cleanups(withFight(), withProperty("heartstoneLetters", "GO"));
+
+    try (cleanups) {
+      parseCombatData(
+          "request/test_fight_steal_letter.html", "fight.php?action=skill&whichskill=7585");
+
+      assertThat("heartstoneLetters", isSetTo("GON"));
+    }
+  }
 }

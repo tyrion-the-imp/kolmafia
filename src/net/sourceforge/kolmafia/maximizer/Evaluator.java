@@ -37,7 +37,6 @@ import net.sourceforge.kolmafia.modifiers.BooleanModifier;
 import net.sourceforge.kolmafia.modifiers.DerivedModifier;
 import net.sourceforge.kolmafia.modifiers.DoubleModifier;
 import net.sourceforge.kolmafia.modifiers.DoubleModifierCollection;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
@@ -524,6 +523,8 @@ public class Evaluator {
           keyword = keyword.substring(0, keyword.length() - 11) + "damage percent";
         } else if (keyword.endsWith(" exp")) {
           keyword = keyword.substring(0, keyword.length() - 3) + "experience";
+        } else if (keyword.startsWith("organ")) {
+          keyword = "organ capacity";
         }
         index = DoubleModifier.byCaselessName(keyword);
       }
@@ -571,6 +572,12 @@ public class Evaluator {
           case "passive damage" -> {
             this.weight.set(DoubleModifier.DAMAGE_AURA, weight);
             this.weight.set(DoubleModifier.THORNS, weight);
+            continue;
+          }
+          case "organ capacity" -> {
+            this.weight.set(DoubleModifier.STOMACH_CAPACITY, weight);
+            this.weight.set(DoubleModifier.LIVER_CAPACITY, weight);
+            this.weight.set(DoubleModifier.SPLEEN_CAPACITY, weight);
             continue;
           }
         }
@@ -639,6 +646,12 @@ public class Evaluator {
           index = DoubleModifier.SPELL_CRITICAL_PCT;
         } else if (keyword.startsWith("sprinkle")) {
           index = DoubleModifier.SPRINKLES;
+        } else if (keyword.startsWith("stomach")) {
+          index = DoubleModifier.STOMACH_CAPACITY;
+        } else if (keyword.startsWith("liver")) {
+          index = DoubleModifier.LIVER_CAPACITY;
+        } else if (keyword.startsWith("spleen")) {
+          index = DoubleModifier.SPLEEN_CAPACITY;
         } else if (keyword.equals("ocrs")) {
           this.noTiebreaker = true;
           this.beeosity = 999;
@@ -710,10 +723,10 @@ public class Evaluator {
   }
 
   private void addFudge(DoubleModifier source, DoubleModifier... extras) {
-    final double fudge = this.weight.get(source) * 0.0001f;
+    final double fudge = this.weight.getDouble(source) * 0.0001f;
     if (fudge > 0) {
       for (var extra : extras) {
-        this.weight.add(extra, fudge);
+        this.weight.increment(extra, fudge);
       }
     }
   }
@@ -759,7 +772,7 @@ public class Evaluator {
 
     double score = 0.0;
     for (var mod : DoubleModifier.DOUBLE_MODIFIERS) {
-      double weight = this.weight.get(mod);
+      double weight = this.weight.getDouble(mod);
       double min = this.min.get(mod);
       if (weight == 0.0 && min == Double.NEGATIVE_INFINITY) continue;
       double val = mods.getDouble(mod);
@@ -891,7 +904,7 @@ public class Evaluator {
       }
     }
     // Add fudge factor for Rollover Effect
-    if (!mods.getStrings(MultiStringModifier.ROLLOVER_EFFECT).isEmpty()) {
+    if (!mods.getStrings(StringModifier.ROLLOVER_EFFECT).isEmpty()) {
       score += 0.01f;
     }
     if (score < this.totalMin) this.failed = true;
@@ -1297,7 +1310,7 @@ public class Evaluator {
               }
             }
             if (id == ItemPool.BROKEN_CHAMPAGNE
-                && this.weight.get(DoubleModifier.ITEMDROP) > 0
+                && this.weight.getDouble(DoubleModifier.ITEMDROP) > 0
                 && (Preferences.getInteger("garbageChampagneCharge") > 0
                     || !Preferences.getBoolean("_garbageItemChanged"))) {
               // This is always going to be worth including if useful
@@ -1336,10 +1349,10 @@ public class Evaluator {
             break;
           case SHIRT:
             if (id == ItemPool.MAKESHIFT_GARBAGE_SHIRT
-                && (this.weight.get(DoubleModifier.EXPERIENCE) > 0
-                    || this.weight.get(DoubleModifier.MUS_EXPERIENCE) > 0
-                    || this.weight.get(DoubleModifier.MYS_EXPERIENCE) > 0
-                    || this.weight.get(DoubleModifier.MOX_EXPERIENCE) > 0)
+                && (this.weight.getDouble(DoubleModifier.EXPERIENCE) > 0
+                    || this.weight.getDouble(DoubleModifier.MUS_EXPERIENCE) > 0
+                    || this.weight.getDouble(DoubleModifier.MYS_EXPERIENCE) > 0
+                    || this.weight.getDouble(DoubleModifier.MOX_EXPERIENCE) > 0)
                 && Preferences.getInteger("garbageShirtCharge") > 0) {
               // This is always going to be worth including if useful
               item.requiredFlag = true;

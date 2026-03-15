@@ -36,7 +36,6 @@ import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.VYKEACompanionData;
 import net.sourceforge.kolmafia.equipment.Slot;
 import net.sourceforge.kolmafia.modifiers.ModifierList;
-import net.sourceforge.kolmafia.modifiers.MultiStringModifier;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.ConcoctionPool;
@@ -148,7 +147,7 @@ public class ItemDatabase {
       return "";
     }
 
-    String[] accessTypes = data.split("\\s*,\\s*");
+    String[] accessTypes = StringUtilities.splitByComma(data);
     for (String accessType : accessTypes) {
       if (!ACCESS.contains(Attribute.byDescription(accessType))) {
         throw new IllegalStateException("Data file contained unrecognised flag");
@@ -343,7 +342,7 @@ public class ItemDatabase {
         String image = data[3];
         ItemDatabase.imageById.put(itemId, image);
 
-        String[] usages = data[4].split("\\s*,\\s*");
+        String[] usages = StringUtilities.splitByComma(data[4]);
         String access = ItemDatabase.parseAccess(data[5]);
         int price = StringUtilities.parseInt(data[6]);
 
@@ -990,7 +989,7 @@ public class ItemDatabase {
     }
 
     // Potions grant an effect. Check for a new effect.
-    ModifierDatabase.getMultiStringModifier(ModifierType.ITEM, itemId, MultiStringModifier.EFFECT)
+    ModifierDatabase.getMultiStringModifier(ModifierType.ITEM, itemId, StringModifier.EFFECT)
         .stream()
         .filter(e -> !e.isEmpty())
         .filter(e -> EffectDatabase.getEffectId(e, true) == -1)
@@ -1009,7 +1008,7 @@ public class ItemDatabase {
 
     // Equipment can have Rollover Effects. Check for new effect.
     ModifierDatabase.getMultiStringModifier(
-            ModifierType.ITEM, itemId, MultiStringModifier.ROLLOVER_EFFECT)
+            ModifierType.ITEM, itemId, StringModifier.ROLLOVER_EFFECT)
         .stream()
         .filter(e -> !e.isEmpty())
         .filter(e -> EffectDatabase.getEffectId(e, true) == -1)
@@ -1529,11 +1528,23 @@ public class ItemDatabase {
   }
 
   /**
-   * Returns the price for the item with the given Id.
+   * Returns the raw price for the item with the given Id.
+   *
+   * @return The price associated with the item
+   */
+  public static final int getRawPriceById(final int itemId) {
+    return ItemDatabase.priceById.getOrDefault(itemId, 0);
+  }
+
+  /**
+   * Returns the price for the item with the given Id, returning 0 if undiscardable.
    *
    * @return The price associated with the item
    */
   public static final int getPriceById(final int itemId) {
+    if (!isDiscardable(itemId)) {
+      return 0;
+    }
     return ItemDatabase.priceById.getOrDefault(itemId, 0);
   }
 
@@ -2226,7 +2237,7 @@ public class ItemDatabase {
             ModifierType.ITEM, ItemPool.VAMPIRE_VINTNER_WINE, iEnchantments);
 
     // Validate this by seeing what effect this wine grants.
-    String effectName = imods.getString(MultiStringModifier.EFFECT);
+    String effectName = imods.getString(StringModifier.EFFECT);
     int effectId = EffectDatabase.getEffectId(effectName);
 
     // If it doesn't grant one, this is the generic 1950 Vampire Vintner wine

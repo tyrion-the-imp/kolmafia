@@ -473,6 +473,21 @@ public class MonsterDatabase {
     MonsterDatabase.addMapping(underSeaMap, "Naughty Sorceress", "Nautical Seaceress");
     MonsterDatabase.addMapping(underSeaMap, "Naughty Sorceress (2)", null);
     MonsterDatabase.addMapping(underSeaMap, "Naughty Sorceress (3)", null);
+
+    Map<MonsterData, MonsterData> meatMap = getMap(Path.ADVENTURER_MEATS_WORLD);
+    MonsterDatabase.addMapping(meatMap, "beefy bodyguard bat", "beef bodyguard bat");
+    MonsterDatabase.addMapping(meatMap, "Boss Bat", "Basted Boss Bat");
+    MonsterDatabase.addMapping(meatMap, "Knob Goblin King", "Gabogooblin King");
+    MonsterDatabase.addMapping(meatMap, "Bonerdagon", "The Maety Bonerdagon");
+    MonsterDatabase.addMapping(meatMap, "Groar", "Groarst");
+    MonsterDatabase.addMapping(meatMap, "Dr. Awkward", "Feeble Dr. Awkward, El Beef");
+    MonsterDatabase.addMapping(meatMap, "Lord Spookyraven", "Lard Spookyraven");
+    MonsterDatabase.addMapping(meatMap, "Protector Spectre", "Protector Speck-ter");
+    MonsterDatabase.addMapping(meatMap, "The Big Wisniewski", "The Big Mac Wisniewski");
+    MonsterDatabase.addMapping(meatMap, "The Man", "The Manwich");
+    MonsterDatabase.addMapping(meatMap, "Naughty Sorceress", "Naughty Sorceress, all sausage");
+    MonsterDatabase.addMapping(meatMap, "Naughty Sorceress (2)", null);
+    MonsterDatabase.addMapping(meatMap, "Naughty Sorceress (3)", null);
   }
 
   public static Map<MonsterData, MonsterData> getMonsterPathMap(final String pathName) {
@@ -508,7 +523,7 @@ public class MonsterDatabase {
         String attributes = data.length > 3 ? data[3] : "";
 
         int id = StringUtilities.isNumeric(idString) ? StringUtilities.parseInt(idString) : 0;
-        String[] images = imageString.split("\\s*,\\s*");
+        String[] images = StringUtilities.splitByComma(imageString);
 
         MonsterData monster = MonsterDatabase.newMonster(name, id, images, attributes);
         if (monster == null) {
