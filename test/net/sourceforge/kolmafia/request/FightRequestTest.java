@@ -4372,4 +4372,51 @@ public class FightRequestTest {
       assertThat("heartstoneLetters", isSetTo("GON"));
     }
   }
+
+  @Nested
+  class BaseballDiamond {
+    @Test
+    public void canInitializeBaseballTeamPreferenceWhenEmpty() {
+      var cleanups = new Cleanups(withProperty("baseballTeam", ""), withFight());
+
+      try (cleanups) {
+        parseCombatData("request/test_fight_baseball_diamond.html");
+        assertThat("baseballTeam", isSetTo("977"));
+      }
+    }
+
+    @Test
+    public void baseballTeamPreferenceBehavesAsFifoQueue() {
+      var cleanups = new Cleanups(withProperty("baseballTeam", "1,2,3,4,5,6,7,8,9"), withFight());
+
+      try (cleanups) {
+        parseCombatData("request/test_fight_baseball_diamond.html");
+        assertThat("baseballTeam", isSetTo("2,3,4,5,6,7,8,9,977"));
+      }
+    }
+
+    @Test
+    public void logsRecruitmentMessage() {
+      RequestLoggerOutput.startStream();
+      var cleanups = new Cleanups(withProperty("baseballTeam", ""), withFight());
+
+      try (cleanups) {
+        parseCombatData("request/test_fight_baseball_diamond.html");
+        var stream = RequestLoggerOutput.stopStream();
+        assertThat(stream, containsString("You recruit a suckubus to play baseball."));
+      }
+    }
+
+    @Test
+    public void tracksCurveballWins() {
+      RequestLoggerOutput.startStream();
+      var cleanups = new Cleanups(withProperty("_curveballFightsLeft", 2));
+      try (cleanups) {
+        parseCombatData("request/test_fight_baseball_curveball_free.html");
+        var text = RequestLoggerOutput.stopStream();
+        assertThat(text, containsString("Having bent physics with your non-Euclidean curveball"));
+        assertThat("_curveballFightsLeft", isSetTo(1));
+      }
+    }
+  }
 }

@@ -113,6 +113,7 @@ import net.sourceforge.kolmafia.persistence.FamiliarDatabase;
 import net.sourceforge.kolmafia.persistence.FaxBotDatabase;
 import net.sourceforge.kolmafia.persistence.FaxBotDatabase.FaxBot;
 import net.sourceforge.kolmafia.persistence.FaxBotDatabase.Monster;
+import net.sourceforge.kolmafia.persistence.HeartstoneDatabase;
 import net.sourceforge.kolmafia.persistence.HolidayDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
@@ -1905,6 +1906,9 @@ public abstract class RuntimeLibrary {
 
     params = List.of(namedParam("skill", DataTypes.SKILL_TYPE));
     functions.add(new LibraryFunction("hp_cost", DataTypes.INT_TYPE, params));
+
+    params = List.of(namedParam("skill", DataTypes.SKILL_TYPE));
+    functions.add(new LibraryFunction("meat_cost", DataTypes.INT_TYPE, params));
 
     params = List.of(namedParam("skill", DataTypes.SKILL_TYPE));
     functions.add(new LibraryFunction("turns_per_cast", DataTypes.INT_TYPE, params));
@@ -6757,9 +6761,16 @@ public abstract class RuntimeLibrary {
     }
 
     long cost =
-        Arrays.stream(concoction.getIngredients()).mapToLong(MallPriceManager::getMallPrice).sum();
+        Arrays.stream(concoction.getIngredients())
+            .mapToLong(MallPriceManager::getMallPrice)
+            .map(x -> x == -1 ? Integer.MAX_VALUE : x)
+            .sum();
     long creationCost = ConcoctionDatabase.getCreationCost(concoction.getMixingMethod());
-    return new Value(cost + creationCost);
+    long sum = cost + creationCost;
+    if (sum > Integer.MAX_VALUE) {
+      sum = Integer.MAX_VALUE;
+    }
+    return new Value(sum);
   }
 
   public static Value mall_price(ScriptRuntime controller, final Value item, final Value maxAge) {
@@ -7598,6 +7609,10 @@ public abstract class RuntimeLibrary {
 
   public static Value hp_cost(ScriptRuntime controller, final Value skill) {
     return new Value(SkillDatabase.getHPCost((int) skill.intValue()));
+  }
+
+  public static Value meat_cost(ScriptRuntime controller, final Value skill) {
+    return new Value(SkillDatabase.getMeatCost((int) skill.intValue()));
   }
 
   public static Value turns_per_cast(ScriptRuntime controller, final Value skill) {
@@ -12146,23 +12161,11 @@ public abstract class RuntimeLibrary {
   }
 
   private static Value heartstone_middle_letter(String monsterName) {
-    if (monsterName.isEmpty()) {
+    var middleLetter = HeartstoneDatabase.middleLetter(monsterName);
+    if (middleLetter == null) {
       return DataTypes.STRING_INIT;
     }
-    var noSpaces = monsterName.replaceAll(" ", "");
-    var bytes = noSpaces.getBytes(StandardCharsets.UTF_8);
-    var length = bytes.length;
-    // even length has no middle
-    if (length % 2 == 0) {
-      return DataTypes.STRING_INIT;
-    }
-    var middle =
-        new String(new byte[] {bytes[length / 2]}, StandardCharsets.UTF_8)
-            .toUpperCase(Locale.ENGLISH);
-    if (!middle.matches("[A-Z]")) {
-      return DataTypes.STRING_INIT;
-    }
-    return DataTypes.makeStringValue(middle);
+    return DataTypes.makeStringValue(middleLetter.letter());
   }
 
   public static Value turns_until_mobius_noncombat_available(ScriptRuntime controller) {
