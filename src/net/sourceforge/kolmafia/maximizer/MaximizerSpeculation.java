@@ -99,6 +99,20 @@ public class MaximizerSpeculation extends Speculation
         this.simplicity += slot == Slot.WEAPON ? -1 : 1;
       }
     }
+    // When an equipment-type keyword (club, sword, shield, etc.) is active, prefer any
+    // qualifying item over leaving the slot empty: give it a nudge above UNEQUIP's +2.
+    if (Maximizer.eval.isWeaponTypeRequired()) {
+      AdventureResult weapon = this.equipment.get(Slot.WEAPON);
+      if (weapon != null && !weapon.equals(EquipmentRequest.UNEQUIP)) {
+        this.simplicity += 3;
+      }
+    }
+    if (Maximizer.eval.isShieldRequired()) {
+      AdventureResult offhand = this.equipment.get(Slot.OFFHAND);
+      if (offhand != null && !offhand.equals(EquipmentRequest.UNEQUIP)) {
+        this.simplicity += 3;
+      }
+    }
     return this.tiebreaker;
   }
 
@@ -321,8 +335,7 @@ public class MaximizerSpeculation extends Speculation
     if (this.equipment.get(Slot.FAMILIAR) == null) {
       List<CheckedItem> possible = possibles.get(Slot.FAMILIAR);
       boolean any = false;
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        AdventureResult item = possible.get(pos);
+      for (AdventureResult item : possible) {
         int count = item.getCount();
         if (item.equals(this.equipment.get(Slot.OFFHAND))) {
           --count;
@@ -376,8 +389,7 @@ public class MaximizerSpeculation extends Speculation
     if (this.equipment.get(Slot.CONTAINER) == null) {
       List<CheckedItem> possible = possibles.get(Slot.CONTAINER);
       boolean any = false;
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        CheckedItem item = possible.get(pos);
+      for (CheckedItem item : possible) {
         int count = item.getCount();
         FoldGroup group = ItemDatabase.getFoldGroup(item.getName());
         if (group != null && this.foldables) {
@@ -513,8 +525,7 @@ public class MaximizerSpeculation extends Speculation
     if (this.equipment.get(Slot.HAT) == null) {
       List<CheckedItem> possible = possibles.get(Slot.HAT);
       boolean any = false;
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        CheckedItem item = possible.get(pos);
+      for (CheckedItem item : possible) {
         int count = item.getCount();
         if (item.equals(this.equipment.get(Slot.FAMILIAR))) {
           --count;
@@ -573,8 +584,7 @@ public class MaximizerSpeculation extends Speculation
       boolean any = false;
       if (KoLCharacter.isTorsoAware()) {
         List<CheckedItem> possible = possibles.get(Slot.SHIRT);
-        for (int pos = 0; pos < possible.size(); ++pos) {
-          AdventureResult item = possible.get(pos);
+        for (AdventureResult item : possible) {
           int count = item.getCount();
           if (item.equals(this.equipment.get(Slot.FAMILIAR))) {
             --count;
@@ -614,8 +624,7 @@ public class MaximizerSpeculation extends Speculation
     if (this.equipment.get(Slot.PANTS) == null) {
       List<CheckedItem> possible = possibles.get(Slot.PANTS);
       boolean any = false;
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        AdventureResult item = possible.get(pos);
+      for (AdventureResult item : possible) {
         int count = item.getCount();
         if (item.equals(this.equipment.get(Slot.FAMILIAR))) {
           --count;
@@ -654,8 +663,7 @@ public class MaximizerSpeculation extends Speculation
     if (this.equipment.get(Slot.HOLSTER) == null) {
       List<CheckedItem> possible = possibles.get(Slot.HOLSTER);
       boolean any = false;
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        AdventureResult item = possible.get(pos);
+      for (AdventureResult item : possible) {
         int count = item.getCount();
         if (count <= 0) continue;
         this.equipment.put(Slot.HOLSTER, item);
@@ -686,8 +694,7 @@ public class MaximizerSpeculation extends Speculation
     if (this.equipment.get(Slot.WEAPON) == null) {
       List<CheckedItem> possible = possibles.get(Slot.WEAPON);
       // boolean any = false;
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        AdventureResult item = possible.get(pos);
+      for (AdventureResult item : possible) {
         if (!chefstaffable && EquipmentDatabase.getItemType(item.getItemId()).equals("chefstaff")) {
           continue;
         }
@@ -755,8 +762,7 @@ public class MaximizerSpeculation extends Speculation
           };
       boolean any = false;
 
-      for (int pos = 0; pos < possible.size(); ++pos) {
-        AdventureResult item = possible.get(pos);
+      for (AdventureResult item : possible) {
         int count = item.getCount();
         if (item.equals(this.equipment.get(Slot.WEAPON))) {
           --count;

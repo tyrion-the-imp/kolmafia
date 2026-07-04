@@ -85,6 +85,7 @@ import net.sourceforge.kolmafia.request.StorageRequest;
 import net.sourceforge.kolmafia.request.SuburbanDisRequest;
 import net.sourceforge.kolmafia.request.SummoningChamberRequest;
 import net.sourceforge.kolmafia.request.TavernRequest;
+import net.sourceforge.kolmafia.request.ThriftyRequest;
 import net.sourceforge.kolmafia.request.TrendyRequest;
 import net.sourceforge.kolmafia.request.TrophyHutRequest;
 import net.sourceforge.kolmafia.request.TutorialRequest;
@@ -684,6 +685,9 @@ public class ResponseTextParser {
       case "tavern.php" -> {
         TavernRequest.parseResponse(location, responseText);
       }
+      case "thrifty.php" -> {
+        ThriftyRequest.parseResponse(location, responseText);
+      }
       case "tiles.php" -> {
         if (responseText.contains("charpane.php")) {
           // Since a charpane refresh was requested, this might have taken a turn
@@ -988,8 +992,7 @@ public class ResponseTextParser {
   };
 
   public static final void learnCombatMove(final String skillName) {
-    for (int type = 0; type < COMBAT_MOVE_DATA.length; ++type) {
-      String[] moves = COMBAT_MOVE_DATA[type];
+    for (String[] moves : COMBAT_MOVE_DATA) {
       for (int index = 1; index < moves.length; ++index) {
         if (skillName.equals(moves[index])) {
           String setting = moves[0];

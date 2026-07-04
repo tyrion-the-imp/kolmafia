@@ -92,11 +92,12 @@ public class AscensionPath {
         "meat",
         "an",
         "adventurerMeatsWorldPoints",
-        37,
+        10,
         false,
         0,
         0,
         0),
+    THRIFTY("Thrifty", 57, false, "0dollars", "a"),
     // A "sign" rather than a "path" for some reason
     BAD_MOON("Bad Moon", 999, false, "badmoon", null),
     ;

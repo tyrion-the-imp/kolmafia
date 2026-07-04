@@ -86,6 +86,7 @@ import net.sourceforge.kolmafia.request.SpelunkyRequest;
 import net.sourceforge.kolmafia.request.SweetSynthesisRequest;
 import net.sourceforge.kolmafia.request.TavernRequest;
 import net.sourceforge.kolmafia.request.UmbrellaRequest;
+import net.sourceforge.kolmafia.request.UseItemRequest;
 import net.sourceforge.kolmafia.request.WildfireCampRequest;
 import net.sourceforge.kolmafia.request.coinmaster.SkeletonOfCrimboPastRequest;
 import net.sourceforge.kolmafia.request.concoction.BurningLeavesRequest;
@@ -346,6 +347,14 @@ public abstract class ChoiceControl {
         // Like a Loded Stone
         if (ChoiceManager.lastDecision == 1) {
           Preferences.setInteger("lastShadowForgeUnlockAdventure", KoLCharacter.getCurrentRun());
+        }
+      }
+
+      case 1596 -> { // Dig up a skeleton
+        if (ChoiceManager.lastDecision == 3) {
+          String message = "[" + KoLAdventure.getAdventureCount() + "] Dig up a skeleton";
+          RequestLogger.printLine(message);
+          RequestLogger.updateSessionLog(message);
         }
       }
     }
@@ -1253,18 +1262,17 @@ public abstract class ChoiceControl {
         // The Final Reward
         if (text.contains("claim your rightful reward")) {
           // Daily Dungeon Complete
-          Preferences.setBoolean("dailyDungeonDone", true);
-          Preferences.setInteger("_lastDailyDungeonRoom", 15);
+          DailyDungeonManager.handleRoomCompletion(15, DailyDungeonManager.RoomType.TREASURE);
         }
       }
 
       case 690, 691 -> {
         // The First Chest Isn't the Deepest and Second Chest
+        DailyDungeonManager.handleCurrentRoomCompletion(DailyDungeonManager.RoomType.TREASURE);
         if (ChoiceManager.lastDecision == 2) {
-          Preferences.increment("_lastDailyDungeonRoom", 3);
-        } else {
-          Preferences.increment("_lastDailyDungeonRoom", 1);
+          Preferences.increment("_lastDailyDungeonRoom", 2);
         }
+
         // Second Chest only
         if (ChoiceManager.lastChoice == 691 && ChoiceManager.lastDecision == 4) {
           Preferences.setBoolean("candyCaneSwordDailyDungeon", true);
@@ -1278,14 +1286,14 @@ public abstract class ChoiceControl {
           ResultProcessor.processItem(ItemPool.SKELETON_KEY, -1);
         }
         if (ChoiceManager.lastDecision != 8) {
-          Preferences.increment("_lastDailyDungeonRoom", 1);
+          DailyDungeonManager.handleCurrentRoomCompletion(DailyDungeonManager.RoomType.DOOR);
         }
       }
 
       case 693 -> {
         // It's Almost Certainly a Trap
         if (ChoiceManager.lastDecision != 3) {
-          Preferences.increment("_lastDailyDungeonRoom", 1);
+          DailyDungeonManager.handleCurrentRoomCompletion(DailyDungeonManager.RoomType.TRAP);
         }
       }
 
@@ -3222,7 +3230,7 @@ public abstract class ChoiceControl {
         // Welcome to FantasyRealm
         if (ChoiceManager.lastDecision != 6) {
           Preferences.setInteger("_frHoursLeft", 5);
-          StringBuffer unlocks = new StringBuffer();
+          StringBuilder unlocks = new StringBuilder();
           unlocks.append("The Bandit Crossroads,");
           if (Preferences.getBoolean("frMountainsUnlocked")) {
             unlocks.append("The Towering Mountains,");
@@ -6860,6 +6868,21 @@ public abstract class ChoiceControl {
 
       case 1598 -> // Play Ball!
           postChoiceBaseball(text, ChoiceManager.lastDecision);
+
+      case 1599 -> {
+        // Legendary Digestion
+        switch (ChoiceManager.lastDecision) {
+          case 1 -> {
+            Preferences.setBoolean("_legendaryNoodlesSpleen", true);
+            KoLCharacter.setFullness(KoLCharacter.getFullness() - 1);
+            KoLCharacter.setSpleenUse(KoLCharacter.getSpleenUse() + 1);
+          }
+          case 2 -> Preferences.increment("legendaryNoodlesAmygdala", 5);
+          case 3 -> Preferences.increment("legendaryNoodlesSkin", 5);
+          case 4 -> KoLCharacter.getFamiliar().addNonCombatExperience(50);
+          case 5 -> Preferences.increment("legendaryNoodlesStomach", 3);
+        }
+      }
     }
   }
 
@@ -7207,26 +7230,27 @@ public abstract class ChoiceControl {
           ResultProcessor.processItem(ItemPool.GOLD_PIECE, -30);
 
       case 689 -> // The Final Reward
-          Preferences.setInteger("_lastDailyDungeonRoom", 14);
+          DailyDungeonManager.handleRoomEntrance(15, DailyDungeonManager.RoomType.TREASURE);
 
       case 690 -> // The First Chest Isn't the Deepest
-          Preferences.setInteger("_lastDailyDungeonRoom", 4);
+          DailyDungeonManager.handleRoomEntrance(5, DailyDungeonManager.RoomType.TREASURE);
 
       case 691 -> {
         // Second Chest
-        Preferences.setInteger("_lastDailyDungeonRoom", 9);
+        DailyDungeonManager.handleRoomEntrance(10, DailyDungeonManager.RoomType.TREASURE);
         if (KoLCharacter.hasEquipped(CANDY_CANE_SWORD) && !text.contains("candy cane sword")) {
           Preferences.setBoolean("candyCaneSwordDailyDungeon", true);
         }
       }
 
-      case 692, 693 -> {
-        // I Wanna Be a Door and It's Almost Certainly a Trap
-        Matcher chamberMatcher = CHAMBER_PATTERN.matcher(text);
-        if (chamberMatcher.find()) {
-          int round = StringUtilities.parseInt(chamberMatcher.group(1));
-          Preferences.setInteger("_lastDailyDungeonRoom", round - 1);
-        }
+      case 692 -> {
+        // I Wanna Be a Door
+        DailyDungeonManager.handleRoomEntrance(text, DailyDungeonManager.RoomType.DOOR);
+      }
+
+      case 693 -> {
+        // It's Almost Certainly a Trap
+        DailyDungeonManager.handleRoomEntrance(text, DailyDungeonManager.RoomType.TRAP);
       }
 
       case 704 -> // Playing the Catalog Card
@@ -8769,6 +8793,21 @@ public abstract class ChoiceControl {
           Preferences.increment("_baseballInnings", 1, 3);
         }
       }
+      case 1599 -> {
+        // Legendary Digestion
+        if (text.contains("How do you want to digest the legendary noodles?")) {
+          AdventureResult item = ChoiceManager.lastItemUsed;
+          ChoiceManager.lastItemUsed = null;
+          if (item != null) {
+            UseItemRequest.setLastItemUsed(item);
+            UseItemRequest.parseConsumption(text, false);
+            SpadingManager.processConsumeItem(item, text);
+            UseItemRequest.clearLastItemUsed();
+            String stripped = text.replace("Legendary Digestion", "");
+            ResultProcessor.processResults(false, stripped, null);
+          }
+        }
+      }
     }
   }
 
@@ -10033,6 +10072,7 @@ public abstract class ChoiceControl {
       case 1535: // Clan Photo Booth - Borrow a prop
       case 1536: // Clan Photo Booth - Take a group photo
       case 1537: // TakerSpace
+      case 1543: // Parachute into a Fight
       case 1544: // Devil some Candy
       case 1551: // Hashing with your vice
       case 1553: // Hybridization Chamber
@@ -10046,6 +10086,7 @@ public abstract class ChoiceControl {
       case 1592: // Flesh Workbench
       case 1593: // Amino Sac
       case 1596: // Dig at Zone
+      case 1601: // Cup of 13s
         return true;
 
       default:

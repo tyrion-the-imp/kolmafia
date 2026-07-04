@@ -27,6 +27,7 @@ import net.sourceforge.kolmafia.KoLAdventure;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
 import net.sourceforge.kolmafia.ModifierType;
+import net.sourceforge.kolmafia.PastaThrallData;
 import net.sourceforge.kolmafia.RestrictedItemType;
 import net.sourceforge.kolmafia.equipment.Slot;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
@@ -218,7 +219,7 @@ class CharPaneRequestTest {
               withProperty("noncombatForcers", "stench jelly"));
 
       try (cleanups) {
-        // This one doesn't hav eany noncombat modifiers
+        // This one doesn't have any noncombat modifiers
         CharPaneRequest.processResults(html("request/test_charpane_comma_as_homemade_robot.html"));
         assertThat("noncombatForcerActive", isSetTo(false));
         assertThat("noncombatForcers", isSetTo(""));
@@ -525,6 +526,83 @@ class CharPaneRequestTest {
                 "Item Drop Bonus (29%), Physical Attack (23%), Hot Attack (22%), Cold Attack (26%)"));
         assertThat("shrunkenHeadZombieHP", isSetTo("400"));
       }
+    }
+  }
+
+  @Nested
+  class LegendaryNoodles {
+    @Test
+    void canParseLegendaryAmygdalaCharpane() {
+      var cleanups =
+          new Cleanups(
+              withProperty("legendaryNoodlesAmygdala"), withProperty("noncombatForcerActive"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_legendary_amygdala.html"));
+        assertThat("legendaryNoodlesAmygdala", isSetTo(5));
+        assertThat("noncombatForcerActive", isSetTo(false));
+      }
+    }
+
+    @Test
+    void canParseAllLegendaryCharpane() {
+      var cleanups =
+          new Cleanups(
+              withProperty("legendaryNoodlesAmygdala"),
+              withProperty("legendaryNoodlesSkin"),
+              withProperty("legendaryNoodlesStomach"),
+              withProperty("noncombatForcerActive"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_legendary_all.html"));
+        assertThat("legendaryNoodlesAmygdala", isSetTo(5));
+        assertThat("legendaryNoodlesSkin", isSetTo(5));
+        assertThat("legendaryNoodlesStomach", isSetTo(2));
+        assertThat("noncombatForcerActive", isSetTo(false));
+      }
+    }
+
+    @Test
+    void canParseAbsenceOfNoodlyModifiersInCharpane() {
+      var cleanups = withProperty("legendaryNoodlesAmygdala", 3);
+
+      try (cleanups) {
+        // This one doesn't have any modifiers
+        CharPaneRequest.processResults(html("request/test_charpane_comma_as_homemade_robot.html"));
+        assertThat("legendaryNoodlesAmygdala", isSetTo(0));
+      }
+    }
+  }
+
+  @Test
+  void canParseFitnessTrackingSteps() {
+    var cleanups =
+        new Cleanups(
+            withEquipped(ItemPool.FITNESS_TRACKING_BRACELET),
+            withProperty("_fitnessTrackingSteps", 0));
+
+    try (cleanups) {
+      var result =
+          CharPaneRequest.processResults(
+              html("request/test_charpane_fitness_tracking_bracelet.html"));
+      assertThat(result, equalTo(true));
+      assertThat("_fitnessTrackingSteps", isSetTo(101));
+    }
+  }
+
+  @Test
+  void canParsePastaThrallExperience() {
+    PastaThrallData.initialize();
+    var cleanups = new Cleanups(withClass(AscensionClass.PASTAMANCER));
+
+    try (cleanups) {
+      CharPaneRequest.processResults(html("request/test_charpane_pasta_thrall_experience.html"));
+
+      var thrall = KoLCharacter.currentPastaThrall();
+      assertThat(thrall.getType(), is("Spice Ghost"));
+      assertThat(thrall.getName(), is("Zotzit"));
+      assertThat(thrall.getLevel(), is(4));
+      assertThat(thrall.getExperience(), is(1));
     }
   }
 }

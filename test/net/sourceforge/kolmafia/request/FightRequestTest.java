@@ -1324,6 +1324,23 @@ public class FightRequestTest {
   }
 
   @Test
+  public void canDetectHoverboardExploding() {
+    RequestLoggerOutput.startStream();
+    var cleanups =
+        new Cleanups(
+            withFight(),
+            withEquipped(Slot.ACCESSORY1, ItemPool.HOVERBOARD),
+            withProperty("breakableHandling", 1));
+    try (cleanups) {
+      parseCombatData("request/test_fight_hoverboard_explodes.html");
+      var text = RequestLoggerOutput.stopStream();
+
+      assertThat(text, containsString("Your hoverboard broke."));
+      assertThat(EquipmentManager.getEquipment(Slot.ACCESSORY1).getItemId(), equalTo(-1));
+    }
+  }
+
+  @Test
   public void canDetectCartography() {
     RequestLoggerOutput.startStream();
     var cleanups = new Cleanups(withSkill(SkillPool.COMPREHENSIVE_CARTOGRAPHY));
@@ -4417,6 +4434,46 @@ public class FightRequestTest {
         assertThat(text, containsString("Having bent physics with your non-Euclidean curveball"));
         assertThat("_curveballFightsLeft", isSetTo(1));
       }
+    }
+  }
+
+  @Test
+  public void tracksVermincelliFreeRats() {
+    var cleanups =
+        new Cleanups(
+            withProperty("lastTavernSquare", 23), withProperty("_legendaryVermincelliFreeRats", 2));
+    try (cleanups) {
+      parseCombatData("request/test_fight_vermincelli_free.html");
+      assertThat("_legendaryVermincelliFreeRats", isSetTo(3));
+    }
+  }
+
+  @Test
+  public void tracksLasagmbieMana() {
+    var cleanups = withProperty("_legendaryLasagmbieMana", 2);
+    try (cleanups) {
+      parseCombatData("request/test_fight_lasagmbie_mana.html");
+      assertThat("_legendaryLasagmbieMana", isSetTo(3));
+    }
+  }
+
+  @Test
+  public void tracksSwordOfSwordsKills() {
+    var cleanups =
+        new Cleanups(
+            withFight(),
+            withProperty("_swordOfSWordsKills"),
+            withProperty("_swordOfSWordsMonsterChanged"),
+            withProperty("swordOfSWordsMonster"),
+            withFamiliar(FamiliarPool.SWORD_OF_SWORDS));
+
+    try (cleanups) {
+      parseCombatData(
+          "request/test_fight_sword_drop_table.html", "fight.php?action=skill&whichskill=7593");
+
+      assertThat("swordOfSWordsMonster", isSetTo(1163));
+      assertThat("_swordOfSWordsMonsterChanged", isSetTo(1));
+      assertThat("_swordOfSWordsKills", isSetTo(1));
     }
   }
 }

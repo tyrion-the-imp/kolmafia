@@ -44,12 +44,15 @@ import net.sourceforge.kolmafia.modifiers.Modifier;
 import net.sourceforge.kolmafia.modifiers.ModifierList;
 import net.sourceforge.kolmafia.modifiers.ModifierList.ModifierValue;
 import net.sourceforge.kolmafia.modifiers.StringModifier;
+import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.persistence.FamiliarDatabase.FamiliarRaceData;
+import net.sourceforge.kolmafia.persistence.ItemDatabase.ItemData;
 import net.sourceforge.kolmafia.persistence.MonsterDatabase.Element;
+import net.sourceforge.kolmafia.persistence.SkillDatabase.SkillData;
 import net.sourceforge.kolmafia.request.CampgroundRequest;
 import net.sourceforge.kolmafia.utilities.FileUtilities;
-import net.sourceforge.kolmafia.utilities.Indexed;
 import net.sourceforge.kolmafia.utilities.IntOrString;
 import net.sourceforge.kolmafia.utilities.LogStream;
 import net.sourceforge.kolmafia.utilities.StringUtilities;
@@ -71,6 +74,10 @@ public class ModifierDatabase {
 
   /** List of slash-separated members of a mutex */
   private static final List<String> mutexes = new ArrayList<>();
+
+  /** Cache for which effects are automatically replaced when gaining another effect. */
+  private static final Map<AdventureResult, Collection<AdventureResult>> replaceableMutexEffects =
+      new HashMap<>();
 
   private static final HashSet<String> numericModifiers = new HashSet<>();
 
@@ -287,6 +294,19 @@ public class ModifierDatabase {
   // Returned set yields bitmaps keyed by names
   public static Set<Entry<String, Integer>> getSynergies() {
     return Collections.unmodifiableSet(synergies.entrySet());
+  }
+
+  public static Collection<AdventureResult> getReplaceableMutexFor(AdventureResult effect) {
+    if (!effect.isStatusEffect()) {
+      return Collections.emptyList();
+    }
+
+    Collection<AdventureResult> rv = replaceableMutexEffects.get(effect);
+    if (rv == null) {
+      return Collections.emptyList();
+    } else {
+      return rv;
+    }
   }
 
   // region: utility functions
@@ -712,8 +732,7 @@ public class ModifierDatabase {
         if (matcher.group(1) != null) {
           newMods.setDouble(mod, Double.parseDouble(matcher.group(1)));
         } else {
-          newMods.addExpression(
-              new Indexed<>(mod, ModifierExpression.getInstance(matcher.group(2), lookup)));
+          newMods.addExpression(mod, ModifierExpression.getInstance(matcher.group(2), lookup));
         }
         continue modLoop;
       }
@@ -767,8 +786,7 @@ public class ModifierDatabase {
         if (matcher.groupCount() == 0 || matcher.group(1) == null) {
           newMods.setBoolean(mod, true);
         } else {
-          newMods.addExpression(
-              new Indexed<>(mod, ModifierExpression.getInstance(matcher.group(1), lookup)));
+          newMods.addExpression(mod, ModifierExpression.getInstance(matcher.group(1), lookup));
         }
         continue modLoop;
       }
@@ -1286,9 +1304,9 @@ public class ModifierDatabase {
     Set<String> wikiname = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
     // Iterate over all items and assign item id to category
-    for (Entry<Integer, String> entry : ItemDatabase.dataNameEntrySet()) {
+    for (Entry<Integer, ItemData> entry : ItemDatabase.entrySet()) {
       Integer key = entry.getKey();
-      String name = entry.getValue();
+      String name = entry.getValue().dataName();
       ConsumptionType type = ItemDatabase.getConsumptionType(key);
 
       switch (type) {
@@ -1324,8 +1342,8 @@ public class ModifierDatabase {
     Set<String> familiars = new TreeSet<>();
     familiars.add("Familiar:(none)");
 
-    for (Entry<Integer, String> entry : FamiliarDatabase.entrySet()) {
-      String name = entry.getValue();
+    for (Entry<Integer, FamiliarRaceData> entry : FamiliarDatabase.entrySet()) {
+      String name = entry.getValue().name();
       if (getModifiers(ModifierType.FAMILIAR, name) != null) {
         familiars.add(name);
       }
@@ -1355,8 +1373,8 @@ public class ModifierDatabase {
     // Make a map of status effects
     Set<String> effects = new TreeSet<>();
 
-    for (Entry<Integer, String> entry : EffectDatabase.entrySet()) {
-      String name = entry.getValue();
+    for (Entry<Integer, EffectData> entry : EffectDatabase.allEffects()) {
+      String name = entry.getValue().getName();
       // Skip effect which is also an item
       effects.add(name);
     }
@@ -1364,9 +1382,9 @@ public class ModifierDatabase {
     // Make a map of passive skills
     Set<String> passives = new TreeSet<>();
 
-    for (Entry<Integer, String> entry : SkillDatabase.entrySet()) {
+    for (Entry<Integer, SkillData> entry : SkillDatabase.entrySet()) {
       Integer key = entry.getKey();
-      String name = entry.getValue();
+      String name = entry.getValue().name();
       if (SkillDatabase.isPassive(key)) {
         passives.add(name);
       }
@@ -1735,6 +1753,31 @@ public class ModifierDatabase {
     }
   }
 
+  private static void computeReplaceableEffectMutex(String name) {
+    String[] pieces = name.split("/");
+    if (pieces.length < 2) {
+      KoLmafia.updateDisplay(name + " contain less than 2 elements.");
+      return;
+    }
+    Set<AdventureResult> effects =
+        Arrays.stream(pieces)
+            .map(EffectDatabase::getEffectId)
+            .map(EffectPool::get)
+            .collect(Collectors.toUnmodifiableSet());
+    for (AdventureResult effect : effects) {
+      replaceableMutexEffects.put(effect, effects);
+    }
+  }
+
+  private static void computeReplaceableEffectMutexes() {
+    replaceableMutexEffects.clear();
+    for (IntOrString key : modifierStringsByName.getAll(ModifierType.MUTEX_ER).keySet()) {
+      if (!key.isString()) continue;
+      String name = key.getStringValue();
+      computeReplaceableEffectMutex(name);
+    }
+  }
+
   public static void resetModifiers() {
     // Don't reset any variables that are set up by loadAllModifiers, as subsequent calls to
     // resetModifiers then won't set them back up due to the if() guarding loadAllModifiers.
@@ -1750,5 +1793,6 @@ public class ModifierDatabase {
 
     computeSynergies();
     computeMutexes();
+    computeReplaceableEffectMutexes();
   }
 }

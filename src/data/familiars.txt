@@ -12,7 +12,6 @@
 # meat0 - Meat Drop
 # combat0 - Physical Attack
 # combat1 - Elemental Attack
-# drop - special drop
 # block - potato-like
 # delevel0 - barrrnacle-like, delevels at start of combat
 # delevel1 - ghost pickle-like, delevels during combat
@@ -26,6 +25,7 @@
 # stat3 - grants stats after combat
 # other1 - does other things after combat
 # passive - passive effect
+# drop - special drop
 # underwater - breaths underwater
 # pokefam - is a pokefam-only familiar
 # variable - varies according to equipment or other factors.
@@ -351,8 +351,8 @@
 314	Shame Spiral	shamespiral.gif	combat1,delevel1	shame coil	stomach churner	0	0	0	0	sleaze
 315	Phantom Limb	phantomlimb.gif	combat1,hp1	phantom digit	phantom brace	0	0	0	0	spooky
 316	Foul Ball	foulball.gif	combat1,passive	foul line	foul cozy	0	0	0	0	stench
-317	Dire Cassava	direcasanim.gif	passive	dark manioc	grim cellophane	0	0	0	0	vegetable,hard,spooky,animatedart
-318	Observer	observer.gif	item0,delevel0	Observer source code	rift oculus	0	0	0	0	sentient,humanoid,software,haseyes,orb
+317	Dire Cassava	direcasanim.gif	passive	dark manioc	grim cellophane	2	1	2	1	vegetable,hard,spooky,animatedart
+318	Observer	observer.gif	item0,delevel0	Observer source code	rift oculus	1	3	1	3	sentient,humanoid,software,haseyes,orb
 319	Cool Cucumber	coolcuke.gif	hp1	chill gherkin	sweaty egg	0	0	0	0	organic,phallic,edible,good,cold
 320	Defective Childrens' Stapler	kidstaplerbad.gif	block,combat0	childrens' stapler	carton of extra-sharp, rusty staples	0	0	0	0	object,bite,cute,reallyevil,hasstinger
 321	Glover	glover.gif	combat0,delevel1	plover's egg	glover liners	0	0	0	0	hashands,hasclaws,wearsclothes,isclothes,hasbeak
@@ -363,3 +363,5 @@
 326	Skeleton of Crimbo Past	skeletonocp.gif	item0,drop	stocking full of bones	small peppermint-flavored sugar walking crook	0	0	0	0	sentient,organic,humanoid,person,undead,hasbones,hashands,haslegs,wearsclothes,spooky
 327	Tiny Plastic Santa Claus Skeleton	santaskel.gif	passive	assembled tiny plastic Santa skeleton	miniature sleigh	0	0	0	0	sentient,humanoid,person,undead,object,hasbones,hashands,haslegs,hot,evil
 328	Cute Skeletal Dinosaur	bonedino.gif	combat1,block	intact dinosaur egg	fossilized cow femur	0	0	0	0	sentient,organic,undead,hasbones,hashands,haslegs,bite,hard,cute,spooky
+329
+330	Sword of S Words	swordsword.gif	item0,combat0,passive	scabbarded Sword of S Words	second-hand synthetic sloth skin scabbard	0	0	0	0	hard,hovers,object,phallic

@@ -19,6 +19,7 @@ import static internal.helpers.Player.withPath;
 import static internal.helpers.Player.withProperty;
 import static internal.helpers.Player.withSkill;
 import static internal.helpers.Player.withStats;
+import static internal.helpers.Player.withThrall;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1807,6 +1808,46 @@ public class ModifiersTest {
       Modifiers current = KoLCharacter.getCurrentModifiers();
 
       assertThat(current.getDouble(DoubleModifier.SLEAZE_DAMAGE), equalTo(40.0));
+    }
+  }
+
+  @Test
+  public void copyConstructorKeepsExpressions() {
+    var cleanups = new Cleanups(withEquipped(Slot.WEAPON, ItemPool.SEAL_CLUB));
+
+    Modifiers mods;
+    try (cleanups) {
+      mods = new Modifiers(ModifierDatabase.getItemModifiers(ItemPool.TIME_HALO));
+      mods.recalculateExpressions();
+      assertThat(mods.getDouble(DoubleModifier.ADVENTURES), equalTo(0.0));
+    }
+
+    mods.recalculateExpressions();
+    assertThat(mods.getDouble(DoubleModifier.ADVENTURES), equalTo(5.0));
+  }
+
+  @Nested
+  class PastaThrall {
+    @Test
+    public void correctThrallModifier() {
+      var cleanups = withThrall(SkillPool.BIND_VAMPIEROGHI, 10);
+
+      try (cleanups) {
+        Modifiers mods = ModifierDatabase.getModifiers(ModifierType.THRALL, "Vampieroghi");
+        assertThat(mods.getDouble(DoubleModifier.HP), equalTo(60.0));
+        assertThat(mods.getDouble(DoubleModifier.SPOOKY_RESISTANCE), equalTo(0.0));
+      }
+    }
+
+    @Test
+    public void correctMaxLevelThrallModifier() {
+      var cleanups = withThrall(SkillPool.BIND_VAMPIEROGHI, 11);
+
+      try (cleanups) {
+        Modifiers mods = ModifierDatabase.getModifiers(ModifierType.THRALL, "Vampieroghi");
+        assertThat(mods.getDouble(DoubleModifier.HP), equalTo(60.0));
+        assertThat(mods.getDouble(DoubleModifier.SPOOKY_RESISTANCE), equalTo(1.0));
+      }
     }
   }
 }

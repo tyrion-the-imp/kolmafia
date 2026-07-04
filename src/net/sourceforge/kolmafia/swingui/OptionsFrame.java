@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -466,6 +467,7 @@ public class OptionsFrame extends GenericFrame {
         {},
         {"useZoneComboBox", "Use zone selection instead of adventure name filter"},
         {"cacheMallSearches", "Cache mall search terms in mall search interface"},
+        {"permitScriptNotify", "Allow scripts to send a one-time thank you message to the author"},
         {"saveSettingsOnSet", "Save options to disk whenever they change"},
         {},
         {"removeMalignantEffects", "Auto-remove malignant status effects"},
@@ -1680,6 +1682,7 @@ public class OptionsFrame extends GenericFrame {
               {"addCreationQueue", "Add creation queueing interface to item manager"},
               {"addStatusBarToFrames", "Add a status line to independent windows"},
               {"autoHighlightOnFocus", "Highlight text fields when selected"},
+              {"separateTitleAndMenuBar", "Keep window title above menu bar in FlatLaf themes"},
               {},
               {"allowCloseableDesktopTabs", "Allow tabs on main window to be closed"},
             }
@@ -1694,6 +1697,7 @@ public class OptionsFrame extends GenericFrame {
                   {"addCreationQueue", "Add creation queueing interface to item manager"},
                   {"addStatusBarToFrames", "Add a status line to independent windows"},
                   {"autoHighlightOnFocus", "Highlight text fields when selected"},
+                  {"separateTitleAndMenuBar", "Keep window title above menu bar in FlatLaf themes"},
                   {},
                   {"allowCloseableDesktopTabs", "Allow tabs on main window to be closed"},
                   // { "darkThemeToolIconOverride", "Always use dark toolbar icons with dark Look
@@ -1708,6 +1712,7 @@ public class OptionsFrame extends GenericFrame {
                   {"addCreationQueue", "Add creation queueing interface to item manager"},
                   {"addStatusBarToFrames", "Add a status line to independent windows"},
                   {"autoHighlightOnFocus", "Highlight text fields when selected"},
+                  {"separateTitleAndMenuBar", "Keep window title above menu bar in FlatLaf themes"},
                   {},
                   {"allowCloseableDesktopTabs", "Allow tabs on main window to be closed"},
                 };
@@ -1717,6 +1722,7 @@ public class OptionsFrame extends GenericFrame {
     public UserInterfacePanel() {
       super(new Dimension(80, 22), new Dimension(280, 22));
       PreferenceListenerRegistry.registerPreferenceListener("swingLookAndFeel", this);
+      PreferenceListenerRegistry.registerPreferenceListener("separateTitleAndMenuBar", this);
 
       UIManager.LookAndFeelInfo[] installed = UIManager.getInstalledLookAndFeels();
       String[] installedLooks = new String[installed.length + 1];
@@ -1820,11 +1826,15 @@ public class OptionsFrame extends GenericFrame {
       }
       try {
         UIManager.setLookAndFeel(lookAndFeel);
+        KoLmafiaGUI.applyFlatLafMenuBarSettings();
         // This is where we invalidate the UI and re-draw it because we switched Lafs..."
         Frame[] frames = Frame.getFrames();
         for (Frame f : frames) {
           SwingUtilities.invokeLater(
               () -> {
+                if (f instanceof JFrame frame) {
+                  KoLmafiaGUI.applyFlatLafMenuBarSettings(frame.getRootPane());
+                }
                 SwingUtilities.updateComponentTreeUI(f); // update components
                 f.pack(); // adapt container size if required
               });

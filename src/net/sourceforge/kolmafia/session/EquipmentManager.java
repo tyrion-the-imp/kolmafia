@@ -11,7 +11,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLAdventure;
@@ -464,9 +463,8 @@ public class EquipmentManager {
     }
     mods.getStrings(StringModifier.CONDITIONAL_SKILL_EQUIPPED).stream()
         .map(SkillDatabase::getSkillId)
-        .filter(Predicate.not(SkillDatabase::isNonCombat))
-        // always remove skills, or add skills available sometimes
-        .filter(x -> !add || EquipmentManager.shouldApplySkill(x))
+        // always remove non-noncombat skills, or add skills available sometimes
+        .filter(x -> add ? EquipmentManager.shouldApplySkill(x) : !SkillDatabase.isNonCombat(x))
         .forEach(cb);
   }
 
@@ -536,7 +534,7 @@ public class EquipmentManager {
     }
   }
 
-  private static boolean shouldApplySkill(Integer id) {
+  static boolean shouldApplySkill(Integer id) {
     return switch (id) {
       case SkillPool.BALL_BUST -> Preferences.getInteger("gladiatorBallMovesKnown") > 0;
       case SkillPool.BALL_SWEAT -> Preferences.getInteger("gladiatorBallMovesKnown") > 1;
@@ -1552,9 +1550,9 @@ public class EquipmentManager {
     }
 
     AdventureResult[] pieces = EquipmentDatabase.normalOutfits.get(outfitId).getPieces();
-    for (int i = 0; i < pieces.length; ++i) {
-      if (!KoLCharacter.hasEquipped(pieces[i])) {
-        ConditionsCommand.update("set", pieces[i].getName());
+    for (AdventureResult piece : pieces) {
+      if (!KoLCharacter.hasEquipped(piece)) {
+        ConditionsCommand.update("set", piece.getName());
       }
     }
   }

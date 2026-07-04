@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 import javax.swing.Box;
@@ -1008,8 +1007,8 @@ public class DailyDeedsPanel extends Box implements Listener {
       comboBox.setPrototypeDisplayValue(lengthString);
       comboBox.setMaximumRowCount(45);
 
-      for (int i = 0; i < choice.length; ++i) {
-        comboBox.addItem(choice[i]);
+      for (String s : choice) {
+        comboBox.addItem(s);
       }
 
       comboBox.setTooltips(tooltips);
@@ -1049,11 +1048,8 @@ public class DailyDeedsPanel extends Box implements Listener {
     @Override
     public void setEnabled(boolean enabled) {
       if (this.buttons != null) {
-        Iterator<JButton> i = this.buttons.iterator();
 
-        while (i.hasNext()) {
-          JButton button = i.next();
-
+        for (JButton button : this.buttons) {
           button.setEnabled(enabled);
         }
       }
@@ -1346,7 +1342,6 @@ public class DailyDeedsPanel extends Box implements Listener {
 
     /**
      * @param command the command to execute. This will also be the displayed button text.
-     * @param sCount
      */
     public SimpleDaily(String command, int sCount) {
       this.preference = "_simpleDeed" + sCount;
@@ -1359,7 +1354,6 @@ public class DailyDeedsPanel extends Box implements Listener {
     /**
      * @param displayText the text that will be displayed on the button
      * @param command the command to execute.
-     * @param sCount
      */
     public SimpleDaily(String displayText, String command, int sCount) {
       this.preference = "_simpleDeed" + sCount;
@@ -1373,7 +1367,6 @@ public class DailyDeedsPanel extends Box implements Listener {
      * @param displayText the text that will be displayed on the button
      * @param command the command to execute.
      * @param maxPref the integer at which to disable the button.
-     * @param sCount
      */
     public SimpleDaily(String displayText, String command, int maxPref, int sCount) {
       this.preference = "_simpleDeed" + sCount;
@@ -1388,7 +1381,6 @@ public class DailyDeedsPanel extends Box implements Listener {
      * @param displayText the text that will be displayed on the button
      * @param command the command to execute.
      * @param maxPref the integer at which to disable the button.
-     * @param sCount
      */
     public SimpleDaily(
         String displayText,

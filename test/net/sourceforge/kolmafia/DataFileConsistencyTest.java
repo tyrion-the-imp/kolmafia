@@ -4,6 +4,7 @@ import static internal.matchers.Preference.isUserPreference;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -39,6 +40,7 @@ import net.sourceforge.kolmafia.persistence.CafeDatabase;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.FamiliarDatabase;
+import net.sourceforge.kolmafia.persistence.FamiliarDatabase.FamiliarRaceData;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
 import net.sourceforge.kolmafia.persistence.ModifierDatabase;
@@ -425,6 +427,8 @@ public class DataFileConsistencyTest {
     public void modifiersShouldApplyToValidItems() {
       String file = "modifiers.txt";
       int version = 3;
+      // El Vibrato punchcards intentionally use verb aliases (e.g. DRONE) rather than hole counts
+      var elVibraPunchcard = Pattern.compile("El Vibrato punchcard \\([A-Z]+\\)");
       String[] fields;
       try (BufferedReader reader = FileUtilities.getVersionedReader(file, version)) {
         while ((fields = FileUtilities.readData(reader)) != null) {
@@ -436,6 +440,12 @@ public class DataFileConsistencyTest {
               if (id == -1) {
                 if (!CafeDatabase.isCafeConsumable(name)) {
                   fail("unrecognised item " + name);
+                }
+              } else if (name.equals(ItemDatabase.getItemDisplayName(name))
+                  && !elVibraPunchcard.matcher(name).matches()) {
+                var canonical = ItemDatabase.getItemDataName(id);
+                if (canonical != null && !name.equals(canonical)) {
+                  fail("item name \"" + name + "\" should be \"" + canonical + "\"");
                 }
               }
             }
@@ -501,7 +511,7 @@ public class DataFileConsistencyTest {
                 }
               }
             }
-            case "MutexE" -> {
+            case "MutexE", "MutexER" -> {
               assertThat(name, containsString("/"));
               for (var effect : name.split("/")) {
                 var id = EffectDatabase.getEffectId(effect, true);
@@ -639,12 +649,12 @@ public class DataFileConsistencyTest {
     public void everyFamiliarHasAThroneModifier() {
       var allFamiliars =
           FamiliarDatabase.entrySet().stream()
-              .map(Map.Entry::getKey)
+              .map(Map.Entry::getValue)
               // Ignore Pokefam-exclusive familiars
-              .filter(id -> !FamiliarDatabase.isPokefamType(id))
+              .filter(fam -> !fam.isPokefamType())
               // Ignore familiars with no hatchling (currently April Fools familiars, but may also
               // catch future weirdos
-              .filter(id -> FamiliarDatabase.getFamiliarLarva(id) > 0)
+              .filter(fam -> fam.larvaId() > 0)
               .collect(Collectors.toSet());
       String file = "modifiers.txt";
       int version = 3;
@@ -655,7 +665,8 @@ public class DataFileConsistencyTest {
           if (!identifier.equals("Throne")) continue;
           var name = fields[1];
           var id = FamiliarDatabase.getFamiliarId(name, false);
-          allFamiliars.remove(id);
+          var data = FamiliarDatabase.getFamiliarRaceData(id);
+          allFamiliars.remove(data);
         }
       } catch (IOException e) {
         fail("Couldn't read from " + file);
@@ -665,7 +676,7 @@ public class DataFileConsistencyTest {
         fail(
             "No throne data for "
                 + allFamiliars.stream()
-                    .map(FamiliarDatabase::getFamiliarName)
+                    .map(FamiliarRaceData::name)
                     .collect(Collectors.joining(", "))
                 + " found");
       }
@@ -674,7 +685,7 @@ public class DataFileConsistencyTest {
     @Test
     void modifiersAreAllValid() {
       var issues = ModifierDatabase.checkModifiers();
-      assertThat(issues, hasSize(0));
+      assertThat(issues, empty());
     }
   }
 

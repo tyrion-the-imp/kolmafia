@@ -16,6 +16,8 @@ import java.nio.channels.FileLock;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import javax.swing.JEditorPane;
@@ -201,9 +203,9 @@ public abstract class KoLmafia {
         return KoLmafia.SESSION_HOLDER != null;
       }
 
-      PrintStream ostream = LogStream.openStream(KoLmafia.SESSION_FILE, true);
-      ostream.println(StaticEntity.getVersion());
-      ostream.close();
+      try (PrintStream ostream = LogStream.openStream(KoLmafia.SESSION_FILE, true)) {
+        ostream.println(StaticEntity.getVersion());
+      }
 
       KoLmafia.SESSION_CHANNEL = new RandomAccessFile(KoLmafia.SESSION_FILE, "rw").getChannel();
       KoLmafia.SESSION_HOLDER = KoLmafia.SESSION_CHANNEL.lock();
@@ -397,8 +399,8 @@ public abstract class KoLmafia {
     String defaultLookAndFeel;
 
     // Tell UIManager about Look and Feel files in external jars ( defined in KoLGUIConstants)
-    FLATMAP_LIGHT_LOOKS.forEach(UIManager::installLookAndFeel);
-    FLATMAP_DARK_LOOKS.forEach(UIManager::installLookAndFeel);
+    installLookAndFeel(FLATMAP_LIGHT_LOOKS);
+    installLookAndFeel(FLATMAP_DARK_LOOKS);
 
     if (System.getProperty("os.name").startsWith("Mac")
         || System.getProperty("os.name").startsWith("Win")) {
@@ -431,6 +433,7 @@ public abstract class KoLmafia {
 
     try {
       UIManager.setLookAndFeel(lookAndFeel);
+      KoLmafiaGUI.applyFlatLafMenuBarSettings();
       JFrame.setDefaultLookAndFeelDecorated(System.getProperty("os.name").startsWith("Mac"));
     } catch (Exception e) {
       // Should not happen, as we checked to see if
@@ -459,6 +462,21 @@ public abstract class KoLmafia {
 
       UIManager.put("ProgressBar.background", Color.lightGray);
       UIManager.put("ProgressBar.selectionBackground", Color.black);
+    }
+  }
+
+  private static void installLookAndFeel(Map<String, String> looks) {
+    for (Entry<String, String> entry : looks.entrySet()) {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      try {
+        // try to load the class to confirm it exists
+        Class.forName(value);
+      } catch (ClassNotFoundException e) {
+        RequestLogger.printLine("Failed to load class " + value + " for Theme " + key);
+        continue;
+      }
+      UIManager.installLookAndFeel(key, value);
     }
   }
 
@@ -1588,8 +1606,6 @@ public abstract class KoLmafia {
   /**
    * Forces a continue state. This should only be called when there is no doubt that a continue
    * should occur.
-   *
-   * @return <code>true</code> if requests are allowed to continue
    */
   public static final void forceContinue() {
     StaticEntity.setContinuationState(MafiaState.CONTINUE);

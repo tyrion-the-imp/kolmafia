@@ -317,7 +317,6 @@ class UseItemRequestTest {
       try (cleanups) {
         assertThat(ConsumablesDatabase.getRawSpleenHit("[5140]astral energy drink"), is(8));
         assertThat(ConsumablesDatabase.getRawSpleenHit("[10883]astral energy drink"), is(5));
-        assertThat(ConsumablesDatabase.getRawSpleenHit("astral energy drink"), is(0));
         assertThat(UseItemRequest.maximumUses("[5140]astral energy drink"), is(1));
         assertThat(UseItemRequest.maximumUses(5140), is(1));
         assertThat(UseItemRequest.maximumUses("[10883]astral energy drink"), is(3));
@@ -1441,6 +1440,39 @@ class UseItemRequestTest {
         assertThat(KoLCharacter.getSign(), is(ZodiacSign.OPOSSUM));
         assertThat("_dailySpecial", isSetTo("bat wing stir-fry"));
         assertThat("_dailySpecialPrice", isSetTo(207));
+      }
+    }
+  }
+
+  @Nested
+  class HandfulOfTips {
+    @Test
+    void handfulOfTipsTracksMeat() {
+      var cleanups =
+          new Cleanups(
+              withProperty("handfulOfTipsMeat", 111),
+              withItem(ItemPool.HANDFUL_OF_TIPS),
+              withNextResponse(200, html("request/test_use_handful_of_tips.html")));
+
+      try (cleanups) {
+        UseItemRequest.getInstance(ItemPool.HANDFUL_OF_TIPS).run();
+
+        assertThat("handfulOfTipsMeat", isSetTo(415));
+      }
+    }
+
+    @Test
+    void handfulOfTipsTracksIrs() {
+      var cleanups =
+          new Cleanups(
+              withProperty("handfulOfTipsMeat", 111),
+              withItem(ItemPool.HANDFUL_OF_TIPS),
+              withNextResponse(200, html("request/test_use_handful_of_tips_irs.html")));
+
+      try (cleanups) {
+        UseItemRequest.getInstance(ItemPool.HANDFUL_OF_TIPS).run();
+
+        assertThat("handfulOfTipsMeat", isSetTo(0));
       }
     }
   }

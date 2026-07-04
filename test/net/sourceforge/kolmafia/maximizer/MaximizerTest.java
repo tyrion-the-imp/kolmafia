@@ -20,6 +20,7 @@ import static internal.helpers.Player.withItemInStorage;
 import static internal.helpers.Player.withLocation;
 import static internal.helpers.Player.withMCD;
 import static internal.helpers.Player.withMeat;
+import static internal.helpers.Player.withMoxie;
 import static internal.helpers.Player.withMuscle;
 import static internal.helpers.Player.withNotAllowedInStandard;
 import static internal.helpers.Player.withOverrideModifiers;
@@ -30,6 +31,7 @@ import static internal.helpers.Player.withSign;
 import static internal.helpers.Player.withSkill;
 import static internal.helpers.Player.withStats;
 import static internal.matchers.Maximizer.recommends;
+import static internal.matchers.Maximizer.recommendsEffect;
 import static internal.matchers.Maximizer.recommendsSlot;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -802,6 +804,26 @@ public class MaximizerTest {
     }
 
     @Test
+    public void clubModifierWorksWithoutTieBreaker() {
+      final var cleanups = new Cleanups(withEquippableItem("lawn dart"));
+
+      try (cleanups) {
+        assertTrue(maximize("-tie, club"));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.WEAPON, "lawn dart")));
+      }
+    }
+
+    @Test
+    public void shieldModifierWorksWithoutTieBreaker() {
+      final var cleanups = new Cleanups(withEquippableItem("vinyl shield"));
+
+      try (cleanups) {
+        assertTrue(maximize("-tie, shield"));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.OFFHAND, "vinyl shield")));
+      }
+    }
+
+    @Test
     public void swordModifierFavorsSword() {
       final var cleanups =
           new Cleanups(withEquippableItem("sweet ninja sword"), withEquippableItem("spiked femur"));
@@ -1161,6 +1183,74 @@ public class MaximizerTest {
         assertThat(getBoosts(), hasItem(recommendsSlot(Slot.ACCESSORY1, "time halo")));
         assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.ACCESSORY2))));
         assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.ACCESSORY3))));
+      }
+    }
+  }
+
+  @Nested
+  class ReplaceableMutex {
+    @Test
+    public void suggestBetterFacialExpression() {
+      var cleanups =
+          new Cleanups(
+              withMoxie(100),
+              withEffect("Disco Smirk"),
+              withSkill("Disco Smirk"),
+              withSkill("Quiet Desperation"));
+
+      try (cleanups) {
+        assertTrue(maximize("moxie"));
+
+        assertThat(getBoosts(), hasItem(recommendsEffect("Quiet Desperation")));
+      }
+    }
+
+    @Test
+    public void doNotSuggestWorseFacialExpression() {
+      var cleanups =
+          new Cleanups(
+              withMoxie(100),
+              withEffect("Quiet Desperation"),
+              withSkill("Disco Smirk"),
+              withSkill("Quiet Desperation"));
+
+      try (cleanups) {
+        assertTrue(maximize("moxie"));
+
+        assertThat(getBoosts(), not(hasItem(recommendsEffect("Disco Smirk"))));
+      }
+    }
+
+    @Test
+    public void suggestBetterShanty() {
+      var cleanups =
+          new Cleanups(
+              withFamiliar(FamiliarPool.BABY_GRAVY_FAIRY, 400),
+              withEffect("Only Dogs Love a Drunken Sailor"),
+              withSkill("Only Dogs Love a Drunken Sailor"),
+              withSkill("Who's Going to Pay This Drunken Sailor?"));
+
+      try (cleanups) {
+        assertTrue(maximize("item"));
+
+        assertThat(
+            getBoosts(), hasItem(recommendsEffect("Who's Going to Pay This Drunken Sailor?")));
+      }
+    }
+
+    @Test
+    public void doNotSuggestWorseShanty() {
+      var cleanups =
+          new Cleanups(
+              withFamiliar(FamiliarPool.BABY_GRAVY_FAIRY, 400),
+              withEffect("Who's Going to Pay This Drunken Sailor?"),
+              withSkill("Only Dogs Love a Drunken Sailor"),
+              withSkill("Who's Going to Pay This Drunken Sailor?"));
+
+      try (cleanups) {
+        assertTrue(maximize("item"));
+
+        assertThat(getBoosts(), not(hasItem(recommendsEffect("Only Dogs Love a Drunken Sailor"))));
       }
     }
   }
@@ -1602,6 +1692,74 @@ public class MaximizerTest {
     }
 
     @Test
+    public void leftHandManConsidersRequestedItems() {
+      final var cleanups =
+          new Cleanups(
+              withEquippableItem("big stick"), // 2-handed weapon
+              withEquippableItem("bread basket"),
+              withEquippableItem("cyborg doll"),
+              withFamiliar(FamiliarPool.LEFT_HAND));
+
+      try (cleanups) {
+        assertTrue(maximize("equip bread basket -familiar"));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.OFFHAND, "bread basket")));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.FAMILIAR))));
+
+        assertTrue(maximize("equip big stick, equip bread basket"));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.WEAPON, "big stick")));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.OFFHAND))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.FAMILIAR, "bread basket")));
+
+        assertTrue(maximize("1000 bonus bread basket -offhand -tie"));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.OFFHAND))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.FAMILIAR, "bread basket")));
+
+        assertTrue(maximize("equip bread basket +equip cyborg doll"));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.OFFHAND)));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.FAMILIAR)));
+        assertThat(getBoosts(), hasItem(recommends("cyborg doll")));
+        assertThat(getBoosts(), hasItem(recommends("bread basket")));
+      }
+    }
+
+    @Test
+    public void switchLeftHandManConsidersRequestedItems() {
+      final var cleanups =
+          new Cleanups(
+              withEquippableItem("big stick"), // 2-handed weapon
+              withEquippableItem("bread basket"),
+              withEquippableItem("cyborg doll"),
+              withFamiliarInTerrarium(FamiliarPool.LEFT_HAND));
+
+      try (cleanups) {
+        assertTrue(maximize("equip bread basket -familiar +switch left-hand man"));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.OFFHAND, "bread basket")));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.FAMILIAR))));
+
+        assertTrue(maximize("equip big stick, equip bread basket +switch left-hand man"));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.WEAPON, "big stick")));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.OFFHAND))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.FAMILIAR, "bread basket")));
+
+        assertTrue(maximize("1000 bonus bread basket -offhand -tie +switch left-hand man"));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.OFFHAND))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.FAMILIAR, "bread basket")));
+
+        assertTrue(maximize("equip bread basket +equip cyborg doll +switch left-hand man"));
+        assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.OFFHAND)));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.FAMILIAR)));
+        assertThat(getBoosts(), hasItem(recommends("cyborg doll")));
+        assertThat(getBoosts(), hasItem(recommends("bread basket")));
+      }
+    }
+
+    @Test
     public void switchFamiliarConsidersGenericItems() {
       var cleanups =
           new Cleanups(
@@ -1802,6 +1960,16 @@ public class MaximizerTest {
         assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.WEAPON))));
         assertThat(getBoosts(), hasItem(recommendsSlot(Slot.SHIRT, "origami pasties")));
         assertThat(getBoosts(), not(hasItem(recommendsSlot(Slot.FAMILIAR))));
+      }
+    }
+
+    @Test
+    public void singleFoldSourceProducesRequestedForm() {
+      var cleanups = new Cleanups(withItem(ItemPool.MAKESHIFT_CRANE), withStats(0, 75, 35));
+
+      try (cleanups) {
+        assertTrue(maximize("+equip makeshift cape"));
+        assertThat(getBoosts(), hasItem(recommendsSlot(Slot.CONTAINER, "makeshift cape")));
       }
     }
   }
@@ -2413,6 +2581,49 @@ public class MaximizerTest {
         assertThat(getBoosts(), not(hasItem(hasProperty("cmd", is("campaway cloud")))));
       }
     }
+
+    @Test
+    public void doesNotRecommendCampAwayCloudIfNotOwned() {
+      var cleanups =
+          new Cleanups(
+              withProperty("getawayCampsiteUnlocked", false),
+              withProperty("_campAwayCloudBuffs", 0),
+              withProperty("_campAwaySmileBuffs", 0));
+      try (cleanups) {
+        maximize("Muscle Experience Percent");
+        assertThat(getBoosts(), not(hasItem(hasProperty("cmd", is("campaway cloud")))));
+      }
+    }
+
+    @Test
+    public void recommendsCampAwayCloudInOldPath() {
+      var cleanups =
+          new Cleanups(
+              withRestricted(false),
+              withNotAllowedInStandard(RestrictedItemType.ITEMS, "Distant Woods Getaway Brochure"),
+              withProperty("getawayCampsiteUnlocked", true),
+              withProperty("_campAwayCloudBuffs", 0),
+              withProperty("_campAwaySmileBuffs", 0));
+      try (cleanups) {
+        maximize("Muscle Experience Percent");
+        assertThat(getBoosts(), hasItem(hasProperty("cmd", is("campaway cloud"))));
+      }
+    }
+
+    @Test
+    public void doesNotRecommendCampAwayCloudIfUnderStandardRestriction() {
+      var cleanups =
+          new Cleanups(
+              withRestricted(true),
+              withNotAllowedInStandard(RestrictedItemType.ITEMS, "Distant Woods Getaway Brochure"),
+              withProperty("getawayCampsiteUnlocked", true),
+              withProperty("_campAwayCloudBuffs", 0),
+              withProperty("_campAwaySmileBuffs", 0));
+      try (cleanups) {
+        maximize("Muscle Experience Percent");
+        assertThat(getBoosts(), not(hasItem(hasProperty("cmd", is("campaway cloud")))));
+      }
+    }
   }
 
   @Nested
@@ -2566,6 +2777,48 @@ public class MaximizerTest {
     }
   }
 
+  @Nested
+  class Unarmed {
+    @Test
+    public void recommendBetterUnarmed() {
+      var cleanups =
+          new Cleanups(
+              withEquipped(ItemPool.TIME_SWORD),
+              withEquipped(Slot.ACCESSORY1, ItemPool.EXTREME_AMULET),
+              withEquipped(Slot.ACCESSORY2, ItemPool.EXTREME_AMULET),
+              withEquipped(Slot.ACCESSORY3, ItemPool.EXTREME_AMULET),
+              withEquippableItem(ItemPool.TIME_HALO));
+
+      try (cleanups) {
+        maximize("adv");
+        var boosts = getBoosts();
+        assertThat(boosts, hasItem(hasProperty("cmd", startsWith("unequip weapon"))));
+        assertThat(boosts, hasItem(recommends(ItemPool.TIME_HALO)));
+      }
+    }
+
+    @Test
+    public void dontRecommendWorseUnarmed() {
+      var cleanups =
+          new Cleanups(
+              withEquipped(Slot.ACCESSORY1, ItemPool.GOLD_WEDDING_RING),
+              withEquipped(Slot.ACCESSORY2, ItemPool.TINY_PLASTIC_GOLDEN_GUNDAM),
+              withEquipped(Slot.ACCESSORY3, ItemPool.TIME_HALO),
+              withEquippableItem(ItemPool.TIME_SWORD),
+              withEquippableItem(ItemPool.NOVELTY_MONORAIL_TICKET),
+              withEquippableItem(ItemPool.TINY_PLASTIC_CRIMBO_REINDEER));
+
+      try (cleanups) {
+        maximize("adv");
+        var boosts = getBoosts();
+        assertThat(boosts, hasItem(recommends(ItemPool.TIME_SWORD)));
+        assertThat(boosts, hasItem(recommends(ItemPool.NOVELTY_MONORAIL_TICKET)));
+        assertThat(boosts, hasItem(recommends(ItemPool.TINY_PLASTIC_CRIMBO_REINDEER)));
+        assertThat(boosts, not(hasItem(recommends(ItemPool.TIME_HALO))));
+      }
+    }
+  }
+
   @Test
   void canMaximizeRolloverEffectDuration() {
     var cleanups =
@@ -2581,6 +2834,18 @@ public class MaximizerTest {
       assertThat(getBoosts(), hasItem(recommends(ItemPool.SPACEGATE_SCIENTIST_INSIGNIA)));
       assertThat(getBoosts(), hasItem(recommends(ItemPool.SPACEGATE_MILITARY_INSIGNIA)));
       assertThat(getBoosts(), hasItem(recommends(ItemPool.SILENT_NIGHTLIGHT)));
+    }
+  }
+
+  @Test
+  void shouldSuggestHolsteringIfAvailable() {
+    var cleanups =
+        new Cleanups(
+            withClass(AscensionClass.COW_PUNCHER), withEquippableItem(ItemPool.CUSTOM_SIXGUN));
+
+    try (cleanups) {
+      maximize("muscle");
+      assertThat(getBoosts(), hasItem(recommends(ItemPool.CUSTOM_SIXGUN)));
     }
   }
 }

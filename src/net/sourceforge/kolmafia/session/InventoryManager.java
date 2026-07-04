@@ -26,6 +26,7 @@ import net.sourceforge.kolmafia.ModifierType;
 import net.sourceforge.kolmafia.Modifiers;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.RequestThread;
+import net.sourceforge.kolmafia.RestrictedItemType;
 import net.sourceforge.kolmafia.SpecialOutfit.Checkpoint;
 import net.sourceforge.kolmafia.equipment.Slot;
 import net.sourceforge.kolmafia.equipment.SlotSet;
@@ -62,6 +63,7 @@ import net.sourceforge.kolmafia.request.ManageStoreRequest;
 import net.sourceforge.kolmafia.request.PurchaseRequest;
 import net.sourceforge.kolmafia.request.StorageRequest;
 import net.sourceforge.kolmafia.request.StorageRequest.StorageRequestType;
+import net.sourceforge.kolmafia.request.ThriftyRequest;
 import net.sourceforge.kolmafia.request.UntinkerRequest;
 import net.sourceforge.kolmafia.request.coinmaster.HermitRequest;
 import net.sourceforge.kolmafia.request.concoction.CombineMeatRequest;
@@ -217,7 +219,10 @@ public abstract class InventoryManager {
     }
 
     if ((!KoLCharacter.inLegacyOfLoathing() || pullableInLoL(itemId))
-        && (!KoLCharacter.inSeaPath() || pullableInSeaPath(itemId))) {
+        && (!KoLCharacter.inSeaPath() || pullableInSeaPath(itemId))
+        && (!KoLCharacter.isThrifty()
+            || ThriftyRequest.isAllowed(
+                RestrictedItemType.ITEMS, ItemDatabase.getItemName(itemId)))) {
       // Free Pulls from Hagnk's are always accessible
       count += item.getCount(KoLConstants.freepulls);
 
@@ -1422,8 +1427,7 @@ public abstract class InventoryManager {
     AdventureResult[] ingredients = ConcoctionDatabase.getStandardIngredients(itemId);
     boolean shouldUseCloset = InventoryManager.canUseCloset();
 
-    for (int i = 0; i < ingredients.length; ++i) {
-      AdventureResult ingredient = ingredients[i];
+    for (AdventureResult ingredient : ingredients) {
       // An item is immediately available if it is in your
       // inventory, or in your closet.
 
@@ -1446,11 +1450,11 @@ public abstract class InventoryManager {
 
     seen.add(key);
 
-    for (int i = 0; i < ingredients.length; ++i) {
+    for (AdventureResult ingredient : ingredients) {
       // An item is immediately available if you have the
       // ingredients for a substep.
 
-      if (InventoryManager.hasAnyIngredient(ingredients[i].getItemId(), seen)) {
+      if (InventoryManager.hasAnyIngredient(ingredient.getItemId(), seen)) {
         return true;
       }
     }
@@ -1999,13 +2003,20 @@ public abstract class InventoryManager {
       skills = Stream.concat(skills, codpieceSkills);
     }
 
+    if ((itemId == null || ItemPool.LEGENDARY_PASTA_WAND == itemId)
+        && InventoryManager.equippedOrInInventory(ItemPool.LEGENDARY_PASTA_WAND)
+        && !KoLCharacter.hasSkill(SkillPool.PASTAMASTERY)) {
+      skills = Stream.concat(skills, Stream.of(Map.entry(true, "Wave your Pasta Wand ")));
+    }
+
     skills
         .map(e -> Map.entry(e.getKey(), SkillDatabase.getSkillId(e.getValue())))
         .filter(
             e ->
                 e.getKey()
-                    || SkillDatabase.getSkillTags(e.getValue())
-                        .contains(SkillDatabase.SkillTag.NONCOMBAT))
+                    || (SkillDatabase.getSkillTags(e.getValue())
+                            .contains(SkillDatabase.SkillTag.NONCOMBAT)
+                        && EquipmentManager.shouldApplySkill(e.getValue())))
         .map(Map.Entry::getValue)
         .forEach(KoLCharacter::addAvailableSkill);
   }

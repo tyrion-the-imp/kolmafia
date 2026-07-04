@@ -479,7 +479,8 @@ public class BreakfastManager {
       if (pathedSummons) {
         if ((skill.equals("Pastamastery")
                 || skill.equals("Lunch Break")
-                || skill.equals("Spaghetti Breakfast"))
+                || skill.equals("Spaghetti Breakfast")
+                || skill.equals("Wave your Pasta Wand"))
             && !KoLCharacter.canEat()) {
           continue;
         }
@@ -576,9 +577,7 @@ public class BreakfastManager {
     boolean castAll = name.equals("all");
 
     // Determine how many skills we will cast from this list
-    for (int i = 0; i < skills.length; ++i) {
-      String skillName = skills[i];
-
+    for (String skillName : skills) {
       if (!castAll && !name.equals(skillName)) {
         continue;
       }

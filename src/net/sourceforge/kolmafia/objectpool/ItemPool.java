@@ -212,6 +212,7 @@ public class ItemPool {
   public static final int STRANGE_LEAFLET = 520;
   public static final int HOUSE = 526;
   public static final int VOLLEYBALL = 527;
+  public static final int BLOOD_FACED_VOLLEYBALL = 528;
   public static final int SPECIAL_SAUCE_GLOVE = 531;
   public static final int ABRIDGED = 534;
   public static final int BRIDGE = 535;
@@ -468,6 +469,7 @@ public class ItemPool {
   public static final int CLOACA_HELMET = 1331;
   public static final int CLOACA_COLA = 1334;
   public static final int GIANT_PINKY_RING = 1351;
+  public static final int TINY_PLASTIC_CRIMBO_REINDEER = 1379;
   public static final int FANCY_CHOCOLATE = 1382;
   public static final int TOY_SOLDIER = 1397;
   public static final int SNOWCONE_BOOK = 1411;
@@ -1709,7 +1711,6 @@ public class ItemPool {
   public static final int EMU_ROCKET = 5136;
   public static final int EMU_HELMET = 5137;
   public static final int EMU_HARNESS = 5138;
-  public static final int ASTRAL_ENERGY_DRINK = 5140;
   public static final int EMU_UNIT = 5143;
   public static final int HONEYPOT = 5145;
   public static final int SPOOKY_LITTLE_GIRL = 5165;
@@ -1933,6 +1934,7 @@ public class ItemPool {
   public static final int MEATSMITH_JAR = 5903;
   public static final int JICK_JAR = 5905;
   public static final int CHIBIBUDDY_ON = 5908;
+  public static final int GOLD_WEDDING_RING = 5909;
   public static final int NANORHINO_CREDIT_CARD = 5911;
   public static final int BEET_MEDIOCREBAR = 5915;
   public static final int CORN_MEDIOCREBAR = 5916;
@@ -2379,6 +2381,7 @@ public class ItemPool {
   public static final int ZEPPELIN_TICKET = 7185;
   public static final int COPPERHEAD_CHARM_RAMPANT = 7186;
   public static final int UNNAMED_COCKTAIL = 7187;
+  public static final int HANDFUL_OF_TIPS = 7188;
   public static final int TOMMY_GUN = 7190;
   public static final int TOMMY_AMMO = 7191;
   public static final int BUDDY_BJORN = 7200;
@@ -2968,6 +2971,7 @@ public class ItemPool {
   public static final int STRANGE_DISC_GREEN = 8926;
   public static final int STRANGE_DISC_BLUE = 8927;
   public static final int STRANGE_DISC_YELLOW = 8928;
+  public static final int CUSTOM_SIXGUN = 8933;
   public static final int MOUNTAIN_SKIN = 8937;
   public static final int GRIZZLED_SKIN = 8938;
   public static final int DIAMONDBACK_SKIN = 8939;
@@ -2991,6 +2995,7 @@ public class ItemPool {
   public static final int WITCHESS_SET = 8989;
   public static final int BRAIN_TRAINER_GAME = 8990;
   public static final int LASER_EYE_SURGERY_KIT = 8991;
+  public static final int JUMPING_HORSERADISH = 8993;
   public static final int SACRAMENTO_WINE = 8994;
   public static final int CLAN_FLOUNDRY = 9000;
   public static final int CARPE = 9001;
@@ -3198,6 +3203,7 @@ public class ItemPool {
   public static final int VICTOR_SPOILS = 9489;
   public static final int KREMLIN_BRIEFCASE = 9493;
   public static final int CAN_OF_MINIONS_BE_GONE = 9498;
+  public static final int TINY_PLASTIC_GOLDEN_GUNDAM = 9502;
   public static final int LICENSE_TO_CHILL = 9503;
   public static final int CELSIUS_233 = 9504;
   public static final int CELSIUS_233_SINGED = 9505;
@@ -3268,6 +3274,7 @@ public class ItemPool {
   public static final int WAD_OF_TAPE = 9694;
   public static final int SILENT_NIGHTLIGHT = 9695;
   public static final int MAKESHIFT_GARBAGE_SHIRT = 9699;
+  public static final int NOVELTY_MONORAIL_TICKET = 9700;
   public static final int DIETING_PILL = 9707;
   public static final int CLAN_CARNIVAL_GAME = 9712;
   public static final int GET_BIG_BOOK = 9713;
@@ -3610,6 +3617,7 @@ public class ItemPool {
   public static final int MEATBALL_MACHINE = 10878;
   public static final int REFURBISHED_AIR_FRYER = 10879;
   public static final int ELEVEN_LEAF_CLOVER = 10881;
+  public static final int ASTRAL_ENERGY_DRINK = 10883;
   public static final int CURSED_MAGNIFYING_GLASS = 10885;
   public static final int COSMIC_BOWLING_BALL = 10891;
   public static final int COMBAT_LOVERS_LOCKET = 10893;
@@ -4021,7 +4029,11 @@ public class ItemPool {
   public static final int GIANT_GNAWING_BONE = 12200;
   public static final int PORK_ELF_NETI_POT = 12205;
   public static final int FLEEK_MASCARA = 12210;
+  public static final int HOVERBOARD = 12211;
+  public static final int FITNESS_TRACKING_BRACELET = 12213;
   public static final int BASEBALL_DIAMOND = 12216;
+  public static final int LEGENDARY_PASTA_WAND = 12223;
+  public static final int TUBETTO_GELATTO = 12242;
 
   private ItemPool() {}
 
@@ -4144,8 +4156,8 @@ public class ItemPool {
     }
 
     HashSet<String> possibilities = new HashSet<>();
-    for (int i = 0; i < strings.length; ++i) {
-      possibilities.add(strings[i][0]);
+    for (String[] string : strings) {
+      possibilities.add(string[0]);
     }
 
     int missing = 0;

@@ -370,6 +370,7 @@ Item	Mayor Ghost's toupee	Mysticality: +250, Maximum MP: +125, MP Regen Min: 25,
 Item	meat cowboy hat	Muscle: +3, Familiar Effect: "1xBarrr, 3xLep, cap 10"
 Item	meatloaf helmet	Muscle: +3, Weapon Damage: +1, Familiar Effect: "1xBarrr, 1.5xFairy, cap 13"
 Item	meaty helmet turtle	Muscle: +3, Familiar Effect: "sleaze atk, 1xFairy, cap 17"
+# mega helmet: GET EQUIPPED WITH IT
 Item	Mer-kin bunwig	Spell Damage: +20, Spell Critical Percent: +10, Familiar Effect: "1xVolley"
 Item	Mer-kin facecowl	Mysticality Percent: +10, Spell Damage Percent: +30, MP Regen Min: 8, MP Regen Max: 12
 Item	Mer-kin gladiator mask	Stench Resistance: +3, Item Drop: -25, Initiative: -50, Adventure Underwater, Familiar Effect: "3xBarrr"
@@ -1648,6 +1649,11 @@ Item	lawnmower blade	Weapon Damage: +15, Last Available: "2010-04"
 Item	lead pipe	Maximum HP: +50, Muscle Percent: +100, Lasts Until Rollover, Last Available: "2015-07"
 # lead yo-yo
 Item	leechknife	Maximum HP: +10, Maximum MP: +5, HP Regen Min: 4, HP Regen Max: 6, MP Regen Min: 4, MP Regen Max: 6
+# legendary pasta wand: Very Accurate!
+# legendary pasta wand: Summon Legendary Noodles
+# legendary pasta wand: Cook up to 5 items per day without using an Adventure
+# legendary pasta wand: Pasta Thralls Go Up to 11 (Pastamancer Only)
+Item	legendary pasta wand	Spooky Damage: +5, Stench Damage: +5, Hot Damage: +5, Cold Damage: +5, Sleaze Damage: +5, Spell Damage: +10, Spell Damage Percent: +50, Spell Critical Percent: +15, Single Equip, Last Available: "2026-05", Pasta Thrall Experience: 1
 # legendary seal-clubbing club: Increase Fury Capacity and Generation (Seal Clubbers Only)
 Item	legendary seal-clubbing club	Muscle Percent: +50, Weapon Damage: [10*L], Initiative: +50, Attacks Can't Miss, Last Available: "2026-01", Conditional Skill (Equipped): "Club 'Em Across the Battlefield", Conditional Skill (Equipped): "Club 'Em Into Next Week", Conditional Skill (Equipped): "Club 'Em Back in Time"
 # licorice whip: Candiful Crits
@@ -2287,6 +2293,9 @@ Item	Crimbuccaneer lantern	Hat Drop: +50, Weapon Drop: +50, Accessory Drop: +50,
 Item	Crimbuccaneer war standard	Pirate Warfare Effectiveness: +50, Initiative: +25, Last Available: "2023-12"
 Item	crumbling rabbit's foot	Meat Drop: +30, Last Available: "2020-04"
 Item	cuddly teddy bear	Monster Level: +10, Last Available: "2014-10", Conditional Skill (Equipped): "Overload Teddy Bear"
+# Cup of 13s: Find random booze lying around after fights
+# Cup of 13s: Mix your own drinks, out of almost anything
+Item	Cup of 13s	Booze Drop: +60, MP Regen Min: 4, MP Regen Max: 8, HP Regen Min: 8, HP Regen Max: 13, Last Available: "2026-07"
 Item	cup of infinite pencils	Meat Drop: +15, Damage Aura: 1
 Item	cursed arcane orb	Spooky Damage: +13, Stench Damage: +13, Hot Damage: +13, Cold Damage: +13, Sleaze Damage: +13, Item Drop: -50
 Item	cursed compass	Lasts Until Rollover, Last Available: "2019-04", Item Drop: [100*zone(PirateRealm)]
@@ -3180,7 +3189,7 @@ Item	fishbone facemask	Monster Level: [-30*path(Heavy Rains)]
 Item	fishbone fins	Single Equip
 # fishbone kneepads: (Heavy Rains only)
 Item	fishbone kneepads	Initiative: [60*path(Heavy Rains)], Single Equip
-Item	fitness tracking bracelet	PvP Fights: +1, Single Equip, Last Available: "2026-03"
+Item	fitness tracking bracelet	PvP Fights: [min(10,1+floor(pref(_fitnessTrackingSteps)/100))], Single Equip, Last Available: "2026-03"
 Item	flagstone flip-flops	Experience (Mysticality): +3, Initiative: +40, Single Equip, Last Available: "2022-12", Conditional Skill (Equipped): "Flagstone Flap Flip"
 Item	flagstone fringe	Moxie Percent: +20, PvP Fights: +4, Single Equip, Last Available: "2022-12", Conditional Skill (Equipped): "Flagstone Foxtrot"
 Item	flapper floppers	Mysticality Percent: +25, Experience (Mysticality): +2, Single Equip
@@ -4818,17 +4827,15 @@ Clancy	Clancy's crumhorn	Volleyball: [5*C]
 Clancy	Clancy's lute	Fairy: [5*C]
 
 # Pasta Thrall section of modifiers.txt
-# level 5 ability: min(floor(P/5),1)*X
-# level 10 ability: floor(P/10)*X
 
-Thrall	Angel Hair Wisp	Initiative: [5*P]
-Thrall	Lasagmbie	Meat Drop: [20+(2*P)], Spooky Spell Damage: [floor(P/10)*10]
-Thrall	Penne Dreadful	Equalize Moxie: "Mysticality", Damage Reduction: [floor(P/10)*10]
-Thrall	Spaghetti Elemental	Spell Damage: [floor(P/10)*5], Experience: [(1+ceil(P/3))/2]
+Thrall	Angel Hair Wisp	Initiative: [5*P], Mysticality: [gte(P,11)*20]
+Thrall	Lasagmbie	Meat Drop: [20+(2*P)], Spooky Spell Damage: [gte(P,10)*10]
+Thrall	Penne Dreadful	Equalize Moxie: "Mysticality", Damage Reduction: [gte(P,10)*10], Moxie: [gte(P,11)*20]
+Thrall	Spaghetti Elemental	Spell Damage: [gte(P,10)*5], Experience: [(1+ceil(P/3))/2], Spooky Damage: [gte(P,11)*10]
 Thrall	Spice Ghost	Item Drop: [10+P]
-Thrall	Elbow Macaroni	Equalize Muscle: "Mysticality", Weapon Damage: [min(floor(P/5),1)*2*P], Critical Hit Percent: [floor(P/10)*10]
-Thrall	Vampieroghi	Maximum HP: [floor(P/10)*60]
-Thrall	Vermincelli	Maximum MP: [floor(P/10)*30]
+Thrall	Elbow Macaroni	Equalize Muscle: "Mysticality", Weapon Damage: [gte(P,5)*2*P], Critical Hit Percent: [gte(P,10)*10], Muscle: [gte(P,11)*20]
+Thrall	Vampieroghi	Maximum HP: [gte(P,10)*60], Spooky Resistance: [gte(P,11)*1]
+Thrall	Vermincelli	Maximum MP: [gte(P,10)*30]
 
 # Familiars section of modifiers.txt
 
@@ -5307,6 +5314,7 @@ Throne	Stocking Mimic	Muscle: +10, Mysticality: +10, Moxie: +10, Drops Items
 Throne	Stooper	none
 Throne	Sugar Fruit Fairy	Experience (Mysticality): +2
 Throne	Sweet Nutcracker	HP Regen Min: 2, HP Regen Max: 8, MP Regen Min: 2, MP Regen Max: 8, Drops Items
+Throne	Sword of S Words	none
 Throne	Syncopated Turtle	Initiative: +20
 Throne	Synthetic Rock	Hot Resistance: +2, Cold Resistance: +2, Stench Resistance: +2, Spooky Resistance: +2, Sleaze Resistance: +2
 Throne	Teddy Bear	Initiative: +20
@@ -6409,7 +6417,7 @@ Effect	Enhanced Archaeologist	Mysticality: +20, Muscle: -5, Moxie: -5
 # Enhanced Interrogation: Boosts psychological attack and defense in Bastille Battalion.
 Effect	Ennerderated	Avatar: "Kleptobrainiac"
 Effect	Enraged	Muscle Percent: +10
-Effect	Entauntauned	Cold Resistance: [pref(entauntanedColdRes)]
+Effect	Entauntauned	Cold Resistance: [pref(entauntaunedColdRes)]
 Effect	Ermahgerd, Burke	Avatar: "Special Agent Wallace Burke Corrigan"
 Effect	Ermine Eyes	Item Drop: +5
 Effect	Erudite	Mysticality Percent: +10, Spell Damage: +15, Damage Reduction: -10
@@ -6930,7 +6938,7 @@ Effect	Impeccable Coiffure	Moxie Percent: +50
 Effect	Imported Strength	Weapon Damage Percent: +50, Spell Damage Percent: +50
 Effect	Impregnabili Tea	Damage Reduction: 30
 Effect	Impregnably Delicious	Damage Reduction: 30
-# Impressed Pasta Thralls: +1 Pasta Thrall Experience
+Effect	Impressed Pasta Thralls	Pasta Thrall Experience: 1
 Effect	Improprie Tea	Sleaze Damage: +30
 Effect	Improved Candy Vision	Candy Drop: +25
 Effect	In a Lather	Hot Damage: +20, Cold Damage: +20, Stench Damage: +20, Spooky Damage: +20, Sleaze Damage: +20, Hot Spell Damage: +40, Cold Spell Damage: +40, Stench Spell Damage: +40, Spooky Spell Damage: +40, Sleaze Spell Damage: +40, Ranged Damage: +20, Weapon Damage: +20, Weapon Damage Percent: +50, Spell Damage: +40, Spell Damage Percent: +50
@@ -7092,6 +7100,13 @@ Effect	Latency	Muscle: [-3*pref(sourceAgentsDefeated)], Mysticality: [-3*pref(so
 Effect	Latently Energized	MP Regen Min: 20, MP Regen Max: 30
 Effect	Leash of Linguini	Familiar Weight: +5
 Effect	Leaving Nothing to the Imagination	Avoid Attack: 1
+Effect	Legendary Bloody Potato Bits	HP Regen Min: 9, HP Regen Max: 15
+Effect	Legendary Macaroni Coating	Muscle: +30
+Effect	Legendary Pasta Eyeball	Meat Drop: +30
+Effect	Legendary Penne Fedora	Moxie: +30
+Effect	Legendary Slinking Noodle Glob	Maximum MP: +45
+Effect	Legendary Spice Haze	Item Drop: +15
+Effect	Legendary Whispering Strands	Initiative: +30
 Effect	Leisurely Amblin'	Meat Drop: +100
 Effect	Lemon Enlightenment	Mysticality Percent: +10, Spell Damage Percent: +15
 Effect	Lemony Goodness	Muscle: +10, Mysticality: +10, Moxie: +10
@@ -7705,6 +7720,16 @@ Effect	Ruby-ous	Initiative: +150, Weapon Damage: +10
 Effect	Rum of Darkness	Elf Warfare Effectiveness: +5
 Effect	Rummy	Booze Drop: +30
 Effect	Rumpel-pumped	Muscle Percent: +400, Mysticality Percent: +400, Moxie Percent: +400
+Effect	Runneth a Fever	Hot Resistance: +5
+Effect	Runneth a Tight Ship	Experience (familiar): +5
+Effect	Runneth Cold	Cold Resistance: +5
+Effect	Runneth For Thy Life	Spooky Resistance: +5
+Effect	Runneth Into Thine Ex	Sleaze Resistance: +5
+Effect	Runneth On Empty	Meat Drop: +100
+Effect	Runneth On Fumes	Stench Resistance: +5
+Effect	Runneth Over	Item Drop: +50
+Effect	Runneth Wild	Initiative: +100
+Effect	Runneth With The Pack	Familiar Weight: +5
 Effect	Rushin' Hands	Weapon Damage: +3
 Effect	Rushtacean'	Initiative: +50
 # Ruthlessly Efficient: Deleveling is 50% more effective
@@ -7737,7 +7762,7 @@ Effect	Savage Beast Inside	Muscle: +20
 Effect	Scared Stiff	Sleaze Resistance: +2, Cold Vulnerability, Spooky Vulnerability
 Effect	Scaredy Dog	Spooky Damage: +30, Cold Resistance: +3, Sleaze Resistance: +3, Combat Rate: -5
 Effect	Scariberi	Spooky Damage: [min(100,T)]
-Effect	Scariersauce	Sleaze Resistance: +6, Cold Resistance: +6
+Effect	Scariersauce	Sleaze Resistance: +6, Cold Resistance: +6, Thorns: 1
 Effect	Scarysauce	Sleaze Resistance: +2, Cold Resistance: +2, Thorns: 1
 Effect	Scavengers Scavenging	Item Drop: +20
 Effect	Scent of a Kitchen Elf	Mysticality: +40, Familiar Weight Percent: -50
@@ -9489,7 +9514,6 @@ MutexI	work boots/fancy boots	none
 MutexI	booze drive button/candy drive button/food drive button	none
 MutexI	baywatch/Counterclockwise Watch/Crimbolex watch/dead guy's memento/dead guy's watch/glow-in-the-dark wristwatch/grandfather watch/imitation nice watch/Sasq&trade; watch/wristwatch of the white knight	none
 
-
 # Mutually exclusive effects section of modifiers.txt
 # Same as above
 MutexE	Shrieking Weasel/Power, Man/Lucky Struck/Ministrations in the Dark/Superdrifting	none
@@ -9498,12 +9522,14 @@ MutexE	Purple Tongue/Green Tongue/Orange Tongue/Red Tongue/Blue Tongue/Black Ton
 MutexE	Broken Heart/Fiery Heart/Cold Hearted/Sweet Heart/Withered Heart/Lustful Heart	none
 
 # While the groups below are mutex, replacing one effect with another is easy enough that other effects should be suggested anyway
-# MutexE	Snarl of the Timberwolf/Scowl of the Auk/Stiff Upper Lip/Patient Smile/Arched Eyebrow of the Archmage/Wizard Squint/Icy Glare/Wry Smile/Disco Leer/Disco Smirk/Suspicious Gaze/Knowing Smile	none
-# MutexE	Cautious Prowl/Prideful Strut/Leisurely Amblin'	none
-# MutexE	Pompadour/Cowlick/Fauxhawk/[1553]Slicked-Back Do	none
-# MutexE	Coffeesphere/Oilsphere/Chocolatesphere/Gristlesphere	none
-# MutexE	Song of Accompaniment/Song of Cockiness/Song of Fortune	none
-# MutexE	Spirit of Bacon Grease/Spirit of Cayenne/Spirit of Garlic/Spirit of Peppermint/Spirit of Wormwood	none
+MutexER	Snarl of the Timberwolf/Scowl of the Auk/Stiff Upper Lip/Patient Smile/Quiet Determination/Arched Eyebrow of the Archmage/Wizard Squint/Quiet Judgement/Icy Glare/Wry Smile/Disco Leer/Disco Smirk/Suspicious Gaze/Knowing Smile/Quiet Desperation/Inscrutable Gaze	none
+MutexER	Cautious Prowl/Prideful Strut/Leisurely Amblin'	none
+MutexER	Pompadour/Cowlick/Fauxhawk/[1553]Slicked-Back Do	none
+MutexER	Coffeesphere/Oilsphere/Chocolatesphere/Gristlesphere	none
+MutexER	Song of Accompaniment/Song of Cockiness/Song of Fortune/Song of Solitude/Song of Battle	none
+MutexER	Spirit of Bacon Grease/Spirit of Cayenne/Spirit of Garlic/Spirit of Peppermint/Spirit of Wormwood	none
+MutexER	Song of the North/Song of Slowness/Song of Starch/Song of Sauce/Song of Bravado	none
+MutexER	Let's Beat Up This Drunken Sailor/I'm Smarter Than a Drunken Sailor/Look At That Drunken Sailor Dance/Who's Going to Pay This Drunken Sailor?/Only Dogs Love a Drunken Sailor	none
 
 # Maximization categories section of modifiers.txt
 # These pseudo-items list the indirect benefits of certain classes of
@@ -9535,6 +9561,7 @@ Item	alien sandwich	Last Available: "2017-04"
 Item	amok pudding	Effect: "Puddingface", Effect Duration: 20
 Item	ancient unspeakable fruitcake	Last Available: "2006-12"
 Item	animal part cracker	Effect: "Sprinkle in Your Eye", Effect Duration: 30, Last Available: "2016-12"
+Item	Arrattabbattabiata	Last Available: "2026-05"
 Item	autumn-spice donut	Effect: "Whet Appetite", Effect Duration: 30, Last Available: "2022-10"
 Item	bacteria bisque	Effect: "Infected with Chronerism", Effect Duration: 50
 Item	badass pie	Effect: "Pie in the Sky", Effect Duration: 20, Last Available: "2010-10"
@@ -9729,10 +9756,12 @@ Item	flour cookie	Last Available: "2021-12"
 Item	flower petal pie	Effect: "Flower Power", Effect Duration: 3
 Item	foie gras	Effect: "Beaten Up", Effect Duration: 1
 Item	forbidden danish	Effect: "Danish Cunning", Effect Duration: 30, Last Available: "2011-09"
+Item	Formica e Pepe	Last Available: "2026-05"
 Item	freightcake	Last Available: "2022-12"
 Item	frozen danish	Effect: "Danish Cunning", Effect Duration: 30, Last Available: "2011-09"
 Item	frozen tofu pop	Last Available: "2021-12"
 Item	fruit-stuffed rumcake	Effect: "Fruit-Based Animosity", Effect Duration: 100, Last Available: "2023-12"
+Item	Frutti di Scatoletta	Last Available: "2026-05"
 Item	fudge bunny	Last Available: "2011-11"
 Item	fudgesicle	Effect: "Fudge Headache", Effect Duration: 30, Last Available: "2011-11"
 Item	full-sized pumpkin pie	Effect: "Halloweeny", Effect Duration: 5, Last Available: "2025-11"
@@ -9751,6 +9780,7 @@ Item	gingerbread robot	Effect: "Gingerbread Robust", Effect Duration: 20, Last A
 Item	glass of baboon milk	Last Available: "2009-06"
 Item	glass of raw eggs	Effect: "Boxing Day Breakfast", Effect Duration: 50, Last Available: "2018-12"
 Item	glistening fish meat	Effect: "Fishy", Effect Duration: 5
+Item	Gnocci Domani	Last Available: "2026-05"
 Item	gooey lava globs	Last Available: "2015-08"
 Item	government cheese	Last Available: "2014-05"
 Item	greedy ghostling	Free Pull, Last Available: "2020-12"
@@ -9827,6 +9857,7 @@ Item	leftovers sandwich	Last Available: "2016-11"
 Item	licorice garrote	Effect: "Sugar Rush", Effect Duration: 5, Last Available: "2009-12"
 Item	lihc eye pie	Effect: "Eye of the Lihc", Effect Duration: 5
 Item	limp broccoli	Effect: "Nutrient-Rich", Effect Duration: 100, Last Available: "2014-10"
+Item	Linguini Ubriacapa	Last Available: "2026-05"
 Item	liquid bread	Effect: "Comprehensively Nourished", Effect Duration: 20, Last Available: "2013-09"
 Item	liver and let pie	Last Available: "2010-10"
 Item	loaf of alien bread	Last Available: "2014-05"
@@ -9874,8 +9905,10 @@ Item	ojo de pez burrito	Last Available: "2019-12"
 Item	old chum	Effect: "Fishy", Effect Duration: 5, Last Available: "2013-12"
 Item	oldcake	Last Available: "2018-12"
 Item	one with everything	Effect: "Inner Dog", Effect Duration: 50
+Item	Orzo di Riso	Last Available: "2026-05"
 Item	packet of beer nuts	Effect: "Salty Mouth", Effect Duration: 1
 Item	party platter for one	Last Available: "2018-09"
+Item	Pasta Grimavera	Last Available: "2026-05"
 Item	pat of butter	Last Available: "2013-11"
 Item	pawn cookie	Effect: "Pwnd", Effect Duration: 30, Last Available: "2010-06"
 Item	PB&J with the crusts cut off	Last Available: "2018-09"
@@ -9885,6 +9918,7 @@ Item	penguin focaccia bread	Last Available: "2009-12"
 Item	peppermint donut	Effect: "Peppermint Rush", Effect Duration: 10
 Item	peppermint patty	Last Available: "2011-11"
 Item	peppermint tack	Last Available: "2023-12"
+Item	Pesto alla Marziano	Last Available: "2026-05"
 Item	Pete's rich ricotta	Effect: "Rippin' Ricotta", Effect Duration: 30, Last Available: "2022-11"
 Item	Pete's wiley whey bar	Effect: "Awfully Wily", Effect Duration: 30, Last Available: "2022-11"
 Item	petit 4.1	Effect: "Petit Force", Effect Duration: 20, Last Available: "2013-12"
@@ -10053,6 +10087,7 @@ Item	transparent nog	Effect: "Holiday Disappointment", Effect Duration: 10, Last
 Item	treasure chestnut	Last Available: "2025-12"
 Item	tree-shaped Crimbo cookie	Effect: "Yuletide Sappiness", Effect Duration: 10, Last Available: "2023-06"
 Item	triangular CRIMBCOOKIE	Effect: "Triangle, Man", Effect Duration: 10, Last Available: "2010-12"
+Item	Tubetto Gelatto	Last Available: "2026-05"
 Item	turtle soup	Effect: "[598]A Little Bit Evil", Effect Duration: 10, Effect: "Souper Vengeful", Effect Duration: 10
 Item	ultrafondue	Effect: "Fondid", Effect Duration: 30, Last Available: "2011-09"
 Item	unappetizing mayolus	Last Available: "2015-05"
@@ -13808,6 +13843,7 @@ Item	lecherous stone	Last Available: "2012-12"
 Item	LED block	Last Available: "2007-12"
 Item	leftover Crimbo rations	Last Available: "2009-12"
 # leftovers of indeterminate origin: Deals 8-10 <font color=green>Stench Damage</font>
+Item	legendary noodles	Last Available: "2026-05"
 Item	lemony scales	Last Available: "2014-12"
 Item	Lepardner	Last Available: "2018-03"
 Item	Leprecondo	Last Available: "2025-03"
@@ -14332,6 +14368,7 @@ Item	Party Planning on a Budget	Skill: "Budget Conscious", Last Available: "2018
 Item	party pup	Last Available: "2018-09"
 Item	Party Tattoo&trade; gift certificate	Last Available: "2018-09"
 Item	passed-out psychedelic bear	Free Pull, Last Available: "2009-10"
+Item	pasta wand loot box	Free Pull, Last Available: "2026-05"
 Item	Pastaco shell	Last Available: "2014-05"
 # patchouli incense stick: Weakens enemies a little bit
 Item	patchouli incense stick	Effect: "Far Out", Effect Duration: 5, Effect: "Embarrassed", Effect Duration: 5
@@ -14743,6 +14780,7 @@ Item	Saturday Night thermometer	Last Available: "2015-08"
 Item	sausage golem	Last Available: "2019-01"
 # sawblade fragment: Deals 100-150 Physical Damage and causes additional Bleeding over time
 Item	sawblade fragment	Last Available: "2007-12"
+Item	scabbarded Sword of S Words	Free Pull, Last Available: "2026-06"
 # scented massage oil: Restores all HP
 Item	Schmalz's First Prize Beer	Free Pull, Last Available: "2011-12"
 # School of Hard Knocks Diploma: Brings up Enraging Memories
@@ -14762,6 +14800,7 @@ Item	seal-blubber candle	Class: "Seal Clubber"
 Item	seal-clubbing club loot box	Free Pull, Last Available: "2026-01"
 Item	Sealed TakerSpace letter of Marque	Free Pull, Last Available: "2024-12"
 # sealhide snare: Stuns your opponent for a few rounds
+Item	second-hand synthetic sloth skin scabbard	Familiar Weight: +5
 Item	secret from the future	Last Available: "2009-06"
 Item	Secrets of the Master Egg Hunters	Last Available: "2024-12", Skill: "Master Egg Hunter"
 Item	Secrets of the Master Egg Hunters (used)	Last Available: "2024-12", Skill: "Master Egg Hunter"
@@ -14821,6 +14860,7 @@ Item	shot of Sneaky Pete's Mojo	Free Pull
 Item	shrine to the Barrel god	Free Pull, Last Available: "2015-09"
 Item	shrink-wrapped 2002 Mr. Store Catalog	Free Pull, Last Available: "2023-06"
 Item	shrink-wrapped Cincho de Mayo	Free Pull, Last Available: "2023-05"
+Item	shrink-wrapped Cup of 13s	Free Pull, Last Available: "2026-07"
 # shrinking powder: Reduce an enemy's size (Hit Points) by 35-50%
 Item	shrunken head in a duffel bag	Free Pull, Last Available: "2025-11"
 Item	Shudder	Last Available: "2018-03"
@@ -15893,7 +15933,7 @@ EternityCodpiece	floaty inverse geode	Moxie: +5
 EternityCodpiece	giant pearl	Pool Skill: +1
 EternityCodpiece	glacial sapphire	Cold Resistance: +2
 EternityCodpiece	glimmering golden crystal	Experience (familiar): +1
-EternityCodpiece	glowing new age crystal	MP Regen Min: 5, MP Regen Max: 10
+EternityCodpiece	glowing New Age crystal	MP Regen Min: 5, MP Regen Max: 10
 EternityCodpiece	green peawee marble	Initiative: +1
 EternityCodpiece	hamethyst	Muscle Percent: +11
 EternityCodpiece	heart of the volcano	Hot Damage: +5, Hot Spell Damage: +5
@@ -15918,7 +15958,7 @@ EternityCodpiece	priceless diamond	Damage Absorption: +10
 EternityCodpiece	rainbow pearl	Hot Damage: +5, Cold Damage: +5, Stench Damage: +5, Spooky Damage: +5, Sleaze Damage: +5
 EternityCodpiece	red China marble	Initiative: +3
 EternityCodpiece	rhinestone	Experience (Moxie): +1
-EternityCodpiece	Rubee™	Hot Damage: +10
+EternityCodpiece	Rubee&trade;	Hot Damage: +10
 EternityCodpiece	shadow glass	Spooky Damage: +10
 EternityCodpiece	shard of double-ice	Cold Damage: +10
 EternityCodpiece	solid gold jewel	Maximum HP Percent: +20

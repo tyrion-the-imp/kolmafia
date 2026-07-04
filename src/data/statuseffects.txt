@@ -3095,3 +3095,26 @@
 3092	Blown-Up Feet	splodefeet.gif	c58a03b945da0a1cc63c103ea56d811e	neutral	none	# wear a hoverboard for 50 adventures and have it blow up
 3093	Pork Elf Medicine	pork_cabinet.gif	2ea8891b95d949f27a2648bc176b7888	neutral	none
 3094	Extremely Clean Hands	pork_sink.gif	d83b834aef27a5804a94acfb9b50919b	neutral	none
+3095	Legendary Bloody Potato Bits	bloodpotatoes.gif	6d0568f8148422ecee7072407877fdc2	neutral	none	cast 1 Bind Vampieroghi ^ Legendary Bloody Potato Bits
+3096	Legendary Slinking Noodle Glob	noodlemass.gif	fe4a1b106ad57d052c50dd166f6018ad	neutral	none	cast 1 Bind Vermincelli ^ Legendary Slinking Noodle Glob
+3097	Legendary Whispering Strands	wispbits.gif	a457a9d336d50358d5c6309ad4a1c607	neutral	none	cast 1 Bind Angel Hair Wisp ^ Legendary Whispering Strands
+3098	Legendary Macaroni Coating	macaronibits.gif	c9678cf12dd6a14d45d159a08a5ab2e6	neutral	none	cast 1 Bind Undead Elbow Macaroni ^ Legendary Macaroni Coating
+3099	Legendary Penne Fedora	pennehat.gif	b13615e198a0a1fe883cf2c0982738bd	neutral	none	cast 1 Bind Penne Dreadful ^ Legendary Penne Fedora
+3100	Legendary Pasta Eyeball	eyeball.gif	c74e515c4bc83f9037d005b37e4b490d	neutral	none	cast 1 Bind Lasagmbie ^ Legendary Pasta Eyeball
+3101	Legendary Spice Haze	disease.gif	fa78b3de0f428f72636083709d2d01ae	neutral	none	cast 1 Bind Spice Ghost ^ Legendary Spice Haze
+3102
+3103
+3104
+3105
+3106
+3107
+3108	Runneth Over	runnethover.gif	ba42c8a9a68f634e565a9f6b77493fff	neutral	none
+3109	Runneth On Empty	runnethempty.gif	119e01484cc298986ace7ad2fe77ef1e	neutral	none
+3110	Runneth Wild	runnethwild.gif	402bf078e9cd20d81b3c246a8a9293d2	neutral	none
+3111	Runneth With The Pack	runnethpack.gif	1ff8291a7c6eb7fb434f7651466e7054	neutral	none
+3112	Runneth a Tight Ship	runnethtight.gif	420b8a95b57b643e2c005b3c946c8fca	neutral	none
+3113	Runneth a Fever	runnethhot.gif	27463adc735b70ead26a18e7909cc919	neutral	none
+3114	Runneth Cold	runnethcold.gif	8f5e044de767af3014fdaa8658daef4b	neutral	none
+3115	Runneth On Fumes	runnethstench.gif	35b96e0c5637de5b95b6f8a05e186415	neutral	none
+3116	Runneth For Thy Life	runnethspooky.gif	a4c0d14bbc0c8af84aa96e4ace820c11	neutral	none
+3117	Runneth Into Thine Ex	runnethsleaze.gif	c6e701695a81c397abedc9c881f4f3f4	neutral	none

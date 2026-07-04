@@ -30,13 +30,15 @@ import net.sourceforge.kolmafia.persistence.AdventureDatabase;
 import net.sourceforge.kolmafia.persistence.AdventureDatabase.Environment;
 import net.sourceforge.kolmafia.persistence.AdventureQueueDatabase;
 import net.sourceforge.kolmafia.persistence.AdventureSpentDatabase;
-import net.sourceforge.kolmafia.persistence.BountyDatabase;
+import net.sourceforge.kolmafia.persistence.BountyDatabase.BountyData;
 import net.sourceforge.kolmafia.persistence.CandyDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.DailyLimitDatabase.DailyLimitType;
+import net.sourceforge.kolmafia.persistence.EffectData;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
 import net.sourceforge.kolmafia.persistence.FactDatabase;
 import net.sourceforge.kolmafia.persistence.FamiliarDatabase;
+import net.sourceforge.kolmafia.persistence.FamiliarDatabase.FamiliarRaceData;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
 import net.sourceforge.kolmafia.persistence.ModifierDatabase;
@@ -45,6 +47,7 @@ import net.sourceforge.kolmafia.persistence.MonsterDatabase.Element;
 import net.sourceforge.kolmafia.persistence.MonsterDatabase.Phylum;
 import net.sourceforge.kolmafia.persistence.RestoresDatabase;
 import net.sourceforge.kolmafia.persistence.SkillDatabase;
+import net.sourceforge.kolmafia.persistence.SkillDatabase.SkillData;
 import net.sourceforge.kolmafia.persistence.TCRSDatabase;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.FightRequest;
@@ -845,59 +848,59 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public boolean get_combat() {
-      return FamiliarDatabase.isCombatType((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isCombatType();
     }
 
     public boolean get_physical_damage() {
-      return FamiliarDatabase.isCombat0Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isCombat0Type();
     }
 
     public boolean get_elemental_damage() {
-      return FamiliarDatabase.isCombat1Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isCombat1Type();
     }
 
     public boolean get_block() {
-      return FamiliarDatabase.isBlockType((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isBlockType();
     }
 
     public boolean get_delevel() {
-      return FamiliarDatabase.isDelevelType((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isDelevelType();
     }
 
     public boolean get_hp_during_combat() {
-      return FamiliarDatabase.isHp0Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isHp0Type();
     }
 
     public boolean get_mp_during_combat() {
-      return FamiliarDatabase.isMp0Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isMp0Type();
     }
 
     public boolean get_other_action_during_combat() {
-      return FamiliarDatabase.isOther0Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isOther0Type();
     }
 
     public boolean get_hp_after_combat() {
-      return FamiliarDatabase.isHp1Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isHp1Type();
     }
 
     public boolean get_mp_after_combat() {
-      return FamiliarDatabase.isMp1Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isMp1Type();
     }
 
     public boolean get_other_action_after_combat() {
-      return FamiliarDatabase.isOther1Type((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isOther1Type();
     }
 
     public boolean get_passive() {
-      return FamiliarDatabase.isPassiveType((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isPassiveType();
     }
 
     public boolean get_underwater() {
-      return FamiliarDatabase.isUnderwaterType((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isUnderwaterType();
     }
 
     public boolean get_variable() {
-      return FamiliarDatabase.isVariableType((int) this.contentLong);
+      return this.content != null && ((FamiliarRaceData) this.content).isVariableType();
     }
 
     public boolean get_feasted() {
@@ -907,12 +910,9 @@ public class ProxyRecordValue extends RecordValue {
 
     public String get_attributes() {
       List<String> attrs = FamiliarDatabase.getFamiliarAttributes((int) this.contentLong);
-      if (attrs == null) {
-        return "";
-      }
       StringBuilder builder = new StringBuilder();
       for (String attr : attrs) {
-        if (builder.length() != 0) {
+        if (!builder.isEmpty()) {
           builder.append("; ");
         }
         builder.append(attr);
@@ -1005,40 +1005,32 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public String get_plural() {
-      String plural = BountyDatabase.getPlural(this.contentString);
-      return plural == null ? "" : plural;
+      return this.content == null ? "" : ((BountyData) this.content).plural();
     }
 
     public String get_type() {
-      String type = BountyDatabase.getType(this.contentString);
-      return type == null ? "" : type;
+      return this.content == null ? "" : ((BountyData) this.content).type();
     }
 
     public String get_kol_internal_type() {
-      String type = BountyDatabase.getType(this.contentString);
-      return type == null
-          ? ""
-          : type.equals("easy")
-              ? "low"
-              : type.equals("hard") ? "high" : type.equals("special") ? "special" : null;
+      return this.content == null ? "" : ((BountyData) this.content).getKoLInternalType();
     }
 
     public int get_number() {
-      return BountyDatabase.getNumber(this.contentString);
+      return this.content == null ? 0 : ((BountyData) this.content).number();
     }
 
     public String get_image() {
-      String image = BountyDatabase.getImage(this.contentString);
-      return image == null ? "" : image;
+      return this.content == null ? "" : ((BountyData) this.content).image();
     }
 
     public Value get_monster() {
-      String monster = BountyDatabase.getMonster(this.contentString);
+      String monster = this.content == null ? null : ((BountyData) this.content).monster();
       return DataTypes.parseMonsterValue(monster == null ? "" : monster, true);
     }
 
     public Value get_location() {
-      String location = BountyDatabase.getLocation(this.contentString);
+      String location = this.content == null ? null : ((BountyData) this.content).location();
       return DataTypes.parseLocationValue(location == null ? "" : location, true);
     }
   }
@@ -1049,6 +1041,7 @@ public class ProxyRecordValue extends RecordValue {
             .add("id", DataTypes.INT_TYPE)
             .add("name", DataTypes.STRING_TYPE)
             .add("level", DataTypes.INT_TYPE)
+            .add("experience", DataTypes.INT_TYPE)
             .add("image", DataTypes.STRING_TYPE)
             .add("tinyimage", DataTypes.STRING_TYPE)
             .add("skill", DataTypes.SKILL_TYPE)
@@ -1072,6 +1065,11 @@ public class ProxyRecordValue extends RecordValue {
     public int get_level() {
       PastaThrallData thrall = KoLCharacter.findPastaThrall(this.contentString);
       return thrall == null ? 0 : thrall.getLevel();
+    }
+
+    public int get_experience() {
+      PastaThrallData thrall = KoLCharacter.findPastaThrall(this.contentString);
+      return thrall == null ? 0 : thrall.getExperience();
     }
 
     public String get_image() {
@@ -1255,7 +1253,7 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public String get_name() {
-      return SkillDatabase.getSkillName((int) this.contentLong);
+      return this.content == null ? null : ((SkillData) this.content).name();
     }
 
     public String get_type() {
@@ -1263,11 +1261,11 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public int get_level() {
-      return SkillDatabase.getSkillLevel((int) this.contentLong);
+      return this.content == null ? -1 : ((SkillData) this.content).level();
     }
 
     public String get_image() {
-      return SkillDatabase.getSkillImage((int) this.contentLong);
+      return this.content == null ? null : ((SkillData) this.content).image();
     }
 
     public int get_traincost() {
@@ -1362,7 +1360,7 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public String get_name() {
-      return EffectDatabase.getEffectName((int) this.contentLong);
+      return this.content == null ? null : ((EffectData) this.content).getName();
     }
 
     public String get_default() {
@@ -1370,12 +1368,11 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public String get_quality() {
-      return EffectDatabase.getQualityDescription((int) this.contentLong);
+      return this.content == null ? "" : ((EffectData) this.content).getQualityDescription();
     }
 
     public String get_attributes() {
-      List<String> attrs = EffectDatabase.getEffectAttributes((int) this.contentLong);
-      return (attrs == null) ? "" : String.join(",", attrs);
+      return this.content == null ? "" : ((EffectData) this.content).getCombinedAttributes();
     }
 
     public String get_note() {
@@ -1392,11 +1389,11 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public String get_image() {
-      return EffectDatabase.getImageName((int) this.contentLong);
+      return this.content == null ? "" : ((EffectData) this.content).getImage();
     }
 
     public String get_descid() {
-      return EffectDatabase.getDescriptionId((int) this.contentLong);
+      return this.content == null ? null : ((EffectData) this.content).getDescriptionId();
     }
 
     public int get_candy_tier() {
@@ -1404,7 +1401,7 @@ public class ProxyRecordValue extends RecordValue {
     }
 
     public boolean get_song() {
-      return EffectDatabase.isSong((int) this.contentLong);
+      return this.content == null ? false : ((EffectData) this.content).isSong();
     }
   }
 

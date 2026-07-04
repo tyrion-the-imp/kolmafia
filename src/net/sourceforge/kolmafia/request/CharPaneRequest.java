@@ -272,9 +272,12 @@ public class CharPaneRequest extends GenericRequest {
 
     CharPaneRequest.checkSweatiness(responseText);
 
+    CharPaneRequest.checkFitnessTrackingSteps(responseText);
+
     CharPaneRequest.check8BitScore(responseText);
 
     CharPaneRequest.checkNoncombatForcers(responseText);
+    CharPaneRequest.checkOtherModifiers(responseText);
 
     CharPaneRequest.checkWereProfessor(responseText);
 
@@ -306,18 +309,46 @@ public class CharPaneRequest extends GenericRequest {
 
   public static void checkNoncombatForcers(final String responseText) {
     var result = NONCOMBAT_FORCER_PATTERN.matcher(responseText);
-    boolean noncombatForcerActive = result.find();
-    Preferences.setBoolean("noncombatForcerActive", noncombatForcerActive);
-    if (noncombatForcerActive) {
+    boolean hasModifiers = result.find();
+    String noncombatForcers = "";
+    if (hasModifiers) {
       var descriptions = result.group(1).split("<br>");
-      Preferences.setString(
-          "noncombatForcers",
+      noncombatForcers =
           Arrays.stream(descriptions)
               .map(desc -> NONCOMBAT_FORCERS.get(desc.trim()))
               .filter(Objects::nonNull)
-              .collect(Collectors.joining("|")));
+              .collect(Collectors.joining("|"));
+    }
+    Preferences.setString("noncombatForcers", noncombatForcers);
+    Preferences.setBoolean("noncombatForcerActive", !noncombatForcers.isEmpty());
+  }
+
+  private static final Pattern LEGENDARY_AMYGDALA_PATTERN =
+      Pattern.compile(
+          "Your amygdala full of legendary noodles will lead you into (\\d+) more fight");
+  private static final Pattern LEGENDARY_SKIN_PATTERN =
+      Pattern.compile("Your skin will be really tough for (\\d+) more fight");
+  private static final Pattern LEGENDARY_STOMACH_PATTERN =
+      Pattern.compile("Your stomach will be more efficient for (\\d+) more meal");
+
+  public static void checkOtherModifiers(final String responseText) {
+    var result = LEGENDARY_AMYGDALA_PATTERN.matcher(responseText);
+    if (result.find()) {
+      Preferences.setInteger("legendaryNoodlesAmygdala", Integer.parseInt(result.group(1)));
     } else {
-      Preferences.setString("noncombatForcers", "");
+      Preferences.setInteger("legendaryNoodlesAmygdala", 0);
+    }
+    result = LEGENDARY_SKIN_PATTERN.matcher(responseText);
+    if (result.find()) {
+      Preferences.setInteger("legendaryNoodlesSkin", Integer.parseInt(result.group(1)));
+    } else {
+      Preferences.setInteger("legendaryNoodlesSkin", 0);
+    }
+    result = LEGENDARY_STOMACH_PATTERN.matcher(responseText);
+    if (result.find()) {
+      Preferences.setInteger("legendaryNoodlesStomach", Integer.parseInt(result.group(1)));
+    } else {
+      Preferences.setInteger("legendaryNoodlesStomach", 0);
     }
   }
 
@@ -368,7 +399,7 @@ public class CharPaneRequest extends GenericRequest {
   public static void parseLevel(final String responseText) {
     Matcher levelMatcher = CharPaneRequest.LEVEL_PATTERN.matcher(responseText);
     if (levelMatcher.find()) {
-      KoLCharacter.setLevel(Integer.valueOf(levelMatcher.group(1)));
+      KoLCharacter.setLevel(Integer.parseInt(levelMatcher.group(1)));
     }
   }
 
@@ -1306,7 +1337,7 @@ public class CharPaneRequest extends GenericRequest {
 
   private static final Pattern pastaThrallPattern =
       Pattern.compile(
-          "desc_guardian.php.*?itemimages/(.*?.gif).*?<b>(.*?)</b>.*?the Lvl. (\\d+) (.*?)</font>",
+          "desc_guardian.php.*?itemimages/(.*?.gif)(?:.*?(?:alt|title)=\"[^\"]*?\\(([\\d,]+) XP\\)\")?.*?<b>(.*?)</b>.*?the Lvl. (\\d+) (.*?)</font>",
           Pattern.DOTALL);
 
   private static void checkPastaThrall(final String responseText) {
@@ -1316,13 +1347,15 @@ public class CharPaneRequest extends GenericRequest {
     Matcher matcher = CharPaneRequest.pastaThrallPattern.matcher(responseText);
     if (matcher.find()) {
       // String image = matcher.group( 1 );
-      String name = matcher.group(2);
-      String levelString = matcher.group(3);
-      String type = matcher.group(4);
+      String experienceString = matcher.group(2);
+      String name = matcher.group(3);
+      String levelString = matcher.group(4);
+      String type = matcher.group(5);
       PastaThrallData thrall = KoLCharacter.findPastaThrall(type);
       if (thrall != null && thrall != PastaThrallData.NO_THRALL) {
         KoLCharacter.setPastaThrall(thrall);
-        thrall.update(StringUtilities.parseInt(levelString), name);
+        int experience = experienceString == null ? 0 : StringUtilities.parseInt(experienceString);
+        thrall.update(StringUtilities.parseInt(levelString), name, experience);
       }
     } else {
       KoLCharacter.setPastaThrall(PastaThrallData.NO_THRALL);
@@ -1601,6 +1634,22 @@ public class CharPaneRequest extends GenericRequest {
     // If we don't find the matcher but we're wearing the pants we have zero sweatiness
     int sweatiness = (matcher.find()) ? StringUtilities.parseInt(matcher.group(1)) : 0;
     Preferences.setInteger("sweat", sweatiness);
+  }
+
+  // <td align=right>Steps:</td><td align=left><b>101</b></td>
+  private static final Pattern FITNESS_TRACKING_STEPS =
+      Pattern.compile("Steps:</td><td[^>]*><b>([\\d,]+)</b>");
+
+  public static void checkFitnessTrackingSteps(final String responseText) {
+    if (!KoLCharacter.hasEquipped(ItemPool.FITNESS_TRACKING_BRACELET)) {
+      return;
+    }
+
+    Matcher matcher = FITNESS_TRACKING_STEPS.matcher(responseText);
+
+    if (matcher.find()) {
+      Preferences.setInteger("_fitnessTrackingSteps", StringUtilities.parseInt(matcher.group(1)));
+    }
   }
 
   // <td align=right><span class='nes' style='line-height: 14px; font-size:

@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.sourceforge.kolmafia.AdventureResult;
+import net.sourceforge.kolmafia.ExpressionOverrides;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLCharacter.TurtleBlessing;
@@ -979,6 +980,18 @@ public class Evaluator {
     return !this.noTiebreaker;
   }
 
+  boolean isWeaponTypeRequired() {
+    return this.requireClub
+        || this.requireUtensil
+        || this.requireSword
+        || this.requireKnife
+        || this.requireAccordion;
+  }
+
+  boolean isShieldRequired() {
+    return this.requireShield;
+  }
+
   enum Constraint {
     /** Item violates a constraint, don't use it */
     VIOLATES,
@@ -1046,7 +1059,14 @@ public class Evaluator {
           EffectPool.MACARONI_COATING,
           EffectPool.PENNE_FEDORA,
           EffectPool.PASTA_EYEBALL,
-          EffectPool.SPICE_HAZE ->
+          EffectPool.SPICE_HAZE,
+          EffectPool.LEGENDARY_BLOODY_POTATO_BITS,
+          EffectPool.LEGENDARY_SLINKING_NOODLE_GLOB,
+          EffectPool.LEGENDARY_WHISPERING_STRANDS,
+          EffectPool.LEGENDARY_MACARONI_COATING,
+          EffectPool.LEGENDARY_PENNE_FEDORA,
+          EffectPool.LEGENDARY_PASTA_EYEBALL,
+          EffectPool.LEGENDARY_SPICE_HAZE ->
           KoLCharacter.isPastamancer();
       case EffectPool.SHIELD_OF_THE_PASTALORD, EffectPool.PORK_BARREL ->
           !KoLCharacter.isPastamancer();
@@ -1180,7 +1200,9 @@ public class Evaluator {
         }
 
         if (item.getCount() != 0
-            && (this.getScore(familiarMods) - nullScore > 0.0 || item.automaticFlag)) {
+            && (item.automaticFlag
+                || this.posEquip.contains(item)
+                || this.getScore(familiarMods, Map.of(Slot.FAMILIAR, item)) - nullScore > 0.0)) {
           ranked.get(Slot.FAMILIAR).add(item);
         }
       }
@@ -1216,7 +1238,9 @@ public class Evaluator {
         }
 
         if (item.getCount() != 0
-            && (this.getScore(familiarMods) - nullScore > 0.0 || item.automaticFlag)) {
+            && (item.automaticFlag
+                || this.posEquip.contains(item)
+                || this.getScore(familiarMods, Map.of(Slot.FAMILIAR, item)) - nullScore > 0.0)) {
           ranked.getFamiliar(f).add(item);
         }
       }
@@ -1506,6 +1530,20 @@ public class Evaluator {
             || ((mods.getRawBitmap(BitmapModifier.SYNERGETIC) & usefulSynergies) != 0)) {
           item.automaticFlag = true;
           break gotItem;
+        } else if (mods.hasUnarmedBonus()) {
+          // Figure out what modifiers this item would have if unarmed
+          Modifiers unarmedMods = new Modifiers(ModifierDatabase.getItemModifiers(id));
+          ExpressionOverrides overrides = new ExpressionOverrides();
+          overrides.setUnarmed(true);
+          unarmedMods.recalculateExpressions(overrides);
+          double score = this.getScore(unarmedMods, Map.of(Slot.NONE, item));
+          if (score > nullScore) {
+            // The item has an unarmed bonus that is relevant. Ensure that it is always considered,
+            // but it should not take up a spot on the shortlist.
+            item.conditionalFlag = true;
+            item.automaticFlag = true;
+            break gotItem;
+          }
         }
 
         // Always carry through items with changeable contents to speculation, but don't force them

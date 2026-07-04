@@ -160,11 +160,13 @@ global	relayUsesInlineLinks	true
 global	relayUsesIntegratedChat	false
 global	relayWarnOnRecoverFailure	true
 global	removeMalignantEffects	false
+global	retryFailedNetworkRequests	true
 global	saveSettingsOnSet	true
 global	saveState
 global	saveStateActive
 global	scriptButtonPosition	0
 global	scriptList	restore hp | restore mp
+global	separateTitleAndMenuBar	false
 global	sharePriceData	true
 global	showAllRequests	false
 global	showExceptionalRequests	false
@@ -206,6 +208,7 @@ user	8BitBonusTurns	0	roa
 user	8BitScore	0	roa
 user	8BitColor		roa
 user	addingScrolls	1
+user	adventurerMeatsWorldPoints	0
 user	affirmationCookiesEaten	0	roa
 user	afterAdventureScript
 user	aminoAcidsUsed	0	roa
@@ -593,6 +596,7 @@ user	cyrptNookEvilness	0
 user	cyrptTotalEvilness	0
 user	cyrusAdjectives		roa
 user	dailyDungeonDone	false	ld
+user	dailyDungeonRooms	????_????_????	roa
 user	dampOldBootPurchased	false	roa
 user	darkGyfftePoints	0
 user	dartsThrown	0	roa
@@ -853,6 +857,7 @@ user	hallowienerSkeletonStore	false	roa
 user	hallowienerSmutOrcs	false	roa
 user	hallowienerSonofaBeach	false	roa
 user	hallowienerVolcoino	false	roa
+user	handfulOfTipsMeat	0	roa
 user	hardcorePVPWarning	false
 user	hareMillisecondsSaved	0	roa
 user	hareTurnsUsed	0	roa
@@ -1106,6 +1111,9 @@ user	leafletCompleted	false	roa
 user	ledCandleDropped	false	roa
 user	ledCandleMode		roa
 user	legacyPoints	0
+user	legendaryNoodlesAmygdala	0	roa
+user	legendaryNoodlesSkin	0	roa
+user	legendaryNoodlesStomach	0	roa
 user	leprecondoLastNeedChange	0	roa
 user	leprecondoCurrentNeed		roa
 user	leprecondoDiscovered
@@ -1278,7 +1286,7 @@ user	oceanDestination	manual
 user	odeBuffbotCheck	false
 user	oilPeakProgress	310.66
 user	oilPeakLit	false
-user	olfactedMonster	unknown
+user	olfactedMonster	unknown	roa
 user	optimalSwagger	0
 user	optimisticCandleProgress	25	roa
 user	oscusSodaUsed	false	ld
@@ -1301,6 +1309,7 @@ user	pathedSummonsHardcore	true
 user	pathedSummonsSoftcore	false
 user	peaceTurkeyIndex	0	roa
 user	pendingMapReflections	0	roa
+user	permitScriptNotify	true
 user	peteMotorbikeTires
 user	peteMotorbikeGasTank
 user	peteMotorbikeHeadlight
@@ -1722,6 +1731,7 @@ user	suppressPowerPixellation	false
 user	suppressMallPriceCacheMessages	true
 user	sweat	0	roa
 user	sweetSynthesisBlacklist	chocolate cigar,fudge bunny,gummi ammonite,gummi belemnite,gummi trilobite,powdered candy sushi set,radio button candy,Ultra Mega Sour Ball,vitachoconutriment capsule
+user	swordOfSWordsMonster	-1	roa
 user	tacoDanCocktailSauce	0
 user	tacoDanFishMeat	0
 user	takerSpaceAnchor	0	roa
@@ -1981,6 +1991,7 @@ user	_bczSweatEquityCasts	0
 user	_bczBloodThinnerCasts	0
 user	_bczSpinalTapasCasts	0
 user	_bczPheromoneCocktailCasts	0
+user	_brandishMossMedalCast	false
 user	_beachCombing	false
 user	_beachHeadsUsed
 user	_beachLayout
@@ -2241,6 +2252,7 @@ user	_fireworksShopHatBought	false
 user	_fireworksShopEquipmentBought	false
 user	_fireworkUsed	false
 user	_fishyPipeUsed	false
+user	_fitnessTrackingSteps	0
 user	_flagellateFlagonUsed	false
 user	_fleekMascaraUsed	false
 user	_floristPlantsUsed
@@ -2446,6 +2458,11 @@ user	_leafMonstersFought	0
 user	_leavesBurned	0
 user	_leavesJumped	false
 user	_legendaryBeat	false
+user	_legendaryLasagmbieMana	0
+user	_legendaryNoodlesSpleen	false
+user	_legendaryPastaWaveCast	false
+user	_legendarySpiceGhostFood	false
+user	_legendaryVermincelliFreeRats	0
 user	_legionJackhammerCrafting	0
 user	_leprecondoRearrangements	0
 user	_leprecondoFurniture	0
@@ -2775,6 +2792,8 @@ user	_surprisinglySweetSlashUsed	0
 user	_surprisinglySweetStabUsed	0
 user	_sweatOutSomeBoozeUsed	0
 user	_sweetToothUsed	false
+user	_swordOfSWordsKills	0
+user	_swordOfSWordsMonsterChanged	0
 user	_syntheticDogHairPillUsed	false
 user	_tacoFlierUsed	false
 user	_taffyRareSummons	0

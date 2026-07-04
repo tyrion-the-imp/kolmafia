@@ -619,6 +619,7 @@ public class SkillPool {
   public static final int SURPRISINGLY_SWEET_SLASH = 7488;
   public static final int SURPRISINGLY_SWEET_STAB = 7489;
   public static final int LAY_AN_EGG = 7494;
+  public static final int BRANDISH_MOSS_MEDAL = 7499;
   public static final int SPRING_KICK = 7501;
   public static final int HUNT = 7509;
   public static final int PUNT_WEREPROF = 7510;
@@ -691,6 +692,8 @@ public class SkillPool {
   public static final int HEARTSTONE_LUCK = 7589;
   public static final int HEARTSTONE_PALS = 7590;
   public static final int HEARTSTONE_BUFF = 7591;
+  public static final int KILL_A_LOT = 7593;
+  public static final int STOP_KILLING = 7594;
 
   public static final int GOOD_SINGING_VOICE = 11016;
   public static final int BANISHING_SHOUT = 11020;

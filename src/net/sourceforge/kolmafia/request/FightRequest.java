@@ -58,6 +58,7 @@ import net.sourceforge.kolmafia.persistence.AdventureSpentDatabase;
 import net.sourceforge.kolmafia.persistence.BountyDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.DailyLimitDatabase.DailyLimitType;
+import net.sourceforge.kolmafia.persistence.EffectData;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.FactDatabase;
@@ -87,6 +88,7 @@ import net.sourceforge.kolmafia.session.CryptManager;
 import net.sourceforge.kolmafia.session.CrystalBallManager;
 import net.sourceforge.kolmafia.session.CursedMagnifyingGlassManager;
 import net.sourceforge.kolmafia.session.DadManager;
+import net.sourceforge.kolmafia.session.DailyDungeonManager;
 import net.sourceforge.kolmafia.session.DaylightShavingsHelmetManager;
 import net.sourceforge.kolmafia.session.DreadScrollManager;
 import net.sourceforge.kolmafia.session.EncounterManager;
@@ -444,6 +446,19 @@ public class FightRequest extends GenericRequest {
           "teaches you how to power-nap instead of sleeping all day",
           "vacuums your front yard",
           "waxes your drapes");
+
+  private static final String[] OLFACTION_ZONE_FAIL_MESSAGES = {
+    "dank air down here messes",
+    "only picking up sulphur from the nearby volcano",
+    "weird foreign pollen in the air here screws up your sense of smell",
+    "smells in this village are too exotic",
+    "castle is so stuffy from years of disuse",
+    "this planet smells too weird",
+    "just smells like gingerbread",
+    "quarters are too tight for that",
+    "smells here are too weird to remember",
+    "hard to smell anything in this crowd"
+  };
 
   private static final String[][] EVIL_ZONES = {
     {
@@ -1428,8 +1443,6 @@ public class FightRequest extends GenericRequest {
 
     switch (skillName) {
       case "Transcendent Olfaction" -> {
-        // You can't sniff if you are already on the trail.
-
         // You can't sniff in Bad Moon, even though the skill
         // shows up on the char sheet, unless you've recalled
         // your skills.
@@ -2192,11 +2205,8 @@ public class FightRequest extends GenericRequest {
           }
         }
         case AdventurePool.THE_DAILY_DUNGEON -> {
-          Matcher chamberMatcher = FightRequest.CHAMBER_PATTERN.matcher(responseText);
-          if (chamberMatcher.find()) {
-            int round = StringUtilities.parseInt(chamberMatcher.group(1));
-            Preferences.setInteger("_lastDailyDungeonRoom", round - 1);
-          }
+          DailyDungeonManager.handleRoomEntrance(
+              responseText, DailyDungeonManager.RoomType.MONSTER);
         }
         case AdventurePool.WARBEAR_FORTRESS_LEVEL_THREE ->
             ResultProcessor.processItem(ItemPool.WARBEAR_BADGE, -1);
@@ -2724,6 +2734,10 @@ public class FightRequest extends GenericRequest {
 
     if (responseText.contains("Your antique greaves, weakened")) {
       EquipmentManager.breakEquipment(ItemPool.ANTIQUE_GREAVES, "Your antique greaves broke.");
+    }
+
+    if (responseText.contains("Your hoverboard explodes")) {
+      EquipmentManager.breakEquipment(ItemPool.HOVERBOARD, "Your hoverboard broke.");
     }
 
     // You try to unlock your cyber-mattock, but the battery's
@@ -4447,6 +4461,10 @@ public class FightRequest extends GenericRequest {
 
     // Handle autumnaton checking (this happens whether the fight is won or lost)
     AutumnatonManager.parseFight(responseText);
+
+    // No messages for either of these
+    Preferences.decrement("legendaryNoodlesAmygdala");
+    Preferences.decrement("legendaryNoodlesSkin");
 
     FightRequest.checkForMultiFight(won, responseText);
     FightRequest.checkForChoiceFollowsFight(responseText);
@@ -6867,12 +6885,12 @@ public class FightRequest extends GenericRequest {
 
         if (status.hookah) {
           String message = null;
-          int quality = EffectDatabase.getQuality(effectId);
+          var quality = EffectDatabase.getQuality(effectId);
 
           if (EffectDatabase.hasAttribute(effectId, "nohookah")) {
             message =
                 result.getName() + " is available from the hookah, but KoLmafia thought it was not";
-          } else if (quality != EffectDatabase.GOOD) {
+          } else if (quality != EffectData.Quality.GOOD) {
             message =
                 result.getName()
                     + " is good quality, but KoLmafia thought it was "
@@ -8025,6 +8043,11 @@ public class FightRequest extends GenericRequest {
       return;
     }
 
+    if (status.familiarId == FamiliarPool.SWORD_OF_SWORDS
+        && FightRequest.handleSwordOfSwords(str, status)) {
+      return;
+    }
+
     if (FightRequest.handleGooseDrones(str, status)) {
       return;
     }
@@ -8042,6 +8065,14 @@ public class FightRequest extends GenericRequest {
     }
 
     if (FightRequest.handleBellydancerPickpocket(str)) {
+      return;
+    }
+
+    if (FightRequest.handleVermincelliFreeRat(str)) {
+      return;
+    }
+
+    if (FightRequest.handleLasagmbieMana(str)) {
       return;
     }
 
@@ -8959,6 +8990,48 @@ public class FightRequest extends GenericRequest {
       }
     }
 
+    return false;
+  }
+
+  private static final Pattern[] SWORD_OF_SWORDS_KILLS = {
+    Pattern.compile("kills +(?:an?|the|some)? (.*?) and returns with"),
+    Pattern.compile("hauling back a bunch of (.*?) loot"),
+    Pattern.compile("kills a (.*?), and brings you back"),
+    Pattern.compile("senses a (.*?) nearby"),
+    Pattern.compile("one less (.*?) in the world"),
+    Pattern.compile("a slain (.*?)\\. "),
+  };
+
+  private static boolean handleSwordOfSwords(String text, TagStatus status) {
+    if (!status.familiar.equals("swordsword.gif")) {
+      return false;
+    }
+
+    // could be an attack message, the item drop message, or the replacement we're looking for
+    for (Pattern p : SWORD_OF_SWORDS_KILLS) {
+      Matcher matcher = p.matcher(text);
+      if (matcher.find()) {
+        Preferences.increment("_swordOfSWordsKills", 1, 100);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean handleVermincelliFreeRat(String text) {
+    if (text.contains("Inspired by your Vermincelli companion")) {
+      Preferences.increment("_legendaryVermincelliFreeRats", 1, 11);
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean handleLasagmbieMana(String text) {
+    if (text.contains("peels off and flies into your mouth")) {
+      Preferences.increment("_legendaryLasagmbieMana", 1, 11);
+      return true;
+    }
     return false;
   }
 
@@ -9945,6 +10018,14 @@ public class FightRequest extends GenericRequest {
           TrackManager.trackMonster(monster, Tracker.OLFACTION);
           Preferences.setString("autoOlfact", "");
           singleCastsThisFight.add(skillId);
+        } else {
+          // Zone-related failure consumes a charge and does not prevent re-use this combat
+          for (String failMessage : OLFACTION_ZONE_FAIL_MESSAGES) {
+            if (responseText.contains(failMessage)) {
+              skillSuccess = true;
+              break;
+            }
+          }
         }
       }
       case SkillPool.LONG_CON -> {
@@ -10567,6 +10648,9 @@ public class FightRequest extends GenericRequest {
             || skillRunawaySuccess) {
           BanishManager.banishMonster(monster, Banisher.FEEL_HATRED);
           skillRunawaySuccess = true;
+        } else if (responseText.contains("You can't bring yourself to hate this creature.")) {
+          // Failed use consumes a charge but is not a runaway
+          skillSuccess = true;
         }
       }
       case SkillPool.FEEL_PRIDE -> {
@@ -10957,7 +11041,10 @@ public class FightRequest extends GenericRequest {
         }
       }
       case SkillPool.ASSERT_YOUR_AUTHORITY -> {
-        if (responseText.contains("You flash your sheriff badge") || skillSuccess) {
+        if (responseText.contains("You flash your sheriff badge")
+            // Failed use consumes a charge
+            || responseText.contains("This foe is not going to respect your authority.")
+            || skillSuccess) {
           skillSuccess = true;
         }
       }
@@ -11166,6 +11253,9 @@ public class FightRequest extends GenericRequest {
         if (responseText.contains("A ray blasts out of the stone") || skillSuccess) {
           BanishManager.banishMonster(monster, Banisher.HEARTSTONE_BANISH);
           skillSuccess = true;
+        } else if (responseText.contains("This enemy can't be banished.")) {
+          // Failed use consumes a charge
+          skillSuccess = true;
         }
       }
       case SkillPool.HEARTSTONE_STUN -> {
@@ -11177,6 +11267,17 @@ public class FightRequest extends GenericRequest {
         if (responseText.contains("flex and ripple") || skillSuccess) {
           TrackManager.trackMonster(monster, Tracker.MEAT_CUTE);
           skillSuccess = true;
+        }
+      }
+      case SkillPool.KILL_A_LOT -> {
+        if (responseText.contains("kill") || skillSuccess) {
+          Preferences.setInteger("swordOfSWordsMonster", monster.getId());
+          skillSuccess = true;
+        }
+      }
+      case SkillPool.STOP_KILLING -> {
+        if (responseText.contains("kill") || skillSuccess) {
+          Preferences.setInteger("swordOfSWordsMonster", -1);
         }
       }
     }

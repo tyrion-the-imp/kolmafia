@@ -3,9 +3,9 @@ package net.sourceforge.kolmafia;
 import static net.sourceforge.kolmafia.utilities.Statics.DateTimeManager;
 
 import java.time.DayOfWeek;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +32,7 @@ import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
 import net.sourceforge.kolmafia.persistence.FamiliarDatabase;
+import net.sourceforge.kolmafia.persistence.FamiliarDatabase.FamiliarRaceData;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.persistence.ModifierDatabase;
 import net.sourceforge.kolmafia.persistence.MonsterDatabase;
@@ -44,7 +45,6 @@ import net.sourceforge.kolmafia.request.FloristRequest.Florist;
 import net.sourceforge.kolmafia.request.StandardRequest;
 import net.sourceforge.kolmafia.session.AutumnatonManager;
 import net.sourceforge.kolmafia.session.InventoryManager;
-import net.sourceforge.kolmafia.utilities.Indexed;
 import net.sourceforge.kolmafia.utilities.IntOrString;
 
 @SuppressWarnings("incomplete-switch")
@@ -77,7 +77,7 @@ public class Modifiers {
   private final BooleanModifierCollection booleans = new BooleanModifierCollection();
   private final BitmapModifierCollection bitmaps = new BitmapModifierCollection();
   private final StringModifierCollection strings = new StringModifierCollection();
-  private ArrayList<Indexed<Modifier, ModifierExpression>> expressions = null;
+  private Map<Modifier, ModifierExpression> expressions = null;
   // These are used for Steely-Eyed Squint and so on
   private final DoubleModifierCollection accumulators = new DoubleModifierCollection();
 
@@ -537,6 +537,18 @@ public class Modifiers {
       }
     }
 
+    if (mods.expressions != null && !mods.expressions.isEmpty()) {
+      if (this.expressions == null) {
+        this.expressions = new LinkedHashMap<>();
+      }
+
+      // We want to overwrite any conflicting expressions that already exist rather than combine
+      // them to avoid stacking up multiple copies of the same expression. This isn't technically
+      // quite right, but it's probably close enough to right.
+      this.expressions.putAll(mods.expressions);
+      changed = true;
+    }
+
     return changed;
   }
 
@@ -872,24 +884,36 @@ public class Modifiers {
     return false;
   }
 
-  // expressions are the numeric override [] strings, such as [R]
-  public boolean override(final Lookup lookup) {
+  // Update any modifiers that are based on expressions. Expressions are the [] strings, such as
+  // [R], which indicate a variable in place of a number.
+  public void recalculateExpressions() {
+    recalculateExpressions(ExpressionOverrides.NONE);
+  }
+
+  // Update any modifiers that are based on expressions. Expressions are the [] strings, such as
+  // [R], which indicate a variable in place of a number. Any overrides specified will be used
+  // instead of the current character state when calculating the value of an expression.
+  public void recalculateExpressions(ExpressionOverrides overrides) {
     if (this.expressions != null) {
-      for (Indexed<Modifier, ModifierExpression> entry : this.expressions) {
-        if (entry.index instanceof DoubleModifier m) {
+      for (Entry<Modifier, ModifierExpression> entry : this.expressions.entrySet()) {
+        if (entry.getKey() instanceof DoubleModifier m) {
           if (m.isMultiple()) {
             // technically here we want to know which entry the previous expression corresponds to
             // the previous implementation overwrote the whole thing with a list containing only
             // the expression, which is definitely wrong, but this is also wrong. Leaving it as TODO
-            this.setDouble(m, entry.value.eval());
+            this.setDouble(m, entry.getValue().eval(overrides));
           } else {
-            this.setDouble(m, entry.value.eval());
+            this.setDouble(m, entry.getValue().eval(overrides));
           }
-        } else if (entry.index instanceof BooleanModifier m) {
-          this.setBoolean(m, entry.value.eval() != 0.0);
+        } else if (entry.getKey() instanceof BooleanModifier m) {
+          this.setBoolean(m, entry.getValue().eval(overrides) != 0.0);
         }
       }
     }
+  }
+
+  public boolean override(final Lookup lookup) {
+    this.recalculateExpressions();
 
     // If the object does not require hard-coding, we're done
     if (!this.getBoolean(BooleanModifier.VARIABLE)) {
@@ -908,25 +932,16 @@ public class Modifiers {
     availableSkillsChanged = true;
   }
 
-  public void addExpression(Indexed<Modifier, ModifierExpression> entry) {
-    int index = -1;
-
+  public void addExpression(Modifier modifier, ModifierExpression expression) {
     if (this.expressions == null) {
-      this.expressions = new ArrayList<>();
-    } else {
-      for (int i = 0; i < this.expressions.size(); i++) {
-        Indexed<Modifier, ModifierExpression> e = this.expressions.get(i);
-        if (e != null && e.index == entry.index) {
-          index = i;
-          break;
-        }
-      }
+      this.expressions = new LinkedHashMap<>();
     }
 
-    if (index < 0) {
-      this.expressions.add(entry);
+    ModifierExpression existingExpression = this.expressions.get(modifier);
+    if (existingExpression == null) {
+      this.expressions.put(modifier, expression);
     } else {
-      this.expressions.get(index).value.combine(entry.value, '+');
+      existingExpression.combine(expression, '+');
     }
   }
 
@@ -1199,12 +1214,17 @@ public class Modifiers {
 
     int cap = (int) this.getDouble(DoubleModifier.FAMILIAR_WEIGHT_CAP);
     int cappedWeight = (cap == 0) ? weight : Math.min(weight, cap);
+    FamiliarRaceData raceData = FamiliarDatabase.getFamiliarRaceData(familiarId);
+    if (raceData == null) {
+      // no familiar
+      return;
+    }
 
     double volleyFactor = 0.0;
     double sombreroFactor = 0.0;
 
     double effective = cappedWeight * this.getDouble(DoubleModifier.VOLLEYBALL_WEIGHT);
-    if (effective == 0.0 && FamiliarDatabase.isVolleyType(familiarId)) {
+    if (effective == 0.0 && raceData.isVolleyType()) {
       effective = weight;
     }
     if (effective != 0.0) {
@@ -1273,7 +1293,7 @@ public class Modifiers {
     }
 
     effective = cappedWeight * this.getDouble(DoubleModifier.SOMBRERO_WEIGHT);
-    if (effective == 0.0 && FamiliarDatabase.isSombreroType(familiarId)) {
+    if (effective == 0.0 && raceData.isSombreroType()) {
       effective = weight;
     }
     effective += this.getDouble(DoubleModifier.SOMBRERO_BONUS);
@@ -1304,7 +1324,7 @@ public class Modifiers {
     }
 
     effective = cappedWeight * this.getDouble(DoubleModifier.LEPRECHAUN_WEIGHT);
-    if (effective == 0.0 && FamiliarDatabase.isMeatDropType(familiarId)) {
+    if (effective == 0.0 && raceData.isMeatDropType()) {
       effective = weight;
     }
     if (effective != 0.0) {
@@ -1319,6 +1339,7 @@ public class Modifiers {
 
     this.addFairyEffect(
         familiar,
+        raceData,
         weight,
         cappedWeight,
         DoubleModifier.FAIRY_WEIGHT,
@@ -1326,6 +1347,7 @@ public class Modifiers {
         DoubleModifier.ITEMDROP);
     this.addFairyEffect(
         familiar,
+        raceData,
         weight,
         cappedWeight,
         DoubleModifier.FOOD_FAIRY_WEIGHT,
@@ -1333,6 +1355,7 @@ public class Modifiers {
         DoubleModifier.FOODDROP);
     this.addFairyEffect(
         familiar,
+        raceData,
         weight,
         cappedWeight,
         DoubleModifier.BOOZE_FAIRY_WEIGHT,
@@ -1340,13 +1363,14 @@ public class Modifiers {
         DoubleModifier.BOOZEDROP);
     this.addFairyEffect(
         familiar,
+        raceData,
         weight,
         cappedWeight,
         DoubleModifier.CANDY_FAIRY_WEIGHT,
         DoubleModifier.CANDY_FAIRY_EFFECTIVENESS,
         DoubleModifier.CANDYDROP);
 
-    if (FamiliarDatabase.isUnderwaterType(familiarId)) {
+    if (raceData.isUnderwaterType()) {
       this.setBoolean(BooleanModifier.UNDERWATER_FAMILIAR, true);
     }
 
@@ -1370,6 +1394,7 @@ public class Modifiers {
 
   private void addFairyEffect(
       final FamiliarData familiar,
+      final FamiliarRaceData raceData,
       final int weight,
       final int cappedWeight,
       final DoubleModifier fairyModifier,
@@ -1378,7 +1403,7 @@ public class Modifiers {
     var effective = cappedWeight * this.getDouble(fairyModifier);
 
     // If it has no explicit modifier but is the right familiar type, add effect regardless
-    if (effective == 0.0 && FamiliarDatabase.isFairyType(familiar.getId(), fairyModifier)) {
+    if (effective == 0.0 && raceData.isFairyType(fairyModifier)) {
       effective = weight;
     }
 
@@ -1641,11 +1666,10 @@ public class Modifiers {
 
       if (this.variable) {
         this.addExpression(
-            new Indexed<>(
-                DoubleModifier.EFFECT_DURATION,
-                ModifierExpression.getInstance(
-                    delta + "*path(" + AscensionPath.Path.ELEVEN_THINGS.name + ')',
-                    AscensionPath.Path.ELEVEN_THINGS.name)));
+            DoubleModifier.EFFECT_DURATION,
+            ModifierExpression.getInstance(
+                delta + "*path(" + AscensionPath.Path.ELEVEN_THINGS.name + ')',
+                AscensionPath.Path.ELEVEN_THINGS.name));
       } else {
         this.addDouble(
             DoubleModifier.EFFECT_DURATION,
@@ -1677,6 +1701,20 @@ public class Modifiers {
 
   public static void setFamiliar(FamiliarData fam) {
     Modifiers.currentFamiliar = fam == null ? "" : fam.getRace();
+  }
+
+  public boolean hasUnarmedBonus() {
+    if (this.expressions == null) {
+      return false;
+    }
+
+    for (ModifierExpression expression : this.expressions.values()) {
+      if (expression.usesUnarmed()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override
