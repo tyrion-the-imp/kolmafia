@@ -2139,6 +2139,7 @@ user	_crimboTraining	false
 user	_crimboTree	false
 user	_crToday	false
 user	_cupidBowFamiliars
+user	_cupOf13sJewels	13
 user	_currentDartboard
 user	_cursedKegUsed	false
 user	_cursedMicrowaveUsed	false
