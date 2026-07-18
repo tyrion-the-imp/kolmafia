@@ -3932,6 +3932,13 @@ public class RelayRequest extends PasswordHashRequest {
       return;
     }
 
+    // Redirect empty path to game.php
+
+    if (path.isEmpty() || path.equals("/")) {
+      this.pseudoResponse("HTTP/1.1 302 Found", "/game.php");
+      return;
+    }
+
     // Local files never have form fields.	Remove them, because
     // they're probably just used for data tracking purposes
     // client-side.
