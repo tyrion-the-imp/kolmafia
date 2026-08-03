@@ -308,6 +308,7 @@ public class ValhallaDecorator {
     ValhallaDecorator.check2002MrStoreCredit(buffer);
     ValhallaDecorator.checkSeptEmbers(buffer);
     ValhallaDecorator.checkTakerSpace(buffer);
+    ValhallaDecorator.checkInterestingCoins(buffer);
 
     ValhallaDecorator.switchSeeds(buffer);
 
@@ -716,6 +717,20 @@ public class ValhallaDecorator {
           .append(gold)
           .append(" gold)</a></nobr><br>");
       buffer.append(builder);
+    }
+  }
+
+  private static void checkInterestingCoins(StringBuffer buffer) {
+    StringBuilder buff = new StringBuilder();
+
+    int coins = InventoryManager.getCount(ItemPool.INTERESTING_COIN);
+
+    if (coins > 0) {
+      buff.append(
+              "<nobr><a href=\"shop.php?whichshop=interesting\">Spend remaining Interesting Coins (")
+          .append(coins)
+          .append(")</a></nobr><br>");
+      buffer.append(buff);
     }
   }
 
