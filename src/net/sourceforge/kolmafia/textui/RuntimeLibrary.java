@@ -11126,9 +11126,7 @@ public abstract class RuntimeLibrary {
   }
 
   public static Value florist_available(ScriptRuntime controller) {
-    if (!Preferences.getBoolean("floristFriarChecked")) {
-      FloristRequest.checkFloristAvailable();
-    }
+    FloristRequest.checkFloristAvailable();
     return DataTypes.makeBooleanValue(FloristRequest.haveFlorist());
   }
 
