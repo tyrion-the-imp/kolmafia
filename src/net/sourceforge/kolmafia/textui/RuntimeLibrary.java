@@ -11131,7 +11131,6 @@ public abstract class RuntimeLibrary {
   }
 
   public static Value florist_available(ScriptRuntime controller) {
-    FloristRequest.checkFloristAvailable();
     return DataTypes.makeBooleanValue(FloristRequest.haveFlorist());
   }
 

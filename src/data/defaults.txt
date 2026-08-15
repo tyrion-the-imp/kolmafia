@@ -60,6 +60,7 @@ global	externalEditor
 global	fixedThreadPoolSize	0
 global	gapProtection	false
 global	getBreakfast
+global	gitConflictPriority
 global	gitInstallDependencies	true
 global	gitShowCommitMessages	false
 global	gitUpdateOnLogin	false
@@ -739,6 +740,7 @@ user	flickeringPixel6	false
 user	flickeringPixel7	false
 user	flickeringPixel8	false
 user	floristFriarAvailable	false	roa
+user	floristFriarChecked	false	roa
 user	flyeredML	0
 user	forbiddenStores
 user	fossilB	0
@@ -1293,6 +1295,7 @@ user	oscusSodaUsed	false	ld
 user	outrageousSombreroUsed	false	ld
 user	overgrownLotAvailable	false	roa
 user	ownsFloristFriar	false
+user	ownsReplicaFloristFriar	false
 user	ownsSpeakeasy	false
 user	palindomeDudesDefeated	0
 user	parasolUsed	0	roa
@@ -2431,6 +2434,7 @@ user	_kgbTranquilizerDartUses	0
 user	_klawSummons	0
 user	_kloopCharge	0
 user	_kloopDrops	0
+user	_kneecappingOrdered	false
 user	_knuckleboneDrops	0
 user	_knuckleboneRests	0
 user	_kolConSixPackUsed	false
