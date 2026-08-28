@@ -39,6 +39,7 @@ import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.AdventureRequest;
 import net.sourceforge.kolmafia.request.CampgroundRequest;
 import net.sourceforge.kolmafia.request.EquipmentRequest;
+import net.sourceforge.kolmafia.request.FightRequest;
 import net.sourceforge.kolmafia.request.GenericRequest;
 import net.sourceforge.kolmafia.request.OrcChasmRequest;
 import net.sourceforge.kolmafia.request.QuestLogRequest;
@@ -431,7 +432,9 @@ public class QuestManager {
   private static void handleArrrboretumChange(String responseText) {
     if (!responseText.contains("Plant a Tree, Plant a Tree!")
         && !responseText.contains("Stumped")
-        && !responseText.contains("Timbarrrr!")) {
+        && !responseText.contains("Timbarrrr!")
+        && !responseText.contains("From Little Acorns...")
+        && !responseText.contains("... Grow Unspeakable Horrors")) {
       Preferences.increment("_saplingsPlanted");
     }
   }
@@ -2424,7 +2427,10 @@ public class QuestManager {
         break;
 
       case AdventurePool.THE_DAILY_DUNGEON:
-        DailyDungeonManager.handleCurrentRoomCompletion(DailyDungeonManager.RoomType.MONSTER);
+        if (FightRequest.specialMonsterCategory(monsterName)
+            == FightRequest.SpecialMonster.DAILY_DUNGEON) {
+          DailyDungeonManager.handleCurrentRoomCompletion(DailyDungeonManager.RoomType.MONSTER);
+        }
         break;
 
       case AdventurePool.ARID_DESERT:

@@ -2950,7 +2950,8 @@ public class RelayRequest extends PasswordHashRequest {
         || KoLCharacter.inDinocore()
         || KoLCharacter.inShadowsOverLoathing()
         || KoLCharacter.inWereProfessor()
-        || KoLCharacter.isMeat()) {
+        || KoLCharacter.isMeat()
+        || KoLCharacter.isBlueVsRed()) {
       return false;
     }
 
@@ -3124,8 +3125,7 @@ public class RelayRequest extends PasswordHashRequest {
     }
 
     // If you are equipped with Drunkula's wineglass, nothing to warn about
-    if (KoLCharacter.hasEquipped(ItemPool.DRUNKULA_WINEGLASS, Slot.OFFHAND)
-        || KoLCharacter.hasEquipped(ItemPool.DRUNKULA_WINEGLASS, Slot.FAMILIAR)) {
+    if (KoLCharacter.hasEquipped(ItemPool.DRUNKULA_WINEGLASS, Slot.OFFHAND)) {
       return false;
     }
 

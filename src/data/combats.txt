@@ -76,7 +76,7 @@ An Overgrown Shrine (Southeast)	100	dense liana
 An Overgrown Shrine (Southwest)	100	dense liana
 An Unsettling Abyssal Portal	100	bulwark bull seal
 An Unusually Quiet Barroom Brawl	100	gator-human hybrid	gangster's moll	goblin flapper	traveling hobo	undercover prohibition agent
-Anemone Mine	-1	Anemone combatant	killer clownfish	Mer-kin miner
+Anemone Mine	95	Anemone combatant	killer clownfish	Mer-kin miner
 Anger Man's Level	100	frustrating knight	rage flame	ticking time bomb	Anger Man: 0
 Art Class	100	rulergheist	clay golem	misproportioned portrait	wire sculpture	Fran&ccedil;ois Verte, Art Teacher: 0
 Atomic Crimbo Toy Factory	100	mutant circuit-soldering elf	mutant cookie-baking elf	mutant doll-dressing elf	mutant gift-wrapping elf	mutant whistle-carving elf
@@ -95,9 +95,9 @@ Chemistry Class	100	dropped base	sodium golem	Bunsen burner and beaker	possessed
 Chinatown Shops	-1	grinning pork bun	lucky cat statue	roasted duck golem	yakuza courier: 0
 Chinatown Tenement	-1	desperate gold farmer	rabid MMO addict	yakuza thug	The Server: 0	White Bone Demon: 0
 Christmas Island	100	Christmas treant	magically-animated snowman	self-driving sleigh
-Cobb's Knob Barracks	85	Knob Goblin Elite Guard	off-duty Knob Goblin Elite Guard	swarm of Knob lice
+Cobb's Knob Barracks	85	Knob Goblin Elite Guard	off-duty Knob Goblin Elite Guard	swarm of Knob lice	Knob Goblin Elite Guard Captain: 0
 Cobb's Knob Harem	100	Knob Goblin Harem Guard	Knob Goblin Harem Girl	Knob Goblin Madam
-Cobb's Knob Kitchens	100	Cobb's Knob oven	Knob Goblin Master Chef	Knob Goblin Sous Chef	Knob Goblin Elite Guard Captain: 0
+Cobb's Knob Kitchens	100	Cobb's Knob oven	Knob Goblin Master Chef	Knob Goblin Sous Chef
 Cobb's Knob Laboratory	100	Knob Goblin Alchemist	Knob Goblin Mad Scientist: 2	Knob Goblin Very Mad Scientist
 Cobb's Knob Menagerie, Level 1	100	BASIC Elemental	Fruit Golem	Knob Goblin Mutant	QuickBASIC elemental: -1
 Cobb's Knob Menagerie, Level 2	100	Carnivorous Moxie Weed	Grass Elemental	Weremoose
@@ -186,7 +186,7 @@ LavaCo&trade; Lamp Factory	100	factory worker (female)	factory overseer (male): 
 Lollipop Forest	90	lollicat	lolligator	lollipede	lolliphaunt	lolrus	trollipop	The Colollilossus
 LOLmec's Lair	100	LOLmec: 0
 Madness Bakery	-1	dinner troll	baguette lady	gingerbread murderer	cr&ecirc;ep	Cake Lord: 0	the ghost of Monsieur Baguelle: 0
-Madness Reef	100	jamfish	magic dragonfish	pufferfish
+Madness Reef	95	jamfish	magic dragonfish	pufferfish
 McMillicancuddy's Back 40	100	fire-breathing duck	scorched duck
 McMillicancuddy's Barn	100	generic duck
 McMillicancuddy's Bog	100	rattlin' duck	swamp duck
@@ -199,8 +199,8 @@ McMillicancuddy's Shady Thicket	100	drunk duck	mean drunk duck
 Medbay	100	hypodermic bugbear	anesthesiologist bugbear	bugbear robo-surgeon
 Megalo-City	100	Blader	Met	Tackle Fire
 Mer-kin Colosseum	100	Mer-kin balldodger	Mer-kin bladeswitcher	Mer-kin netdragger	Georgepaul, the Balldodger: 0	Johnringo, the Netdragger: 0	Ringogeorge, the Bladeswitcher: 0
-Mer-kin Elementary School	-1	Mer-kin monitor	Mer-kin punisher	Mer-kin teacher
-Mer-kin Gymnasium	-1	Mer-kin juicer	Mer-kin poseur	Mer-kin trainer
+Mer-kin Elementary School	90	Mer-kin monitor	Mer-kin punisher	Mer-kin teacher
+Mer-kin Gymnasium	100	Mer-kin juicer	Mer-kin poseur	Mer-kin trainer
 Mer-kin Library	-1	Mer-kin alphabetizer	Mer-kin drifter	Mer-kin researcher
 Mer-kin Temple	100	Shub-Jigguwatt, Elder God of Violence: 0	Yog-Urt, Elder Goddess of Hatred: 0	Dad Sea Monkee: 0
 Mer-kin Temple (Left Door)	100	Shub-Jigguwatt, Elder God of Violence: 0
@@ -337,7 +337,7 @@ The Degrassi Knoll Garage	100	Gnollish Gearhead	Gnollish Tirejuggler	Guard Bugbe
 The Degrassi Knoll Gym	100	Gnollish Crossdresser	Gnollish Bodybuilder	one-eyed Gnoll
 The Degrassi Knoll Restroom	100	Gnollish Flyslayer	Gnollish Plungermaster	Guard Bugbear
 The Dire Warren	100	fluffy bunny
-The Dive Bar	100	lounge lizardfish	Mer-kin tippler	nurse shark
+The Dive Bar	95	lounge lizardfish	Mer-kin tippler	nurse shark
 The Don's Crimbo Compound	100	Black-and-White-Ops Penguin	Cement Cobbler Penguin	Mesmerizing Penguin	Mob Penguin Arsonist	Mob Penguin Caporegime	Mob Penguin Demolitionist	Mob Penguin Goon (2009)	Mob Penguin Kneecapper	Undercover Penguin	Don Crimbo: 0
 The Dragon's Moor	0	Sewage Treatment Dragon: 0
 The Dripping Hall	100	drippy reveler
@@ -469,7 +469,7 @@ The Royal Guard Chamber	100	filthworm royal guard
 The Ruined Wizard Tower	-1	bogart	haunted skullabra	smell-o-the-wisp
 The Secret Council Warehouse	100	warehouse clerk	warehouse guard	warehouse janitor
 The Secret Government Laboratory	100	lab monkey	government scientist	creepy little girl	super-sized Cola Wars soldier	E.V.E., the robot zombie: 0
-The Skate Park	100	grouper groupie	ice skate	roller skate	Skate Board member	urchin urchin
+The Skate Park	85	grouper groupie	ice skate	roller skate	Skate Board member	urchin urchin
 The Skeleton Store	100	factory-irregular skeleton	novelty tropical skeleton	remaindered skeleton	swarm of skulls	the former owner of the Skeleton Store: 0	boneless blobghost: 0
 The Sleazy Back Alley	80	big creepy spider	completely different spider	rushing bum	drunken half-orc hobo: 1o	hung-over half-orc hobo: 1e	crazy bastard: -1
 The Slime Tube	95	Slime	Slime Hand	Slime Mouth	Slime Construct	Slime Colossus	Mother Slime: 0
@@ -503,7 +503,7 @@ The Velvet / Gold Mine	100	healing crystal golem	mine worker (female)	mine overs
 The VERY Unquiet Garves	100	corpulent zobmie	grave rober zmobie	senile lihc	slick lihc	gluttonous ghuol	gaunt ghuol	spiny skelelton	toothy sklelton	Skelter Butleton, the Butler Skeleton: 0	Count Bakula: -1	Snakeleton: 0
 The Weird Swamp Village	-1	mud turtle	swamp gator	swamp owl	swamp skunk: 0
 The Wildlife Sanctuarrrrrgh	-1	swamp beaver warrior	swamp entity	swamp gator
-The Wreck of the Edgar Fitzsimmons	100	cargo crab	drowned sailor	Mer-kin scavenger	mine crab	unholy diver
+The Wreck of the Edgar Fitzsimmons	95	cargo crab	drowned sailor	Mer-kin scavenger	mine crab	unholy diver
 The Wreck of the H. M. S. Kringle	95	Crimbylow	peppermint eel	sea-elf	dolphin "orphan"
 The X-32-F Combat Training Snowman	100	X-32-F Combat Training Snowman
 Throne Room	100	Knob Goblin King
