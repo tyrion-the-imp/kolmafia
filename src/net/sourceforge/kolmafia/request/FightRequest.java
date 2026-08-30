@@ -10979,27 +10979,27 @@ public class FightRequest extends GenericRequest {
         }
       }
       case SkillPool.BLOW_THE_RED_CANDLE -> {
-        if (responseText.contains("all the red") || skillSuccess) {
+        if (responseText.contains("ball of raging fire") || skillSuccess) {
           Preferences.increment("romanCandelabraRedCasts");
         }
       }
       case SkillPool.BLOW_THE_YELLOW_CANDLE -> {
-        if (responseText.contains("all the yellow") || skillSuccess) {
+        if (responseText.contains("ball of yellow flame") || skillSuccess) {
           Preferences.increment("romanCandelabraYellowCasts");
         }
       }
       case SkillPool.BLOW_THE_BLUE_CANDLE -> {
-        if (responseText.contains("all the blue") || skillSuccess) {
+        if (responseText.contains("cataloging all the blues") || skillSuccess) {
           Preferences.increment("romanCandelabraBlueCasts");
         }
       }
       case SkillPool.BLOW_THE_GREEN_CANDLE -> {
-        if (responseText.contains("all the green") || skillSuccess) {
+        if (responseText.contains("hazy green mayhem") || skillSuccess) {
           Preferences.increment("romanCandelabraGreenCasts");
         }
       }
       case SkillPool.BLOW_THE_PURPLE_CANDLE -> {
-        if (responseText.contains("all the purple") || skillSuccess) {
+        if (responseText.contains("blast of purple light") || skillSuccess) {
           Preferences.increment("romanCandelabraPurpleCasts");
           Preferences.setString("_chainedPurpleCandleMonster", monsterName);
         }
