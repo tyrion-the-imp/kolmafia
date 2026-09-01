@@ -1223,11 +1223,7 @@ public class TCRSDatabase {
               DoubleModifier.COLD_DAMAGE,
               DoubleModifier.SPOOKY_DAMAGE,
               DoubleModifier.STENCH_DAMAGE,
-              DoubleModifier.SLEAZE_DAMAGE),
-          EnumSet.of(DoubleModifier.MUS, DoubleModifier.MYS, DoubleModifier.MOX),
-          EnumSet.of(DoubleModifier.MUS_PCT, DoubleModifier.MYS_PCT, DoubleModifier.MOX_PCT),
-          EnumSet.of(DoubleModifier.HP, DoubleModifier.MP),
-          EnumSet.of(DoubleModifier.HP_PCT, DoubleModifier.MP_PCT));
+              DoubleModifier.SLEAZE_DAMAGE));
   private static final Set<DoubleModifier> REGEN =
       EnumSet.of(
           DoubleModifier.HP_REGEN_MIN,
@@ -1750,7 +1746,7 @@ public class TCRSDatabase {
     int mys = 0;
     int mox = 0;
 
-    var comment = new StringJoiner(", ").add("Unspaded");
+    var comment = new StringJoiner(", ");
 
     // Consumable attributes (like SAUCY, BEER, etc) are preserved
     ConsumablesDatabase.getAttributes(consumable).stream().map(Enum::name).forEach(comment::add);
@@ -1777,7 +1773,7 @@ public class TCRSDatabase {
         String.valueOf(mus),
         String.valueOf(mys),
         String.valueOf(mox),
-        comment.toString());
+        comment.length() == 0 ? null : comment.toString());
   }
 
   public static void resetModifiers() {
