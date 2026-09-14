@@ -2,8 +2,11 @@ package net.sourceforge.kolmafia.modifiers;
 
 import static net.sourceforge.kolmafia.persistence.ModifierDatabase.EXPR;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -51,11 +54,41 @@ public enum DoubleModifier implements Modifier {
       "Damage Reduction",
       Pattern.compile("Damage Reduction: ([+-]?\\d+)$"),
       Pattern.compile("Damage Reduction: " + EXPR)),
-  COLD_RESISTANCE("Cold Resistance", Pattern.compile("Cold Resistance: " + EXPR)),
-  HOT_RESISTANCE("Hot Resistance", Pattern.compile("Hot Resistance: " + EXPR)),
-  SLEAZE_RESISTANCE("Sleaze Resistance", Pattern.compile("Sleaze Resistance: " + EXPR)),
-  SPOOKY_RESISTANCE("Spooky Resistance", Pattern.compile("Spooky Resistance: " + EXPR)),
-  STENCH_RESISTANCE("Stench Resistance", Pattern.compile("Stench Resistance: " + EXPR)),
+  COLD_RESISTANCE(
+      "Cold Resistance",
+      new Pattern[] {
+        Pattern.compile(" Cold (?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+        Pattern.compile("Cold Resistance \\((\\+\\d+)\\)$"),
+      },
+      Pattern.compile("Cold Resistance: " + EXPR)),
+  HOT_RESISTANCE(
+      "Hot Resistance",
+      new Pattern[] {
+        Pattern.compile(" Hot (?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+        Pattern.compile("Hot Resistance \\((\\+\\d+)\\)$"),
+      },
+      Pattern.compile("Hot Resistance: " + EXPR)),
+  SLEAZE_RESISTANCE(
+      "Sleaze Resistance",
+      new Pattern[] {
+        Pattern.compile(" Sleaze (?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+        Pattern.compile("Sleaze Resistance \\((\\+\\d+)\\)$"),
+      },
+      Pattern.compile("Sleaze Resistance: " + EXPR)),
+  SPOOKY_RESISTANCE(
+      "Spooky Resistance",
+      new Pattern[] {
+        Pattern.compile(" Spooky (?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+        Pattern.compile("Spooky Resistance \\((\\+\\d+)\\)$"),
+      },
+      Pattern.compile("Spooky Resistance: " + EXPR)),
+  STENCH_RESISTANCE(
+      "Stench Resistance",
+      new Pattern[] {
+        Pattern.compile(" Stench +(?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+        Pattern.compile("Stench +Resistance \\((\\+\\d+)\\)$"),
+      },
+      Pattern.compile("Stench Resistance: " + EXPR)),
   MANA_COST(
       "Mana Cost",
       Pattern.compile("([+-]\\d+) MP to use Skills$"),
@@ -178,7 +211,7 @@ public enum DoubleModifier implements Modifier {
       Pattern.compile("^([+-]\\d+) (Damage )?to <font color=green>Stench Spells</font>"),
       Pattern.compile("Stench Spell Damage: " + EXPR)),
   UNDERWATER_COMBAT_RATE(
-      "Underwater Combat Rate", Pattern.compile("Combat Rate \\(Underwater\\): " + EXPR)),
+      "Underwater Combat Rate", Pattern.compile("Underwater Combat Rate: " + EXPR)),
   FUMBLE("Fumble", Pattern.compile("(\\d+)x chance of Fumble"), Pattern.compile("Fumble: " + EXPR)),
   HP_REGEN_MIN("HP Regen Min", Pattern.compile("HP Regen Min: " + EXPR)),
   HP_REGEN_MAX("HP Regen Max", Pattern.compile("HP Regen Max: " + EXPR)),
@@ -203,7 +236,7 @@ public enum DoubleModifier implements Modifier {
   STACKABLE_MANA_COST(
       "Stackable Mana Cost",
       Pattern.compile("([+-]\\d+) MP to use Skills$"),
-      Pattern.compile("Mana Cost \\(stackable\\): " + EXPR)),
+      Pattern.compile("Stackable Mana Cost: " + EXPR)),
   HOBO_POWER(
       "Hobo Power",
       Pattern.compile("([+-]\\d+) Hobo Power"),
@@ -222,13 +255,13 @@ public enum DoubleModifier implements Modifier {
       "PvP Fights",
       Pattern.compile("([+-]\\d+) PvP [Ff]ight\\(s\\) per day( when equipped)?"),
       Pattern.compile("PvP Fights: " + EXPR)),
-  VOLLEYBALL_WEIGHT("Volleyball", Pattern.compile("Volley(?:ball)?: " + EXPR)),
-  SOMBRERO_WEIGHT("Sombrero", Pattern.compile("Somb(?:rero)?: " + EXPR)),
-  LEPRECHAUN_WEIGHT("Leprechaun", Pattern.compile("Lep(?:rechaun)?: " + EXPR)),
+  VOLLEYBALL_WEIGHT("Volleyball", Pattern.compile("Volleyball: " + EXPR)),
+  SOMBRERO_WEIGHT("Sombrero", Pattern.compile("Sombrero: " + EXPR)),
+  LEPRECHAUN_WEIGHT("Leprechaun", Pattern.compile("Leprechaun: " + EXPR)),
   FAIRY_WEIGHT("Fairy", Pattern.compile("Fairy: " + EXPR)),
   MEATDROP_PENALTY("Meat Drop Penalty", Pattern.compile("Meat Drop Penalty: " + EXPR)),
   HIDDEN_FAMILIAR_WEIGHT(
-      "Hidden Familiar Weight", Pattern.compile("Familiar Weight \\(hidden\\): " + EXPR)),
+      "Hidden Familiar Weight", Pattern.compile("Hidden Familiar Weight: " + EXPR)),
   ITEMDROP_PENALTY("Item Drop Penalty", Pattern.compile("Item Drop Penalty: " + EXPR)),
   INITIATIVE_PENALTY("Initiative Penalty", Pattern.compile("Initiative Penalty: " + EXPR)),
   FOODDROP(
@@ -271,7 +304,10 @@ public enum DoubleModifier implements Modifier {
       "Leprechaun Effectiveness", Pattern.compile("Leprechaun Effectiveness: " + EXPR)),
   FAIRY_EFFECTIVENESS("Fairy Effectiveness", Pattern.compile("Fairy Effectiveness: " + EXPR)),
   FAMILIAR_WEIGHT_CAP("Familiar Weight Cap", Pattern.compile("Familiar Weight Cap: " + EXPR)),
-  SLIME_RESISTANCE("Slime Resistance", Pattern.compile("Slime Resistance: " + EXPR)),
+  SLIME_RESISTANCE(
+      "Slime Resistance",
+      Pattern.compile(" Slime (?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+      Pattern.compile("Slime Resistance: " + EXPR)),
   SLIME_HATES_IT(
       "Slime Hates It",
       Pattern.compile("Slime( Really)? Hates (It|You)"),
@@ -283,18 +319,15 @@ public enum DoubleModifier implements Modifier {
   MUS_EXPERIENCE(
       "Muscle Experience",
       Pattern.compile("([+-]\\d+) Muscle Stat.*Per Fight"),
-      Pattern.compile("Experience \\(Muscle\\): " + EXPR),
-      "Experience (Muscle)"),
+      Pattern.compile("Muscle Experience: " + EXPR)),
   MYS_EXPERIENCE(
       "Mysticality Experience",
       Pattern.compile("([+-]\\d+) Mysticality Stat.*Per Fight"),
-      Pattern.compile("Experience \\(Mysticality\\): " + EXPR),
-      "Experience (Mysticality)"),
+      Pattern.compile("Mysticality Experience: " + EXPR)),
   MOX_EXPERIENCE(
       "Moxie Experience",
       Pattern.compile("([+-]\\d+) Moxie Stat.*Per Fight"),
-      Pattern.compile("Experience \\(Moxie\\): " + EXPR),
-      "Experience (Moxie)"),
+      Pattern.compile("Moxie Experience: " + EXPR)),
   EFFECT_DURATION("Effect Duration", Pattern.compile("Effect Duration: " + EXPR), true),
   CANDYDROP(
       "Candy Drop",
@@ -314,16 +347,9 @@ public enum DoubleModifier implements Modifier {
   FAMILIAR_EXP(
       "Familiar Experience",
       Pattern.compile("([+-]\\d+) Familiar Experience"),
-      Pattern.compile("Experience \\(familiar\\): " + EXPR),
-      "Experience (familiar)"),
-  SPORADIC_MEATDROP(
-      "Sporadic Meat Drop",
-      Pattern.compile("Meat Drop \\(sporadic\\): " + EXPR),
-      "Meat Drop (sporadic)"),
-  SPORADIC_ITEMDROP(
-      "Sporadic Item Drop",
-      Pattern.compile("Item Drop \\(sporadic\\): " + EXPR),
-      "Item Drop (sporadic)"),
+      Pattern.compile("Familiar Experience: " + EXPR)),
+  SPORADIC_MEATDROP("Sporadic Meat Drop", Pattern.compile("Sporadic Meat Drop: " + EXPR)),
+  SPORADIC_ITEMDROP("Sporadic Item Drop", Pattern.compile("Sporadic Item Drop: " + EXPR)),
   MEAT_BONUS("Meat Bonus", Pattern.compile("Meat Bonus: " + EXPR)),
   PICKPOCKET_CHANCE(
       "Pickpocket Chance",
@@ -332,23 +358,19 @@ public enum DoubleModifier implements Modifier {
   COMBAT_MANA_COST(
       "Combat Mana Cost",
       Pattern.compile("([+-]\\d+) MP to use Skills \\(in-combat only\\)"),
-      Pattern.compile("Mana Cost \\(combat\\): " + EXPR),
-      "Mana Cost (combat)"),
+      Pattern.compile("Combat Mana Cost: " + EXPR)),
   MUS_EXPERIENCE_PCT(
       "Muscle Experience Percent",
       Pattern.compile("([+-]\\d+)% to all Muscle Gains"),
-      Pattern.compile("Experience Percent \\(Muscle\\): " + EXPR),
-      "Experience Percent (Muscle)"),
+      Pattern.compile("Muscle Experience Percent: " + EXPR)),
   MYS_EXPERIENCE_PCT(
       "Mysticality Experience Percent",
       Pattern.compile("([+-]\\d+)% to all Mysticality Gains"),
-      Pattern.compile("Experience Percent \\(Mysticality\\): " + EXPR),
-      "Experience Percent (Mysticality)"),
+      Pattern.compile("Mysticality Experience Percent: " + EXPR)),
   MOX_EXPERIENCE_PCT(
       "Moxie Experience Percent",
       Pattern.compile("([+-]\\d+)% to all Moxie Gains"),
-      Pattern.compile("Experience Percent \\(Moxie\\): " + EXPR),
-      "Experience Percent (Moxie)"),
+      Pattern.compile("Moxie Experience Percent: " + EXPR)),
   MINSTREL_LEVEL(
       "Minstrel Level",
       new Pattern[] {
@@ -377,7 +399,10 @@ public enum DoubleModifier implements Modifier {
       "Smithsness",
       Pattern.compile("([+-]\\d+) Smithsness"),
       Pattern.compile("Smithsness: " + EXPR)),
-  SUPERCOLD_RESISTANCE("Supercold Resistance", Pattern.compile("Supercold Resistance: " + EXPR)),
+  SUPERCOLD_RESISTANCE(
+      "Supercold Resistance",
+      Pattern.compile(" Supercold (?:Resistance|Vulnerability) \\(([+-]?\\d+)\\)$"),
+      Pattern.compile("Supercold Resistance: " + EXPR)),
   REDUCE_ENEMY_DEFENSE(
       "Reduce Enemy Defense",
       Pattern.compile("Reduce enemy defense by (\\d+)%"),
@@ -407,17 +432,10 @@ public enum DoubleModifier implements Modifier {
       Pattern.compile("([+-]\\d+) Crimbot Outfit Power"),
       Pattern.compile("Crimbot Outfit Power: " + EXPR)),
   FAMILIAR_TUNING_MUSCLE(
-      "Familiar Tuning Muscle",
-      Pattern.compile("Familiar Tuning \\(Muscle\\): " + EXPR),
-      "Familiar Tuning (Muscle)"),
+      "Familiar Tuning Muscle", Pattern.compile("Familiar Tuning Muscle: " + EXPR)),
   FAMILIAR_TUNING_MYSTICALITY(
-      "Familiar Tuning Mysticality",
-      Pattern.compile("Familiar Tuning \\(Mysticality\\): " + EXPR),
-      "Familiar Tuning (Mysticality)"),
-  FAMILIAR_TUNING_MOXIE(
-      "Familiar Tuning Moxie",
-      Pattern.compile("Familiar Tuning \\(Moxie\\): " + EXPR),
-      "Familiar Tuning (Moxie)"),
+      "Familiar Tuning Mysticality", Pattern.compile("Familiar Tuning Mysticality: " + EXPR)),
+  FAMILIAR_TUNING_MOXIE("Familiar Tuning Moxie", Pattern.compile("Familiar Tuning Moxie: " + EXPR)),
   RANDOM_MONSTER_MODIFIERS(
       "Random Monster Modifiers",
       Pattern.compile("([+-]\\d+) Random Monster Modifier"),
@@ -645,67 +663,78 @@ public enum DoubleModifier implements Modifier {
       "All Attributes Percent",
       Pattern.compile("All Attributes ([+-]\\d+)%$"),
       Pattern.compile("All Attributes Percent: " + EXPR),
-      new DoubleModifier[] {MUS_PCT, MYS_PCT, MOX_PCT});
+      new DoubleModifier[] {MUS_PCT, MYS_PCT, MOX_PCT}),
+  HP_MP_REGEN_MIN(
+      "HP / MP Regen Min",
+      (Pattern[]) null,
+      Pattern.compile("HP / MP Regen Min: " + EXPR),
+      new DoubleModifier[] {HP_REGEN_MIN, MP_REGEN_MIN}),
+  HP_MP_REGEN_MAX(
+      "HP / MP Regen Max",
+      (Pattern[]) null,
+      Pattern.compile("HP / MP Regen Max: " + EXPR),
+      new DoubleModifier[] {HP_REGEN_MAX, MP_REGEN_MAX}),
+  ALL_RESISTANCE(
+      "All Resistance",
+      Pattern.compile("(?:Resistance|Vulnerability) to All Elements \\(([+-]?\\d+)\\)$"),
+      Pattern.compile("All Resistance: " + EXPR),
+      new DoubleModifier[] {
+        COLD_RESISTANCE, HOT_RESISTANCE, SLEAZE_RESISTANCE, SPOOKY_RESISTANCE, STENCH_RESISTANCE
+      }),
+  BETTER_DIVER(
+      "Better Diver",
+      Pattern.compile("Makes you a (?:much )?better diver \\(([+-]?\\d+)\\)$"),
+      Pattern.compile("Better Diver: " + EXPR),
+      new DoubleModifier[] {INITIATIVE_PENALTY, MEATDROP_PENALTY, ITEMDROP_PENALTY});
 
   private final String name;
   private final Pattern[] descPatterns;
   private final Pattern tagPattern;
-  private final String tag;
   private final boolean multiple;
   private final DoubleModifier[] subsumed;
 
   DoubleModifier(String name, Pattern tagPattern) {
-    this(name, (Pattern[]) null, tagPattern, name);
+    this(name, (Pattern[]) null, tagPattern);
   }
 
   DoubleModifier(String name, Pattern tagPattern, boolean multiple) {
-    this(name, (Pattern[]) null, tagPattern, name, multiple);
-  }
-
-  DoubleModifier(String name, Pattern tagPattern, String tag) {
-    this(name, (Pattern[]) null, tagPattern, tag);
+    this(name, (Pattern[]) null, tagPattern, multiple, null);
   }
 
   DoubleModifier(String name, Pattern descPattern, Pattern tagPattern) {
-    this(name, new Pattern[] {descPattern}, tagPattern, name, false, null);
+    this(name, new Pattern[] {descPattern}, tagPattern);
   }
 
   DoubleModifier(String name, Pattern descPattern, Pattern tagPattern, boolean multiple) {
-    this(name, new Pattern[] {descPattern}, tagPattern, name, multiple, null);
-  }
-
-  DoubleModifier(String name, Pattern descPattern, Pattern tagPattern, String tag) {
-    this(name, new Pattern[] {descPattern}, tagPattern, tag, false, null);
+    this(name, new Pattern[] {descPattern}, tagPattern, multiple, null);
   }
 
   DoubleModifier(String name, Pattern descPattern, Pattern tagPattern, DoubleModifier[] subsumed) {
-    this(name, new Pattern[] {descPattern}, tagPattern, name, false, subsumed);
-  }
-
-  DoubleModifier(String name, Pattern[] descPatterns, Pattern tagPattern) {
-    this(name, descPatterns, tagPattern, name);
-  }
-
-  DoubleModifier(String name, Pattern[] descPatterns, Pattern tagPattern, String tag) {
-    this(name, descPatterns, tagPattern, tag, false);
+    this(name, new Pattern[] {descPattern}, tagPattern, false, subsumed);
   }
 
   DoubleModifier(
-      String name, Pattern[] descPatterns, Pattern tagPattern, String tag, boolean multiple) {
-    this(name, descPatterns, tagPattern, tag, multiple, null);
+      String name, Pattern[] descPattern, Pattern tagPattern, DoubleModifier[] subsumed) {
+    this(name, descPattern, tagPattern, false, subsumed);
+  }
+
+  DoubleModifier(String name, Pattern[] descPatterns, Pattern tagPattern) {
+    this(name, descPatterns, tagPattern, false, null);
+  }
+
+  DoubleModifier(String name, Pattern[] descPatterns, Pattern tagPattern, boolean multiple) {
+    this(name, descPatterns, tagPattern, multiple, null);
   }
 
   DoubleModifier(
       String name,
       Pattern[] descPatterns,
       Pattern tagPattern,
-      String tag,
       boolean multiple,
       DoubleModifier[] subsumed) {
     this.name = name;
     this.descPatterns = descPatterns;
     this.tagPattern = tagPattern;
-    this.tag = tag;
     this.multiple = multiple;
     this.subsumed = subsumed == null ? new DoubleModifier[0] : subsumed;
   }
@@ -727,9 +756,10 @@ public enum DoubleModifier implements Modifier {
 
   @Override
   public String getTag() {
-    return tag;
+    return name;
   }
 
+  @Override
   public boolean isMultiple() {
     return multiple;
   }
@@ -745,6 +775,8 @@ public enum DoubleModifier implements Modifier {
           ADVENTURES,
           ALL_ATTRIBUTES,
           ALL_ATTRIBUTES_PCT,
+          ALL_RESISTANCE,
+          BETTER_DIVER,
           BOOZEDROP,
           BUGBEAR_DAMAGE,
           CANDYDROP,
@@ -779,6 +811,8 @@ public enum DoubleModifier implements Modifier {
           HP_PCT,
           HP_REGEN_MAX,
           HP_REGEN_MIN,
+          HP_MP_REGEN_MIN,
+          HP_MP_REGEN_MAX,
           INITIATIVE,
           ITEMDROP,
           MANA_COST,
@@ -868,6 +902,29 @@ public enum DoubleModifier implements Modifier {
   private static final Map<String, DoubleModifier> caselessNameToModifier =
       DOUBLE_MODIFIERS.stream()
           .collect(Collectors.toMap(type -> type.name.toLowerCase(), Function.identity()));
+
+  // A combined modifier (one that subsumes others) may be stored explicitly in a modifier list.
+  // Map each subsumed individual modifier to the combined modifiers that can provide it, so that
+  // lookups of the individual can add any explicitly-stored combined contribution on top.
+  private static final Map<DoubleModifier, List<DoubleModifier>> SUBSUMING;
+
+  static {
+    var map = new HashMap<DoubleModifier, List<DoubleModifier>>();
+    for (var mod : DOUBLE_MODIFIERS) {
+      for (var sub : mod.getSubsumed()) {
+        map.computeIfAbsent(sub, key -> new ArrayList<>()).add(mod);
+      }
+    }
+    for (var entry : map.entrySet()) {
+      entry.setValue(List.copyOf(entry.getValue()));
+    }
+    SUBSUMING = Map.copyOf(map);
+  }
+
+  // Any explicitly-stored combined modifiers that provide the given modifier.
+  public static List<DoubleModifier> subsuming(final DoubleModifier modifier) {
+    return SUBSUMING.getOrDefault(modifier, List.of());
+  }
 
   // equivalent to `Modifiers.findName`
   public static DoubleModifier byCaselessName(String name) {

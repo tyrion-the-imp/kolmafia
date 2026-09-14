@@ -28,7 +28,7 @@ public class LocketManager {
   private static final Set<Integer> knownMonsters = new TreeSet<>();
   private static final Pattern REMINISCABLE_MONSTER = Pattern.compile("<option value=\"(\\d+)\"");
   private static final Set<String> CONSTANT_MODS =
-      Set.of("HP Regen Min", "HP Regen Max", "MP Regen Min", "MP Regen Max", "Single Equip");
+      Set.of("HP / MP Regen Min", "HP / MP Regen Max", "Single Equip");
 
   private static void addFoughtMonster(int monsterId) {
     Set<Integer> foughtMonsters = new TreeSet<>(getFoughtMonsters());
@@ -132,7 +132,8 @@ public class LocketManager {
     // ... and the locket has a phylum at all...
     if (indicativeMod != null) {
       // Weapon Damage: [pref(locketPhylum,weird)*25]
-      int start = locketModString.indexOf(indicativeMod + ": ") + indicativeMod.length() + 21;
+      int start =
+          locketModString.indexOf(", " + indicativeMod + ": ") + indicativeMod.length() + 23;
       // ... we find the indicative modifier in the raw mod string and see what phylum it is
       // associated with.
       phylum = locketModString.substring(start, locketModString.indexOf(")", start));

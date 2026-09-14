@@ -164,13 +164,14 @@ public abstract class KoLmafia {
   private static File SESSION_FILE = null;
   private static boolean SESSION_ENDING = false;
   public static KoLAdventure currentAdventure;
-  private static final String PREFERRED_IMAGE_SERVER = "https://d2uyhvukfffg5a.cloudfront.net";
+  private static final String PREFERRED_IMAGE_SERVER = "https://images.kingdomofloathing.com";
   private static final String PREFERRED_IMAGE_SERVER_PATH = PREFERRED_IMAGE_SERVER + "/";
   public static final Set<String> IMAGE_SERVER_PATHS =
       Set.of(
           PREFERRED_IMAGE_SERVER_PATH,
           "https://s3.amazonaws.com/images.kingdomofloathing.com/",
-          "http://images.kingdomofloathing.com/");
+          "http://images.kingdomofloathing.com/",
+          "https://d2uyhvukfffg5a.cloudfront.net/");
   // Displays a warning in several areas when the JVM is running an older version
   public static final int MINIMUM_JAVA_VERSION = 21;
 
@@ -925,6 +926,9 @@ public abstract class KoLmafia {
 
     // Items that conditionally grant skills
     InventoryManager.checkSkillGrantingEquipment();
+
+    // Familiars that conditionally grant skills
+    FamiliarData.checkSkillGrantingFamiliars();
 
     // Check Horsery if we haven't today
     if (Preferences.getBoolean("horseryAvailable")

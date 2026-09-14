@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -1213,12 +1212,6 @@ public class TCRSDatabase {
   private static final Set<Set<DoubleModifier>> COLLAPSIBLE =
       Set.of(
           EnumSet.of(
-              DoubleModifier.HOT_RESISTANCE,
-              DoubleModifier.COLD_RESISTANCE,
-              DoubleModifier.SPOOKY_RESISTANCE,
-              DoubleModifier.STENCH_RESISTANCE,
-              DoubleModifier.SLEAZE_RESISTANCE),
-          EnumSet.of(
               DoubleModifier.HOT_DAMAGE,
               DoubleModifier.COLD_DAMAGE,
               DoubleModifier.SPOOKY_DAMAGE,
@@ -1229,7 +1222,9 @@ public class TCRSDatabase {
           DoubleModifier.HP_REGEN_MIN,
           DoubleModifier.HP_REGEN_MAX,
           DoubleModifier.MP_REGEN_MIN,
-          DoubleModifier.MP_REGEN_MAX);
+          DoubleModifier.MP_REGEN_MAX,
+          DoubleModifier.HP_MP_REGEN_MIN,
+          DoubleModifier.HP_MP_REGEN_MAX);
 
   /**
    * How many regen enchantments an item has. HP and MP regen are one combined enchantment when
@@ -1242,15 +1237,10 @@ public class TCRSDatabase {
     var mp =
         present.containsKey(DoubleModifier.MP_REGEN_MIN)
             || present.containsKey(DoubleModifier.MP_REGEN_MAX);
-    if (!hp || !mp) {
-      return (hp || mp) ? 1 : 0;
-    }
-    var sameAmounts =
-        Objects.equals(
-                present.get(DoubleModifier.HP_REGEN_MIN), present.get(DoubleModifier.MP_REGEN_MIN))
-            && Objects.equals(
-                present.get(DoubleModifier.HP_REGEN_MAX), present.get(DoubleModifier.MP_REGEN_MAX));
-    return sameAmounts ? 1 : 2;
+    var both =
+        present.containsKey(DoubleModifier.HP_MP_REGEN_MIN)
+            || present.containsKey(DoubleModifier.HP_MP_REGEN_MAX);
+    return (hp ? 1 : 0) + (mp ? 1 : 0) + (both ? 1 : 0);
   }
 
   // Expression functions that query live character or environment state (a preference, the current
