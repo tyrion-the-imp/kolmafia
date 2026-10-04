@@ -1,0 +1,3397 @@
+package net.sourceforge.kolmafia.textui;
+
+import static internal.helpers.HttpClientWrapper.getRequests;
+import static internal.helpers.HttpClientWrapper.setupFakeClient;
+import static internal.helpers.Networking.assertPostRequest;
+import static internal.helpers.Networking.getPostRequestBody;
+import static internal.helpers.Networking.html;
+import static internal.helpers.Networking.json;
+import static internal.helpers.Player.withAdventuresLeft;
+import static internal.helpers.Player.withAdventuresSpent;
+import static internal.helpers.Player.withBanishedPhyla;
+import static internal.helpers.Player.withChoice;
+import static internal.helpers.Player.withClass;
+import static internal.helpers.Player.withCurrentEncounter;
+import static internal.helpers.Player.withCurrentRun;
+import static internal.helpers.Player.withDay;
+import static internal.helpers.Player.withEffect;
+import static internal.helpers.Player.withEquippableItem;
+import static internal.helpers.Player.withEquipped;
+import static internal.helpers.Player.withFamiliar;
+import static internal.helpers.Player.withFamiliarInTerrarium;
+import static internal.helpers.Player.withFamiliarInTerrariumWithItem;
+import static internal.helpers.Player.withFight;
+import static internal.helpers.Player.withGlobalDay;
+import static internal.helpers.Player.withGzippedSessionFile;
+import static internal.helpers.Player.withHandlingChoice;
+import static internal.helpers.Player.withHardcore;
+import static internal.helpers.Player.withHttpClientBuilder;
+import static internal.helpers.Player.withInteractivity;
+import static internal.helpers.Player.withItem;
+import static internal.helpers.Player.withItemInCloset;
+import static internal.helpers.Player.withItemInDisplay;
+import static internal.helpers.Player.withItemInShop;
+import static internal.helpers.Player.withItemInStorage;
+import static internal.helpers.Player.withLastLocation;
+import static internal.helpers.Player.withLevel;
+import static internal.helpers.Player.withMallPrice;
+import static internal.helpers.Player.withMeat;
+import static internal.helpers.Player.withNextMonster;
+import static internal.helpers.Player.withNextResponse;
+import static internal.helpers.Player.withNoEffects;
+import static internal.helpers.Player.withNpcPrice;
+import static internal.helpers.Player.withPath;
+import static internal.helpers.Player.withProperty;
+import static internal.helpers.Player.withRonin;
+import static internal.helpers.Player.withSessionFile;
+import static internal.helpers.Player.withSign;
+import static internal.helpers.Player.withSkill;
+import static internal.helpers.Player.withStats;
+import static internal.helpers.Player.withTrackedMonsters;
+import static internal.helpers.Player.withTrackedPhyla;
+import static internal.helpers.Player.withTurnsPlayed;
+import static internal.helpers.Player.withUnequipped;
+import static internal.helpers.Player.withValueOfAdventure;
+import static internal.helpers.Utilities.deleteSerFiles;
+import static org.hamcrest.CoreMatchers.both;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import com.alibaba.fastjson2.JSONObject;
+import internal.helpers.Cleanups;
+import internal.helpers.HttpClientWrapper;
+import internal.network.FakeHttpClientBuilder;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.time.Month;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import net.sourceforge.kolmafia.AscensionClass;
+import net.sourceforge.kolmafia.AscensionPath.Path;
+import net.sourceforge.kolmafia.KoLCharacter;
+import net.sourceforge.kolmafia.KoLConstants;
+import net.sourceforge.kolmafia.MonsterData;
+import net.sourceforge.kolmafia.RequestLogger;
+import net.sourceforge.kolmafia.ZodiacSign;
+import net.sourceforge.kolmafia.equipment.Slot;
+import net.sourceforge.kolmafia.objectpool.AdventurePool;
+import net.sourceforge.kolmafia.objectpool.EffectPool;
+import net.sourceforge.kolmafia.objectpool.FamiliarPool;
+import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.persistence.AdventureSpentDatabase;
+import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
+import net.sourceforge.kolmafia.persistence.MonsterDatabase;
+import net.sourceforge.kolmafia.preferences.Preferences;
+import net.sourceforge.kolmafia.request.ApiRequest;
+import net.sourceforge.kolmafia.request.CharSheetRequest;
+import net.sourceforge.kolmafia.request.GenericRequest;
+import net.sourceforge.kolmafia.session.ChoiceManager;
+import net.sourceforge.kolmafia.session.GreyYouManager;
+import net.sourceforge.kolmafia.textui.command.AbstractCommandTestBase;
+import net.sourceforge.kolmafia.utilities.NullStream;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+public class RuntimeLibraryTest extends AbstractCommandTestBase {
+
+  private static final String TESTUSER = "RuntimeLibraryTestUser";
+
+  @BeforeEach
+  public void initEach() {
+    KoLCharacter.reset(TESTUSER);
+    deleteSerFiles(TESTUSER);
+    KoLCharacter.reset(true);
+    Preferences.reset(TESTUSER);
+  }
+
+  public RuntimeLibraryTest() {
+    this.command = "ash";
+  }
+
+  public RuntimeLibraryTest getInstance() {
+    return this;
+  }
+
+  @Test
+  void normalMonsterExpectedDamage() {
+    String output = execute("expected_damage($monster[blooper])");
+
+    assertContinueState();
+    assertThat(output, containsString("Returned: 35"));
+  }
+
+  @Test
+  void multipleAttackElementExpectedDamage() {
+    var cleanups = new Cleanups(withEffect("Anti-Odored"));
+
+    try (cleanups) {
+      String output = execute("expected_damage($monster[The Big Wisniewski])");
+
+      assertContinueState();
+      assertThat(output, containsString("Returned: 344"));
+    }
+  }
+
+  @Test
+  void multipleAttackElementElementalResistance() {
+    var cleanups = new Cleanups(withEffect("Anti-Odored"));
+
+    try (cleanups) {
+      String output = execute("elemental_resistance($monster[blind snake])");
+
+      assertContinueState();
+      assertThat(output, containsString("Returned: 0.0"));
+    }
+  }
+
+  @Test
+  void ninjaSnowmanAssassinExpectedDamage() {
+    String output = execute("expected_damage($monster[ninja snowman assassin])");
+
+    assertContinueState();
+    assertThat(output, containsString("Returned: 297"));
+  }
+
+  @Test
+  void getPermedSkills() {
+    CharSheetRequest.parseStatus(html("request/test_charsheet_normal.html"));
+
+    String outputHardcore = execute("get_permed_skills()[$skill[Nimble Fingers]]");
+
+    assertContinueState();
+    assertThat(outputHardcore, containsString("Returned: true"));
+
+    String outputSoftcore = execute("get_permed_skills()[$skill[Entangling Noodles]]");
+
+    assertContinueState();
+    assertThat(outputSoftcore, containsString("Returned: false"));
+
+    String outputUnpermed =
+        execute(
+            "if (get_permed_skills() contains $skill[Emotionally Chipped]) {print(\"permed\");} else {print(\"unpermed\");}");
+
+    assertContinueState();
+    assertThat(outputUnpermed, containsString("unpermed"));
+  }
+
+  @Test
+  void zapWandUnavailable() {
+    String output = execute("get_zap_wand()");
+
+    assertContinueState();
+    assertThat(output, containsString("Returned: none"));
+  }
+
+  @Test
+  void zapWandAvailable() {
+    final var cleanups = new Cleanups(withItem("marble wand"));
+
+    try (cleanups) {
+      String output = execute("get_zap_wand()");
+
+      assertContinueState();
+      assertThat(output, containsString("name => marble wand"));
+    }
+  }
+
+  @Test
+  void floundryLocations() {
+    // don't try to visit the fireworks shop
+    Preferences.setBoolean("_fireworksShop", true);
+
+    var cleanups = withNextResponse(200, html("request/test_clan_floundry.html"));
+
+    try (cleanups) {
+      String output = execute("get_fishing_locations()");
+
+      assertContinueState();
+      assertThat(output, containsString("Returned: aggregate location [string]"));
+      assertThat(output, containsString("bass => Guano Junction"));
+      assertThat(output, containsString("carp => Pirates of the Garbage Barges"));
+      assertThat(output, containsString("cod => Thugnderdome"));
+      assertThat(output, containsString("hatchetfish => The Skeleton Store"));
+      assertThat(output, containsString("trout => The Haunted Conservatory"));
+      assertThat(output, containsString("tuna => The Oasis"));
+    }
+  }
+
+  @Test
+  void testPrintHtmlDoesNotWriteToSessionLog() {
+    var html = "<td><p>word</p></td>";
+
+    ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+    try (PrintStream out = new PrintStream(ostream, true)) {
+      // Inject custom output stream.
+      RequestLogger.setSessionStream(out);
+
+      // Confirm that print_html doesn't log to session
+      execute("print_html('" + html + "')");
+
+      assertThat(ostream.toString(), is(""));
+      RequestLogger.setSessionStream(NullStream.INSTANCE);
+    }
+  }
+
+  @Test
+  void testPrintHtmlFalseDoesNotWriteToSessionLog() {
+    var html = "<td><p>word</p></td>";
+
+    ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+    try (PrintStream out = new PrintStream(ostream, true)) {
+      // Inject custom output stream.
+      RequestLogger.setSessionStream(out);
+
+      // Confirm that print_html doesn't log to session
+      execute("print_html('" + html + "', false)");
+
+      assertThat(ostream.toString(), is(""));
+      RequestLogger.setSessionStream(NullStream.INSTANCE);
+    }
+  }
+
+  @Test
+  void testPrintHtmlTrueWritesToSessionLog() {
+    var html = "<td><p>word</p></td>";
+
+    ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+    try (PrintStream out = new PrintStream(ostream, true)) {
+      // Inject custom output stream.
+      RequestLogger.setSessionStream(out);
+
+      // Confirm that print_html doesn't log to session
+      execute("print_html('" + html + "', true)");
+
+      assertThat(ostream.toString(), is("> word\n"));
+      RequestLogger.setSessionStream(NullStream.INSTANCE);
+    }
+  }
+
+  @Test
+  void testPrintHtmlWritesSingleLineToSessionLog() {
+    var html = "<td><p>word1</p><p>word2</p></td>";
+
+    ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+    try (PrintStream out = new PrintStream(ostream, true)) {
+      // Inject custom output stream.
+      RequestLogger.setSessionStream(out);
+
+      // Confirm that print_html doesn't log to session
+      execute("print_html('" + html + "', true)");
+
+      assertThat(ostream.toString(), is("> word1word2\n"));
+      RequestLogger.setSessionStream(NullStream.INSTANCE);
+    }
+  }
+
+  @Test
+  void testPrintHtmlWritesMultipleLinesToSessionLog() {
+    var html = "<td><p>word1</p><br><p>word2</p></td>";
+
+    ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+    try (PrintStream out = new PrintStream(ostream, true)) {
+      // Inject custom output stream.
+      RequestLogger.setSessionStream(out);
+
+      // Confirm that print_html doesn't log to session
+      execute("print_html('" + html + "', true)");
+
+      assertThat(ostream.toString(), is("> word1\n> word2\n"));
+      RequestLogger.setSessionStream(NullStream.INSTANCE);
+    }
+  }
+
+  @Nested
+  class ExpectedCmc {
+    @BeforeEach
+    public void beforeEach() {
+      HttpClientWrapper.setupFakeClient();
+    }
+
+    @Test
+    void canVisitCabinet() {
+      var builder = new FakeHttpClientBuilder();
+      var client = builder.client;
+      var cleanups = new Cleanups(withHttpClientBuilder(builder), withHandlingChoice(false));
+
+      try (cleanups) {
+        client.addResponse(302, Map.of("location", List.of("choice.php?forceoption=0")), "");
+        client.addResponse(200, html("request/test_choice_cmc_frozen_jeans.html"));
+        String output = execute("expected_cold_medicine_cabinet()");
+        assertThat(
+            output,
+            equalTo(
+                """
+                    Returned: aggregate item [string]
+                    booze => Doc's Fortifying Wine
+                    equipment => frozen jeans
+                    food => frozen tofu pop
+                    pill => Breathitin&trade;
+                    potion => anti-odor cream
+                    """));
+      }
+    }
+
+    @Test
+    void canHandleUnexpectedCabinetResponse() {
+      var builder = new FakeHttpClientBuilder();
+      var client = builder.client;
+      var cleanups = new Cleanups(withHttpClientBuilder(builder), withHandlingChoice(false));
+
+      try (cleanups) {
+        client.addResponse(302, Map.of("location", List.of("choice.php?forceoption=0")), "");
+        client.addResponse(200, "huh?");
+        String output = execute("expected_cold_medicine_cabinet()");
+        assertThat(
+            output,
+            equalTo(
+                """
+                    Could not parse cabinet.
+                    Returned: aggregate item [string]
+                    booze => none
+                    equipment => none
+                    food => none
+                    pill => none
+                    potion => none
+                    """));
+      }
+    }
+
+    @Test
+    void canGuessCabinet() {
+      var cleanups =
+          new Cleanups(withProperty("lastCombatEnvironments", "iiiiiiiiiiioooouuuuu"), withFight());
+
+      try (cleanups) {
+        String output = execute("expected_cold_medicine_cabinet()");
+        assertThat(
+            output,
+            equalTo(
+                """
+                    Returned: aggregate item [string]
+                    booze => Doc's Medical-Grade Wine
+                    equipment => ice crown
+                    food => none
+                    pill => Extrovermectin&trade;
+                    potion => none
+                    """));
+      }
+    }
+
+    @Test
+    void canGuessCabinetWithUnknownPill() {
+      var cleanups =
+          new Cleanups(withProperty("lastCombatEnvironments", "????????????????????"), withFight());
+
+      try (cleanups) {
+        String output = execute("expected_cold_medicine_cabinet()");
+        assertThat(
+            output,
+            equalTo(
+                """
+                    Returned: aggregate item [string]
+                    booze => Doc's Medical-Grade Wine
+                    equipment => ice crown
+                    food => none
+                    pill => none
+                    potion => none
+                    """));
+      }
+    }
+  }
+
+  @Test
+  void canSeeGreyYouMonsterAbsorbs() {
+    var cleanups = new Cleanups(GreyYouManager::resetAbsorptions);
+
+    try (cleanups) {
+      KoLCharacter.setPath(Path.GREY_YOU);
+
+      String name1 = "oil baron";
+      MonsterData monster1 = MonsterDatabase.findMonster(name1);
+      GreyYouManager.absorbMonster(monster1, "a lot of potential energy!");
+      String name2 = "warwelf";
+      MonsterData monster2 = MonsterDatabase.findMonster(name2);
+      GreyYouManager.absorbMonster(monster2, "a lot of potential energy!");
+
+      String output = execute("absorbed_monsters()");
+      assertThat(
+          output,
+          equalTo(
+              """
+                Returned: aggregate boolean [monster]
+                warwelf => true
+                oil baron => true
+                """));
+    }
+  }
+
+  @Nested
+  class Zap {
+    @Test
+    void noWandReturnsNone() {
+      var cleanups = withItem("Dreadsylvanian spooky pocket");
+
+      try (cleanups) {
+        String output = execute("zap($item[Dreadsylvanian spooky pocket])");
+        assertThat(output, containsString("Returned: none"));
+      }
+    }
+
+    @Test
+    void canZapItem() {
+      var cleanups =
+          new Cleanups(
+              withItem("hexagonal wand"),
+              withItem("Dreadsylvanian spooky pocket"),
+              withNextResponse(200, html("request/test_zap_pockets.html")));
+
+      try (cleanups) {
+        String output = execute("zap($item[Dreadsylvanian spooky pocket])");
+        assertThat(output, containsString("Returned: Dreadsylvanian hot pocket"));
+      }
+    }
+  }
+
+  @Nested
+  class Equip {
+    @Test
+    void canEquipItem() {
+      var cleanups = new Cleanups(withEquippableItem("crowbar"));
+
+      try (cleanups) {
+        String output = execute("equip($item[crowbar])");
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void canEquipItemToSlot(final boolean switched) {
+      var cleanups = new Cleanups(withEquippableItem("crowbar"), withFamiliar(FamiliarPool.HAND));
+
+      var a = "$item[crowbar]";
+      var b = "$slot[familiar]";
+      var command = "equip(" + (switched ? a : b) + ", " + (switched ? b : a) + ")";
+
+      try (cleanups) {
+        String output = execute(command);
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void canEquipItemToFamiliarInTerrarium(final boolean switched) {
+      var cleanups =
+          new Cleanups(withItem("lead necklace"), withFamiliarInTerrarium(FamiliarPool.BADGER));
+
+      var a = "$item[lead necklace]";
+      var b = "$familiar[Astral Badger]";
+      var command = "equip(" + (switched ? a : b) + ", " + (switched ? b : a) + ")";
+
+      try (cleanups) {
+        String output = execute(command);
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void canEquipItemToCurrentFamiliar(final boolean switched) {
+      var cleanups = new Cleanups(withItem("lead necklace"), withFamiliar(FamiliarPool.BADGER));
+
+      var a = "$item[lead necklace]";
+      var b = "$familiar[Astral Badger]";
+      var command = "equip(" + (switched ? a : b) + ", " + (switched ? b : a) + ")";
+
+      try (cleanups) {
+        String output = execute(command);
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void cannotEquipUnequippableItemToFamiliarInTerrarium(final boolean switched) {
+      var cleanups =
+          new Cleanups(
+              withItem("gatorskin umbrella"), withFamiliarInTerrarium(FamiliarPool.BADGER));
+
+      var a = "$item[gatorskin umbrella]";
+      var b = "$familiar[Astral Badger]";
+      var command = "equip(" + (switched ? a : b) + ", " + (switched ? b : a) + ")";
+
+      try (cleanups) {
+        String output = execute(command);
+        assertThat(output, endsWith("Returned: false\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void equippedAmountIncludesFamiliarsIfSpecified(final boolean include) {
+      var cleanups =
+          new Cleanups(
+              withFamiliarInTerrariumWithItem(FamiliarPool.MOSQUITO, ItemPool.LEAD_NECKLACE),
+              withFamiliarInTerrariumWithItem(FamiliarPool.POTATO, ItemPool.LEAD_NECKLACE),
+              withFamiliar(FamiliarPool.GOAT),
+              withEquipped(Slot.FAMILIAR, ItemPool.LEAD_NECKLACE));
+
+      try (cleanups) {
+        String output = execute("equipped_amount($item[lead necklace], " + include + ")");
+        assertThat(output, endsWith("Returned: " + (include ? 3 : 1) + "\n"));
+      }
+    }
+  }
+
+  @Nested
+  class PathFunctions {
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "boolean test(string p) { return p == \"Trendy\"; } test($path[Trendy])",
+          "string p = my_path(); (p == \"Trendy\")",
+          "(my_path() == \"Trendy\")",
+          "my_path().starts_with(\"Tre\")",
+          "boolean test() { switch (my_path()) { case \"Trendy\": return true; default: return false; } } test()",
+          "boolean test(string path_name) { switch (path_name) { case $path[Trendy]: return true; default: return false; } } test(\"Trendy\")",
+          "($strings[Trendy] contains my_path())",
+          "($paths[Trendy] contains \"Trendy\")"
+        })
+    void myPathCoercesToString(String command) {
+      // my_path() used to return a string, we want to make sure that we don't break old scripts
+      // where possible
+      var cleanups = new Cleanups(withPath(Path.TRENDY));
+
+      try (cleanups) {
+        String output = execute(command);
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "(my_path() == \"None\")",
+          "boolean test() { switch (my_path()) { case \"None\": return true; default: return false; } } test()",
+        })
+    void nonePathIsTitleCases(String command) {
+      // Unrestricted used to be "None" but now it's technically "none". These tests make sure
+      // coercion is handling this
+      // We know it won't work in one case: "None" == my_path(). So if you wrote that, you're SOL
+      // :)
+      var cleanups = new Cleanups(withPath(Path.NONE));
+
+      try (cleanups) {
+        String output = execute(command);
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+    }
+
+    @Test
+    void myPathCoercionWorksInJs() {
+      getInstance().command = "js";
+
+      var cleanups = new Cleanups(withPath(Path.TRENDY));
+
+      try (cleanups) {
+        String output = execute("myPath() == \"Trendy\"");
+        assertThat(output, endsWith("Returned: true\n"));
+      }
+
+      getInstance().command = "ash";
+    }
+  }
+
+  @Nested
+  class BufferFunctions {
+    @ParameterizedTest
+    @ValueSource(
+        strings = {"buffer b = \"Initial content\"; (b.to_string() == \"Initial content\")"})
+    void stringCanInitializeBuffer(String command) {
+      String output = execute(command);
+      assertThat(output, endsWith("Returned: true\n"));
+    }
+  }
+
+  @Test
+  void environmentIsLowercase() {
+    String output = execute("($location[Noob Cave].environment == 'underground')");
+    assertThat(output, endsWith("Returned: true\n"));
+  }
+
+  @Test
+  void diffLevelIsLowercase() {
+    String output = execute("($location[Noob Cave].difficulty_level == 'low')");
+    assertThat(output, endsWith("Returned: true\n"));
+  }
+
+  @Nested
+  class ConcoctionPrice {
+    @ParameterizedTest
+    @CsvSource({
+      "level 1 couch, 551",
+      "level 2 couch, 1551",
+      "level 3 couch, 11551",
+      "level 1 ceiling fan, 50501",
+    })
+    public void getConcoctionVykeaPrice(String vykea, int price) {
+      var cleanups =
+          new Cleanups(
+              withMallPrice(ItemPool.VYKEA_INSTRUCTIONS, 1),
+              withMallPrice(ItemPool.VYKEA_RAIL, 10),
+              withMallPrice(ItemPool.VYKEA_PLANK, 100),
+              withMallPrice(ItemPool.VYKEA_DOWEL, 1000),
+              withMallPrice(ItemPool.VYKEA_BRACKET, 10000));
+
+      try (cleanups) {
+        String output = execute("concoction_price($vykea[" + vykea + "])");
+        assertThat(output, endsWith("Returned: " + price + "\n"));
+      }
+    }
+
+    @Test
+    public void getConcoctionHalfPurse() {
+      var cleanups =
+          new Cleanups(
+              withMeat(1000),
+              withItem(ItemPool.TENDER_HAMMER),
+              withAdventuresLeft(2),
+              withValueOfAdventure(0),
+              withMallPrice(ItemPool.LUMP_OF_BRITUMINOUS_COAL, 2),
+              withNpcPrice(ItemPool.LOOSE_PURSE_STRINGS));
+
+      try (cleanups) {
+        String output = execute("concoction_price($item[Half a Purse])");
+        assertThat(output, endsWith("Returned: 102\n"));
+      }
+    }
+
+    @Test
+    public void getConcoctionHalfPurseWhenSmithingExpensive() {
+      var cleanups =
+          new Cleanups(
+              withMeat(1000),
+              withItem(ItemPool.TENDER_HAMMER),
+              withAdventuresLeft(2),
+              withValueOfAdventure(10000),
+              withMallPrice(ItemPool.LUMP_OF_BRITUMINOUS_COAL, 2),
+              withNpcPrice(ItemPool.LOOSE_PURSE_STRINGS));
+
+      try (cleanups) {
+        String output = execute("concoction_price($item[Half a Purse])");
+        assertThat(output, endsWith("Returned: 10102\n"));
+      }
+    }
+
+    @Test
+    public void getConcoctionMallUnavailable() {
+      var cleanups =
+          new Cleanups(withMallPrice(ItemPool.HOPS, -1), withMallPrice(ItemPool.BARLEY, 9500));
+
+      try (cleanups) {
+        String output = execute("concoction_price($item[can of Impetuous Scofflaw])");
+        assertThat(output.trim(), endsWith("Returned: " + Integer.MAX_VALUE));
+      }
+    }
+  }
+
+  @Nested
+  class RetrievePrice {
+    @CsvSource(
+        value = {
+          "''|0|0",
+          "''|1|1000",
+          "sword,yam,eyepatch,explosion|0|1000",
+          "sword,yam,eyepatch,explosion|1|1000",
+        },
+        delimiter = '|')
+    @ParameterizedTest
+    public void yamStinkbombPriced(
+        final String symbolsUsed, final int existingQuantity, final int expectedPrice) {
+      var cleanups =
+          new Cleanups(
+              withProperty("valueOfInventory", "2.0"),
+              withItem(ItemPool.MAYAM_CALENDAR),
+              withItem(ItemPool.STUFFED_YAM_STINKBOMB, existingQuantity),
+              withProperty("_mayamSymbolsUsed", symbolsUsed),
+              withMallPrice(ItemPool.STUFFED_YAM_STINKBOMB, 1000));
+
+      try (cleanups) {
+        ConcoctionDatabase.refreshConcoctions();
+        String output = execute("retrieve_price($item[stuffed yam stinkbomb])");
+        assertThat(output, endsWith("Returned: " + expectedPrice + "\n"));
+      }
+    }
+  }
+
+  @Test
+  public void setCcs() {
+    String output = execute("set_ccs(\"default\");");
+    assertThat(output, endsWith("Returned: true\n"));
+    output = execute("set_ccs(\"fhghqwgads\");");
+    assertThat(output, endsWith("Returned: false\n"));
+  }
+
+  @Test
+  void canSeeDaycount() {
+    var cleanups = withFamiliar(FamiliarPool.TRICK_TOT);
+
+    try (cleanups) {
+      String text = html("request/test_status.json");
+      JSONObject jsonObject = json(text);
+      ApiRequest.parseStatus(jsonObject);
+      String output = execute("daycount()");
+      assertContinueState();
+      assertThat(output, is("Returned: 7302\n"));
+    } finally {
+      /*
+       ApiRequest.parseStatus sets a password hash which persists to other tests and causes them to pass or fail
+       based upon whether this test was run first, or not.  Explicitly clear the hash when this test ends.
+      */
+      ApiRequest.setPasswordHash("");
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"16000", "zero placeholder", "[zero placeholder]", "[16000]"})
+  void canIdentifySkill(final String skillIdentifier) {
+    String output = execute("$skill[" + skillIdentifier + "].name");
+    assertThat(output, endsWith("Returned: [zero placeholder]\n"));
+  }
+
+  @Nested
+  class EightBitPoints {
+    @Test
+    void zeroPointsInNon8BitZone() {
+      String output = execute("eight_bit_points($location[The Dire Warren])");
+      assertThat(output, endsWith("Returned: 0\n"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"red, 300", "black, 150"})
+    void fungusPlains(String color, int points) {
+      var cleanups =
+          new Cleanups(
+              withEffect(EffectPool.SYNTHESIS_GREED), // 300% meat drop
+              withEquipped(ItemPool.CARPE), // 50% meat drop
+              withProperty("8BitColor", color));
+
+      try (cleanups) {
+        String output = execute("eight_bit_points($location[The Fungus Plains])");
+        assertThat(output, endsWith("Returned: " + points + "\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"green, 380", "black, 190"})
+    void herosField(String color, int points) {
+      var cleanups =
+          new Cleanups(
+              withEffect("Frosty"), // 100% item drop
+              withEffect("Certainty"), // 100% item drop
+              withEffect(EffectPool.SYNTHESIS_COLLECTION), // 150% item drop
+              withEquipped(ItemPool.GRIMACITE_GO_GO_BOOTS), // 30% item drop
+              withProperty("8BitColor", color));
+
+      try (cleanups) {
+        String output = execute("eight_bit_points($location[Hero's Field])");
+        assertThat(output, endsWith("Returned: " + points + "\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"black, 400", "red, 200"})
+    void vanyasCastle(String color, int points) {
+      var cleanups =
+          new Cleanups(
+              withEffect(EffectPool.RACING), // 200% init
+              withEffect("Memory of Speed"), // 200% init
+              withEffect("Industrially Lubricated"), // 150% init
+              withEquipped(ItemPool.ROCKET_BOOTS), // 100% init
+              withProperty("8BitColor", color));
+
+      try (cleanups) {
+        String output = execute("eight_bit_points($location[Vanya's Castle])");
+        assertThat(output, endsWith("Returned: " + points + "\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"blue, 300", "black, 150"})
+    void megaloCity(String color, int points) {
+      var cleanups =
+          new Cleanups(
+              withEffect(EffectPool.SUPER_STRUCTURE), // 500 DA
+              withProperty("8BitColor", color));
+
+      try (cleanups) {
+        String output = execute("eight_bit_points($location[Megalo-City])");
+        assertThat(output, endsWith("Returned: " + points + "\n"));
+      }
+    }
+  }
+
+  @Nested
+  class ItemDrops {
+    @Test
+    void itemDrops() {
+      var cleanups = withNextMonster("stench zombie");
+
+      try (cleanups) {
+        String output = execute("item_drops()");
+        assertThat(
+            output,
+            is(
+                """
+                      Returned: aggregate float [item]
+                      Freddy Kruegerand => 5.0
+                      muddy skirt => 0.1
+                      Dreadsylvanian Almanac page => 1.0
+                      """));
+      }
+    }
+
+    @Test
+    void itemDropsMonster() {
+      String output = execute("item_drops($monster[spooky zombie])");
+      assertThat(
+          output,
+          is(
+              """
+                    Returned: aggregate float [item]
+                    Freddy Kruegerand => 5.0
+                    grandfather watch => 0.1
+                    Dreadsylvanian Almanac page => 1.0
+                    """));
+    }
+
+    @Test
+    void itemDropsArray() {
+      var cleanups = withNextMonster("stench zombie");
+
+      try (cleanups) {
+        String output = execute("item_drops_array()");
+        assertThat(
+            output,
+            is(
+                """
+                      Returned: aggregate {item drop; float rate; string type;} [3]
+                      0 => record {item drop; float rate; string type;}
+                        drop => Dreadsylvanian Almanac page
+                        rate => 1.0
+                        type => f
+                      1 => record {item drop; float rate; string type;}
+                        drop => Freddy Kruegerand
+                        rate => 5.0
+                        type => f
+                      2 => record {item drop; float rate; string type;}
+                        drop => muddy skirt
+                        rate => 0.1
+                        type => c
+                      """));
+      }
+    }
+
+    @Test
+    void itemDropsArrayMonster() {
+      String output = execute("item_drops_array($monster[spooky zombie])");
+      assertThat(
+          output,
+          is(
+              """
+                    Returned: aggregate {item drop; float rate; string type;} [3]
+                    0 => record {item drop; float rate; string type;}
+                      drop => Dreadsylvanian Almanac page
+                      rate => 1.0
+                      type => f
+                    1 => record {item drop; float rate; string type;}
+                      drop => Freddy Kruegerand
+                      rate => 5.0
+                      type => f
+                    2 => record {item drop; float rate; string type;}
+                      drop => grandfather watch
+                      rate => 0.1
+                      type => c
+                    """));
+    }
+  }
+
+  @Test
+  void setLocation() {
+    String output = execute("set_location($location[Barf Mountain])");
+    assertThat(output, containsString("Returned: void"));
+    output = execute("my_location()");
+    assertThat(output, containsString("Returned: Barf Mountain"));
+    output = execute("set_location($location[none])");
+    assertThat(output, containsString("Returned: void"));
+    output = execute("my_location()");
+    assertThat(output, containsString("Returned: none"));
+  }
+
+  @Test
+  void toUrlReflectsCurrentPyramidBombState() {
+    var cleanups =
+        new Cleanups(withProperty("pyramidPosition", 1), withProperty("pyramidBombUsed", false));
+
+    try (cleanups) {
+      String output = execute("to_url($location[The Lower Chambers])");
+      assertThat(
+          output, endsWith("Returned: place.php?whichplace=pyramid&action=pyramid_state1\n"));
+
+      Preferences.setBoolean("pyramidBombUsed", true);
+
+      output = execute("to_url($location[The Lower Chambers])");
+      assertThat(
+          output, endsWith("Returned: place.php?whichplace=pyramid&action=pyramid_state1a\n"));
+    }
+  }
+
+  @Test
+  void toUrlReflectsCurrentCellarState() {
+    // Cellar URL params come from updateFields(), not the constructor; withLevel(3) keeps
+    // recommendSquare() from logging an error into the output.
+    var cleanups =
+        new Cleanups(
+            withLevel(3),
+            // No faucet (3) in the layout and all squares unexplored, so we explore a square.
+            withProperty("tavernLayout", "0000000000000000000000000"));
+
+    try (cleanups) {
+      var output = execute("to_url($location[The Typical Tavern Cellar])");
+      assertThat(output, endsWith("Returned: cellar.php?whichspot=4&action=explore\n"));
+
+      // Faucet now known, so we autofaucet and drop whichspot.
+      Preferences.setString("tavernLayout", "3000000000000000000000000");
+
+      output = execute("to_url($location[The Typical Tavern Cellar])");
+      assertThat(output, endsWith("Returned: cellar.php?action=autofaucet\n"));
+    }
+  }
+
+  @Test
+  void numericModifierHandlesCrimboTrainingSkills() {
+    String output = execute("numeric_modifier($skill[Crimbo Training: Bartender], \"booze drop\")");
+    assertThat(output, containsString("15.0"));
+  }
+
+  @Test
+  void holiday() {
+    var cleanups = withDay(2023, Month.FEBRUARY, 10);
+
+    try (cleanups) {
+      String output = execute("holiday()");
+
+      assertContinueState();
+      assertThat(output, is("Returned: St. Sneaky Pete's Day\n"));
+    }
+  }
+
+  @Test
+  void statBonusToday() {
+    var cleanups = withDay(2023, Month.SEPTEMBER, 12);
+
+    try (cleanups) {
+      String output = execute("stat_bonus_today()");
+
+      assertContinueState();
+      assertThat(output, is("Returned: Muscle\n"));
+    }
+  }
+
+  @Test
+  void statBonusTomorrow() {
+    var cleanups = withDay(2023, Month.SEPTEMBER, 19);
+
+    try (cleanups) {
+      String output = execute("stat_bonus_tomorrow()");
+
+      assertContinueState();
+      assertThat(output, is("Returned: Moxie\n"));
+    }
+  }
+
+  @Nested
+  class Ids {
+    @ParameterizedTest
+    @CsvSource({
+      "$item[pirate radio ring].id, 10210",
+      "$skill[Unleash Terra Cotta Army].id, 7321",
+      "$effect[Wings].id, 6",
+      "$familiar[Cat Burglar].id, 267",
+      "$monster[Knob Goblin Embezzler].id, 530",
+      "$location[The Dire Warren].id, 92",
+      "$path[Trendy].id, 7",
+      "$class[Pig Skinner].id, 28"
+    })
+    void exposesIds(String exec, String value) {
+      String output = execute(exec);
+      assertThat(output, containsString("Returned: " + value));
+    }
+  }
+
+  @Nested
+  class SplitJoinStrings {
+    final String input1 = "line1\\nline2\\nline3";
+    final String input2 = "foo bar baz";
+
+    @Test
+    void canSplitOnNewLine() {
+      String input = "string str = \"" + input1 + "\"; split_string(str)";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+              Returned: aggregate string [3]
+              0 => line1
+              1 => line2
+              2 => line3
+              """));
+    }
+
+    @Test
+    void canSplitOnSpace() {
+      String input = "string str = \"" + input2 + "\"; split_string(str, \" \")";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+              Returned: aggregate string [3]
+              0 => foo
+              1 => bar
+              2 => baz
+              """));
+    }
+
+    @Test
+    void canSplitJoinOnNewLine() {
+      String input = "string str = \"" + input1 + "\"; split_string(str).join_strings()";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+              Returned: line1
+              line2
+              line3
+              """));
+    }
+
+    @Test
+    void canSplitJoinOnSpace() {
+      String input =
+          "string str = \"" + input2 + "\"; split_string(str, \" \").join_strings(\" \")";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+              Returned: foo bar baz
+              """));
+    }
+  }
+
+  @Nested
+  class PledgeAllegiance {
+    @Test
+    void pledgeAllegiance() {
+      String input = "$location[Noob Cave].pledge_allegiance";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+          Returned: Item Drop: 30, Spooky Damage: 10, Spooky Spell Damage: 10, Muscle: 10
+          """));
+    }
+
+    @Test
+    void pledgeAllegianceComplex() {
+      String input = "$location[Hobopolis Town Square].pledge_allegiance";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+          Returned: Initiative: 50, Hot Damage: 10, Hot Spell Damage: 10, MP Regen Min: 10, MP Regen Max: 15, Moxie Percent: 10
+          """));
+    }
+
+    @Test
+    void pledgeAllegianceResistance() {
+      String input = "$location[Outskirts of Camp Logging Camp].pledge_allegiance";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+          Returned: Meat Drop: 25, Hot Resistance: 2, Cold Resistance: 2, Spooky Resistance: 2, Stench Resistance: 2, Sleaze Resistance: 2, Cold Damage: 10, Cold Spell Damage: 10
+          """));
+    }
+  }
+
+  @Nested
+  class SausageGoblinProbability {
+    @ParameterizedTest
+    @CsvSource({
+      "0,0,0,0.2",
+      "1,0,0,0.4",
+      "3,0,0,0.8",
+      "4,0,0,1.0",
+      "5,0,0,1.0",
+      "5,1,5,0.125",
+      "6,1,5,0.25",
+      "0,8,0,0.017857",
+      "1,8,0,0.035714",
+    })
+    void calculatesGoblinChance(int turnsPlayed, int goblinsFought, int lastGoblin, String chance) {
+      var cleanups =
+          new Cleanups(
+              withTurnsPlayed(turnsPlayed),
+              withProperty("_sausageFights", goblinsFought),
+              withProperty("_lastSausageMonsterTurn", lastGoblin));
+
+      try (cleanups) {
+        String input = "sausage_goblin_chance()";
+        String output = execute(input);
+        assertThat(output, containsString(chance));
+      }
+    }
+  }
+
+  @Nested
+  class Modifier {
+    @Test
+    void canGetRecord() {
+      String input = "$modifier[meat drop]";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: Meat Drop
+                 name => Meat Drop
+                 type => numeric
+                 """));
+    }
+
+    @Test
+    void canGetAllModifiers() {
+      String input = "$modifiers[]";
+      String output = execute(input);
+      assertThat(output, containsString("Four Songs"));
+      assertThat(output, containsString("Meat Drop"));
+    }
+
+    @Test
+    void canCallNumericWithModifier() {
+      String input = "numeric_modifier($item[ring of the Skeleton Lord], $modifier[Meat Drop])";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: 50.0
+                 """));
+    }
+
+    @Test
+    void canCallNumericWithMultiNumeric() {
+      String input = "numeric_modifier($item[blackberry polite], $modifier[Effect Duration])";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: 5.0
+                 """));
+    }
+
+    @Test
+    void numericErrorsWithWrongModifierType() {
+      String input = "numeric_modifier($item[ring of the Skeleton Lord], $modifier[No Pull])";
+      String output = execute(input);
+      assertThat(output, startsWith("numeric modifier required"));
+    }
+
+    @Test
+    void numericErrorsWithNone() {
+      String input = "numeric_modifier($item[ring of the Skeleton Lord], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("numeric modifier required"));
+    }
+
+    @Test
+    void numericReadsMultiNumericModifiers() {
+      String input = "numeric_modifier($item[bitter pill], \"Effect Duration\")";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: 100"));
+    }
+
+    @Test
+    void canGetNumericModifierForBase() {
+      assertThat(
+          execute("numeric_modifier(\"Base\", \"Familiar Experience\")"), is("Returned: 1.0\n"));
+      assertThat(
+          execute("numeric_modifier(\"Base\", \"Critical Hit Percent\")"), is("Returned: 9.0\n"));
+      assertThat(
+          execute("numeric_modifier(\"Base\", \"Spell Critical Percent\")"), is("Returned: 9.0\n"));
+      assertThat(execute("numeric_modifier(\"Base\", \"Adventures\")"), is("Returned: 40.0\n"));
+      assertThat(execute("numeric_modifier(\"Base\", \"PvP Fights\")"), is("Returned: 10.0\n"));
+      assertThat(
+          execute("numeric_modifier(\"Base\", $modifier[Adventures])"), is("Returned: 40.0\n"));
+    }
+
+    @Test
+    void canGetNumericModifierForBaseCaseInsensitive() {
+      assertThat(execute("numeric_modifier(\"base\", \"Adventures\")"), is("Returned: 40.0\n"));
+      assertThat(execute("numeric_modifier(\"BASE\", \"PvP Fights\")"), is("Returned: 10.0\n"));
+      assertThat(execute("numeric_modifier(\"Base:\", \"Adventures\")"), is("Returned: 40.0\n"));
+    }
+
+    @Test
+    void baseReflectsCurrentPath() {
+      try (var cleanups = withPath(Path.YOU_ROBOT)) {
+        assertThat(execute("numeric_modifier(\"Base\", \"Adventures\")"), is("Returned: 0.0\n"));
+        assertThat(execute("numeric_modifier(\"Base\", \"PvP Fights\")"), is("Returned: 10.0\n"));
+      }
+
+      try (var cleanups = withPath(Path.SLOW_AND_STEADY)) {
+        assertThat(execute("numeric_modifier(\"Base\", \"Adventures\")"), is("Returned: 100.0\n"));
+      }
+    }
+
+    @Test
+    void canCallBooleanWithModifier() {
+      String input = "boolean_modifier($item[Brimstone Beret], $modifier[Four Songs])";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: true
+                 """));
+    }
+
+    @Test
+    void booleanErrorsWithWrongModifierType() {
+      String input = "boolean_modifier($item[Brimstone Beret], $modifier[Moxie])";
+      String output = execute(input);
+      assertThat(output, startsWith("boolean modifier required"));
+    }
+
+    @Test
+    void booleanErrorsWithNone() {
+      String input = "boolean_modifier($item[Brimstone Beret], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("boolean modifier required"));
+    }
+
+    @Test
+    void canCallStringWithModifier() {
+      String input = "string_modifier(\"Sign:Marmot\", $modifier[Modifiers])";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: Moxie Experience Percent: +10, Cold Resistance: +1, Hot Resistance: +1, Sleaze Resistance: +1, Spooky Resistance: +1, Stench Resistance: +1
+                 """));
+    }
+
+    @Test
+    void stringErrorsWithWrongModifierType() {
+      String input = "string_modifier(\"Sign:Marmot\", $modifier[Cold Resistance])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void stringErrorsWithNone() {
+      String input = "string_modifier(\"Sign:Marmot\", $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void canCallEffectWithModifier() {
+      String input = "effect_modifier($item[blackberry polite], $modifier[Effect])";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Blackberry Politeness"));
+    }
+
+    @Test
+    void effectErrorsWithWrongModifierType() {
+      String input = "effect_modifier($item[blackberry polite], $modifier[Meat Drop])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void effectErrorsWithNone() {
+      String input = "effect_modifier($item[blackberry polite], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void canCallClassWithModifier() {
+      String input = "class_modifier($item[chintzy noodle ring], $modifier[Class])";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Pastamancer"));
+    }
+
+    @Test
+    void classErrorsWithWrongModifierType() {
+      String input = "class_modifier($item[chintzy noodle ring], $modifier[Muscle])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void classErrorsWithNone() {
+      String input = "class_modifier($item[chintzy noodle ring], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void canCallSkillWithModifier() {
+      String input = "skill_modifier($item[alien source code printout], $modifier[Skill])";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Alien Source Code"));
+    }
+
+    @Test
+    void skillErrorsWithWrongModifierType() {
+      String input = "skill_modifier($item[alien source code printout], $modifier[Maximum MP])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void skillErrorsWithNone() {
+      String input = "skill_modifier($item[alien source code printout], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void canCallStatWithModifier() {
+      String input = "stat_modifier($effect[Stabilizing Oiliness], $modifier[Equalize])";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: Muscle
+                 """));
+    }
+
+    @Test
+    void statErrorsWithWrongModifierType() {
+      String input = "stat_modifier($effect[Stabilizing Oiliness], $modifier[Muscle])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void statErrorsWithNone() {
+      String input = "stat_modifier($effect[Stabilizing Oiliness], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void canCallMonsterWithModifier() {
+      String input = "monster_modifier($effect[A Lovely Day for a Beatnik], $modifier[Avatar])";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Savage Beatnik"));
+    }
+
+    @Test
+    void monsterErrorsWithWrongModifierType() {
+      String input = "monster_modifier($effect[A Lovely Day for a Beatnik], $modifier[Muscle])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void monsterErrorsWithNone() {
+      String input = "monster_modifier($effect[A Lovely Day for a Beatnik], $modifier[none])";
+      String output = execute(input);
+      assertThat(output, startsWith("string modifier required"));
+    }
+
+    @Test
+    void parsesModifierString() {
+      String input =
+          "split_modifiers(\"Meat Drop: 25, Hot Resistance: 2, Cold Resistance: 2, No Pull, Cold Damage: 10, Cold Spell Damage: 10\")";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: aggregate string [modifier]
+                 Cold Damage => 10
+                 Cold Resistance => 2
+                 Cold Spell Damage => 10
+                 Hot Resistance => 2
+                 Meat Drop => 25
+                 No Pull =>
+                 """));
+    }
+
+    @Test
+    void parsesModifiersWithDifferentNamesToTags() {
+      String input =
+          "split_modifiers(\"Muscle Experience: +11, Mysticality Experience: +9, Moxie Experience: +7, Damage Reduction: 24\")";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: aggregate string [modifier]
+                 Damage Reduction => 24
+                 Moxie Experience => +7
+                 Muscle Experience => +11
+                 Mysticality Experience => +9
+                 """));
+    }
+
+    @Test
+    void parsesMultiStringModifiers() {
+      String input =
+          "split_modifiers(`Effect: \"Dances with Tweedles\", Effect Duration: 6, Class: \"Seal Clubber\"`)";
+      String output = execute(input);
+      assertThat(
+          output,
+          is(
+              """
+                 Returned: aggregate string [modifier]
+                 Class => &quot;Seal Clubber&quot;
+                 Effect => &quot;Dances with Tweedles&quot;
+                 Effect Duration => 6
+                 """));
+    }
+
+    @Test
+    void stringReadsStringAndMultistringModifiers() {
+      String input = "string_modifier($item[blackberry polite], \"Effect\")";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Blackberry Politeness"));
+    }
+
+    @Test
+    void effectReadsStringAndMultistringModifiers() {
+      String input = "effect_modifier($item[blackberry polite], \"Effect\")";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Blackberry Politeness"));
+    }
+
+    @Test
+    void monsterReadsStringAndMultistringModifiers() {
+      String input = "monster_modifier($effect[A Lovely Day for a Beatnik], \"Avatar\")";
+      String output = execute(input);
+      assertThat(output, startsWith("Returned: Savage Beatnik"));
+    }
+  }
+
+  @Nested
+  class Ping {
+    @Test
+    void parsesPropertyASH() {
+      final var cleanups =
+          new Cleanups(withProperty("pingLatest", "api.php:10:26:31:283:19620:28"));
+      try (cleanups) {
+        String input = "ping(\"pingLatest\")";
+        String output = execute(input);
+        assertThat(
+            output,
+            is(
+                """
+              Returned: record {string page; int count; int low; int high; int total; int bytes; int average; int bps;}
+              page => api
+              count => 10
+              low => 26
+              high => 31
+              total => 283
+              bytes => 19620
+              average => 28
+              bps => 69329
+              """));
+      }
+    }
+  }
+
+  @Nested
+  class BookOfFacts {
+    @ParameterizedTest
+    @CsvSource({
+      "ACCORDION_THIEF, CRAZY_RANDOM_SUMMER, topiary golem, stats, +1 all substats",
+      "TURTLE_TAMER, OXYGENARIAN, Blooper, meat, 10 Meat",
+      "PASTAMANCER, COMMUNITY_SERVICE, bookbat, modifier, Familiar Experience: +1",
+      "SEAL_CLUBBER, KINGDOM_OF_EXPLOATHING, Jefferson pilot, item, foon"
+    })
+    void exposesFactAndFactTypeInMonsterProxy(
+        final AscensionClass ascensionClass,
+        final Path path,
+        final String monsterName,
+        final String factType,
+        final String fact) {
+      final var cleanups = new Cleanups(withClass(ascensionClass), withPath(path));
+      try (cleanups) {
+        String actualFactType = execute("$monster[" + monsterName + "].fact_type");
+        assertThat(actualFactType, equalTo("Returned: " + factType + "\n"));
+        String actualFact = execute("$monster[" + monsterName + "].fact");
+        assertThat(actualFact, equalTo("Returned: " + fact + "\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+      "1, item, ' pocket wish'",
+      "3, none, ''",
+    })
+    void factIsStatefulInMonsterProxy(final int wishes, final String factType, final String fact) {
+      final var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.DISCO_BANDIT),
+              withPath(Path.THE_SOURCE),
+              withProperty("_bookOfFactsWishes", wishes));
+      try (cleanups) {
+        String actualFactType = execute("$monster[triffid].fact_type");
+        assertThat(actualFactType, equalTo("Returned: " + factType + "\n"));
+        String actualFact = execute("$monster[triffid].fact");
+        assertThat(actualFact, equalTo("Returned:" + fact + "\n"));
+      }
+    }
+
+    @Test
+    void factIsNotStatefulInFunction() {
+      final var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.DISCO_BANDIT),
+              withPath(Path.THE_SOURCE),
+              withProperty("_bookOfFactsWishes", 3));
+      try (cleanups) {
+        String actualFactType =
+            execute("fact_type($class[Disco Bandit], $path[The Source], $monster[triffid])");
+        assertThat(actualFactType, equalTo("Returned: item\n"));
+        String actualFact =
+            execute("item_fact($class[Disco Bandit], $path[The Source], $monster[triffid]).name");
+        assertThat(actualFact, equalTo("Returned: pocket wish\n"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+      "fact_type, briefcase bat, modifier",
+      "string_fact, briefcase bat, Familiar Experience: +1",
+      "item_fact, goblin conspirator, Knob mushroom",
+      "effect_fact, trophyfish, Fishy",
+      "numeric_fact, trophyfish, 10",
+      "fact_type, none,",
+      "string_fact, none,",
+      "item_fact, none, none",
+      "effect_fact, none, none",
+      "numeric_fact, none, 0",
+    })
+    void functionsHaveVersionsThatUseCurrentClassPath(
+        final String fn, final String monsterName, final String expected) {
+      final var cleanups =
+          new Cleanups(withClass(AscensionClass.SEAL_CLUBBER), withPath(Path.NONE));
+      try (cleanups) {
+        var code = fn + "($monster[" + monsterName + "])";
+        String actual = execute(code);
+        var startsWith = expected == null ? "\n" : " " + expected + "\n";
+        assertThat(actual, startsWith("Returned:" + startsWith));
+      }
+    }
+  }
+
+  @Nested
+  class Tracking {
+    @Test
+    void noCopiesIsZeroCount() {
+      final var cleanups = withTrackedMonsters("");
+
+      try (cleanups) {
+        var code = "track_copy_count($monster[crate])";
+        String actual = execute(code);
+        assertThat(actual, equalTo("Returned: 0\n"));
+      }
+    }
+
+    @Test
+    void noCopiesIsNotIgnoreQueue() {
+      final var cleanups = withTrackedMonsters("");
+
+      try (cleanups) {
+        var code = "track_ignore_queue($monster[crate])";
+        String actual = execute(code);
+        assertThat(actual, equalTo("Returned: false\n"));
+      }
+    }
+
+    @Test
+    void copyCountIncludesAllCopies() {
+      final var cleanups =
+          new Cleanups(
+              withTrackedMonsters(
+                  "crate:Transcendent Olfaction:1:crate:Gallapagosian Mating Call:2"),
+              withFamiliar(FamiliarPool.RED_SNAPPER),
+              withTrackedPhyla("construct:Red-Nosed Snapper:3"));
+
+      try (cleanups) {
+        var code = "track_copy_count($monster[crate])";
+        String actual = execute(code);
+        assertThat(actual, equalTo("Returned: 6\n"));
+      }
+    }
+
+    @Test
+    void copyCountIsIgnoreQueueIfAnyCopyIs() {
+      final var cleanups =
+          withTrackedMonsters("crate:Gallapagosian Mating Call:1:crate:Transcendent Olfaction:2");
+
+      try (cleanups) {
+        var code = "track_ignore_queue($monster[crate])";
+        String actual = execute(code);
+        assertThat(actual, equalTo("Returned: true\n"));
+      }
+    }
+
+    @Test
+    void trackedByIncludesAllTracks() {
+      final var cleanups =
+          new Cleanups(
+              withTrackedMonsters(
+                  "crate:Transcendent Olfaction:1:crate:Gallapagosian Mating Call:2"),
+              withFamiliar(FamiliarPool.RED_SNAPPER),
+              withTrackedPhyla("construct:Red-Nosed Snapper:3"));
+
+      try (cleanups) {
+        var code = "tracked_by($monster[crate])";
+        String actual = execute(code);
+        assertThat(
+            actual,
+            equalTo(
+                """
+            Returned: aggregate string [3]
+            0 => Transcendent Olfaction
+            1 => Gallapagosian Mating Call
+            2 => Red-Nosed Snapper
+            """));
+      }
+    }
+
+    @Test
+    void monsterTrackersListsEveryTracker() {
+      // No player state - this is a static registry.
+      assertThat(
+          execute(
+              "boolean found; foreach i, t in monster_trackers() if (t == \"Red-Nosed Snapper\") found"
+                  + " = true; found;"),
+          equalTo("Returned: true\n"));
+      assertThat(
+          execute("boolean enough = count(monster_trackers()) >= 20; enough;"),
+          equalTo("Returned: true\n"));
+    }
+
+    @Test
+    void monsterTrackerFieldsAreExposed() {
+      assertThat(
+          execute("monster_tracker_duration(\"Offer Latte to Opponent\");"),
+          equalTo("Returned: 30\n"));
+      assertThat(
+          execute("monster_tracker_duration(\"Transcendent Olfaction\");"),
+          equalTo("Returned: -1\n"));
+      assertThat(
+          execute("monster_tracker_copies(\"Transcendent Olfaction\");"), equalTo("Returned: 3\n"));
+      assertThat(
+          execute("monster_tracker_reset(\"Transcendent Olfaction\");"),
+          equalTo("Returned: ascension\n"));
+      assertThat(
+          execute("monster_tracker_type(\"Red-Nosed Snapper\");"), equalTo("Returned: phylum\n"));
+      assertThat(
+          execute("monster_tracker_type(\"Transcendent Olfaction\");"),
+          equalTo("Returned: monster\n"));
+      assertThat(
+          execute("monster_tracker_ignores_queue(\"Transcendent Olfaction\");"),
+          equalTo("Returned: true\n"));
+      assertThat(
+          execute("monster_tracker_ignores_queue(\"Gallapagosian Mating Call\");"),
+          equalTo("Returned: false\n"));
+    }
+
+    @Test
+    void unknownMonsterTrackerReturnsDefaults() {
+      assertThat(execute("monster_tracker_duration(\"not a tracker\");"), equalTo("Returned: 0\n"));
+      assertThat(execute("monster_tracker_reset(\"not a tracker\");"), equalTo("Returned:\n"));
+    }
+  }
+
+  /**
+   * This test is intended to test running the maximizer from a command or script (not the GUI),
+   * show that the maximizer chooses a weapon and then emits the commands to equip that weapon.
+   */
+  @Test
+  public void itShouldMaximizeAndEquipSelectedWeapon() {
+    String maxStr = "effective";
+    HttpClientWrapper.setupFakeClient();
+    var cleanups =
+        new Cleanups(
+            withStats(10, 5, 5),
+            withEquippableItem("seal-skull helmet"),
+            withEquippableItem("astral shirt"),
+            withEquippableItem("old sweatpants"),
+            withEquippableItem("sewer snake"),
+            withEquippableItem("seal-clubbing club"));
+    String out;
+    String cmd = "maximize(\"" + maxStr + "\", false)";
+    try (cleanups) {
+      out = execute(cmd);
+    }
+    assertFalse(out.isEmpty());
+    assertTrue(out.contains("Putting on seal-skull helmet..."));
+    assertTrue(out.contains("Wielding seal-clubbing club..."));
+    assertTrue(out.contains("Putting on old sweatpants..."));
+    assertContinueState();
+    var requests = getRequests();
+    assertFalse(requests.isEmpty());
+    var checkMe =
+        requests.stream().filter(x -> getPostRequestBody(x).contains("whichitem=1")).findFirst();
+    if (checkMe.isPresent()) {
+      assertPostRequest(checkMe.get(), "/inv_equip.php", "which=2&ajax=1&action=equip&whichitem=1");
+    } else {
+      fail("Could not find expected equipment request.");
+    }
+  }
+
+  @Nested
+  class Maximizer {
+    @Test
+    public void itShouldEquipCleaver() {
+      String maxStr =
+          "5item,meat,0.5initiative,0.1da 1000max,dr,0.5all res,1.5mainstat,-fumble,mox,0.4hp,0.2mp 1000max,3mp regen,0.25spell damage,1.75spell damage percent,2familiar weight,5familiar exp,10exp,5Mysticality experience percent,+200bonus spring shoes,+200bonus June cleaver,+200bonus designer sweatpants,2 dump";
+      HttpClientWrapper.setupFakeClient();
+      var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.PASTAMANCER),
+              withHardcore(),
+              withPath(Path.AVANT_GUARD),
+              withSign(ZodiacSign.OPOSSUM),
+              withInteractivity(false),
+              withNoEffects(),
+              withProperty("umbrellaState", "broken"),
+              withEquipped(Slot.HAT, "Apriling band helmet"),
+              withUnequipped(Slot.WEAPON),
+              withUnequipped(Slot.OFFHAND),
+              withEquipped(Slot.SHIRT, "Jurassic Parka"),
+              withProperty("parkaMode", "kachungasaur"),
+              withEquipped(Slot.PANTS, "designer sweapants"),
+              withEquipped(Slot.CONTAINER, "bat wings"),
+              withEquipped(Slot.ACCESSORY1, "Cincho de Mayo"),
+              withEquipped(Slot.ACCESSORY2, "combat lover's locket"),
+              withEquipped(Slot.ACCESSORY3, "spring shoes"),
+              withEquippableItem("seal-skull helmet"), // 2283
+              withEquippableItem("ravioli hat"),
+              withEquippableItem("Hollandaise helmet"),
+              withEquippableItem("disco mask"),
+              withEquippableItem("mariachi hat"),
+              withEquippableItem("helmet turtle"),
+              withEquippableItem("coconut shell"),
+              withEquippableItem("Apriling band helmet"),
+              withEquippableItem("toy accordion"),
+              withEquippableItem("hobo code binder"),
+              withEquippableItem("stuffed spooky gravy fairy"),
+              withEquippableItem("stuffed astral badger"),
+              withEquippableItem("magical ice cubes"),
+              withEquippableItem("Roman Candelabra"),
+              withEquippableItem("unbreakable umbrella (broken)"),
+              withEquippableItem("august scepter"),
+              withEquippableItem("bat wings"),
+              withEquippableItem("Jurassic Parka (kachungasaur mode)"),
+              withEquippableItem("old sweatpants"),
+              withEquippableItem("tearaway pants"),
+              withEquippableItem("designer sweatpants"),
+              withEquippableItem("Everfull Dart Holster"),
+              withEquippableItem("cursed monkey's paw"),
+              withEquippableItem("astral mask"),
+              withEquippableItem("Cincho de Mayo"),
+              withEquippableItem("combat lover's locket"),
+              withEquippableItem("spring shoes"),
+              withEquippableItem("turtle totem"),
+              withEquippableItem("pasta spoon"),
+              withEquippableItem("saucepan"),
+              withEquippableItem("disco ball"),
+              withEquippableItem("little paper umbrella"),
+              withEquippableItem("candy cane sword cane"),
+              withEquippableItem("June cleaver"), // 10920
+              withEquippableItem("seal-clubbing club")); // 1
+      String out;
+      String cmd = "maximize(\"" + maxStr + "\", false)";
+      try (cleanups) {
+        out = execute(cmd);
+      }
+      assertFalse(out.isEmpty());
+      assertTrue(out.contains("Wielding June cleaver"));
+      assertTrue(out.contains("Putting on designer sweatpants..."));
+      assertContinueState();
+      var requests = getRequests();
+      assertFalse(requests.isEmpty());
+      boolean passed = false;
+      for (var req : requests) {
+        if (req.method().contains("POST")) {
+          passed = passed || getPostRequestBody(req).contains("whichitem=10920");
+        }
+      }
+      assertTrue(passed, "Did not find expected equip request.");
+    }
+
+    /*
+    Each test case should end up with a disco ball and august scepter equipped.  The test cases
+    give the Maximizer the opportunity to keep something equipped or swap an item.  In the absence
+    of the equip command results the expected test results have to vary with the case.  The 2-handed
+    case fails because the maximizer does not try and un-equip the 2h weapon before equipping a 1h
+    and an offhand weapon.  In the event that behavior is ever changed this test will fail which is
+    part of the justification for keeping it.
+     */
+    @ParameterizedTest
+    @CsvSource({"none", "none-off", "1h", "1h-off", "2h"})
+    public void itShouldUnequipThenEquip(String whichCase) {
+      String maxStr =
+          "5item,meat,0.5initiative,0.1da 1000max,dr,0.5all res,1.5mainstat,-fumble,0.4hp,0.2mp 1000max,3mp regen,1.5weapon damage,0.75weapon damage percent,1.5elemental damage,2familiar weight,5familiar exp,15Moxie experience,5Moxie experience percent,+200bonus spring shoes,+200bonus bat wings,effective,2 dump";
+      HttpClientWrapper.setupFakeClient();
+      int expectedEq = 2;
+      var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.ACCORDION_THIEF),
+              withHardcore(),
+              withPath(Path.STANDARD),
+              withSign(ZodiacSign.VOLE),
+              withStats(18, 17, 20),
+              withItem(ItemPool.STOLEN_ACCORDION),
+              withItem(ItemPool.ROMAN_CANDELABRA),
+              withItem(ItemPool.AUGUST_SCEPTER),
+              withItem(ItemPool.DISCO_BALL));
+      switch (whichCase) {
+        case "2h":
+          cleanups.add(withEquipped(Slot.WEAPON, ItemPool.STOLEN_ACCORDION));
+          break;
+        case "none-off":
+          cleanups.add(withEquipped(Slot.OFFHAND, ItemPool.ROMAN_CANDELABRA));
+          break;
+        case "1h":
+          cleanups.add(withEquipped(Slot.WEAPON, ItemPool.DISCO_BALL));
+          break;
+        case "1h-off":
+          cleanups.add(withEquipped(Slot.WEAPON, ItemPool.DISCO_BALL));
+          cleanups.add(withEquipped(Slot.OFFHAND, ItemPool.ROMAN_CANDELABRA));
+          break;
+        default:
+          break;
+      }
+      String out;
+      String cmd = "maximize(\"" + maxStr + "\", false)";
+      try (cleanups) {
+        out = execute(cmd);
+      }
+      assertFalse(out.isEmpty());
+      switch (whichCase) {
+        case "2h":
+          assertTrue(out.contains("Wielding disco ball..."));
+          assertTrue(
+              out.contains(
+                  "You can't equip a august scepter in your off-hand while wielding a 2-handed weapon."));
+          expectedEq = 1;
+          break;
+        case "none-off":
+          assertTrue(out.contains("Wielding disco ball..."));
+          assertTrue(out.contains("Holding august scepter..."));
+          break;
+        case "1h", "1h-off":
+          assertTrue(out.contains("Holding august scepter..."));
+          expectedEq = 1;
+          break;
+        default:
+          break;
+      }
+      assertContinueState();
+      var requests = getRequests();
+      assertFalse(requests.isEmpty());
+      int passed = 0;
+      for (var req : requests) {
+        if (req.method().contains("POST")) {
+          if (getPostRequestBody(req).contains("whichitem=" + ItemPool.DISCO_BALL)) {
+            passed++;
+          }
+          if (getPostRequestBody(req).contains("whichitem=" + ItemPool.AUGUST_SCEPTER)) {
+            passed++;
+          }
+        }
+      }
+      assertEquals(expectedEq, passed, "Did not find expected equip request.");
+    }
+
+    @Test
+    public void itShouldRespectFilters() {
+      String maxStr = "meat";
+      HttpClientWrapper.setupFakeClient();
+      var cleanups =
+          new Cleanups(
+              withUnequipped(Slot.HAT),
+              withEquippableItem("Apriling band helmet"),
+              withItem(ItemPool.POCKET_WISH));
+      String out1, out2, out3;
+      String cmd1 = "maximize(\"" + maxStr + "\", 0, 0, 0, \"wish\")";
+      String cmd2 = "maximize(\"" + maxStr + "\", 0, 0, 0, \"equip\")";
+      String cmd3 = "maximize(\"" + maxStr + "\", 0, 0, 0, \"wish,equip\")";
+      try (cleanups) {
+        out1 = execute(cmd1);
+        out2 = execute(cmd2);
+        out3 = execute(cmd3);
+      }
+
+      assertFalse(out1.isEmpty());
+      assertFalse(out1.contains("equip hat Apriling band helmet"));
+      assertTrue(out1.contains("genie effect Sinuses For Miles"));
+
+      assertFalse(out2.isEmpty());
+      assertTrue(out2.contains("equip hat Apriling band helmet"));
+      assertFalse(out2.contains("genie effect Sinuses For Miles"));
+
+      assertFalse(out3.isEmpty());
+      assertTrue(out3.contains("equip hat Apriling band helmet"));
+      assertTrue(out3.contains("genie effect Sinuses For Miles"));
+    }
+
+    @Test
+    public void itShouldRespectEquipScope() {
+      String maxStr = "item,-tie";
+      HttpClientWrapper.setupFakeClient();
+      var cleanups =
+          new Cleanups(
+              withUnequipped(Slot.HAT),
+              withItem("brown felt tophat"),
+              withItem("brass gear", 4),
+              withItem("meat paste", 4),
+              withUnequipped(Slot.CONTAINER),
+              withEquippableItem("makeshift cape"),
+              withMallPrice(ItemPool.PANTSGIVING, 500),
+              withRonin(false),
+              withInteractivity(true),
+              withMeat(10000),
+              withProperty("autoBuyPriceLimit", "10000"),
+              withProperty("autoSatisfyWithMall", "true"),
+              withStats(100, 100, 100));
+      String out1, out2, out3;
+      String cmd1 = "maximize(\"" + maxStr + "\", 0, 0, 0, \"equip\")";
+      String cmd2 = "maximize(\"" + maxStr + "\", 0, 0, 1, \"equip\")";
+      String cmd3 = "maximize(\"" + maxStr + "\", 10000, 2, 2, \"equip\")";
+      try (cleanups) {
+        out1 = execute(cmd1);
+        out2 = execute(cmd2);
+        out3 = execute(cmd3);
+      }
+
+      assertFalse(out1.isEmpty());
+      assertTrue(out1.contains("equip back makeshift cape"));
+      assertFalse(out1.contains("Mark IV Steam-Hat"));
+      assertFalse(out1.contains("Pantsgiving"));
+
+      assertFalse(out2.isEmpty());
+      assertTrue(out2.contains("equip back makeshift cape"));
+      assertTrue(out2.contains("make &amp; equip hat Mark IV Steam-Hat"));
+
+      assertFalse(out3.isEmpty());
+      assertTrue(out3.contains("equip back makeshift cape"));
+      assertTrue(out3.contains("make &amp; equip hat Mark IV Steam-Hat"));
+      assertTrue(out3.contains("acquire &amp; equip pants Pantsgiving"));
+    }
+
+    @Test
+    public void itShouldProvideDetailedAfterTextWhenVerbose() {
+      HttpClientWrapper.setupFakeClient();
+      var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.SAUCEROR),
+              withSkill("The Polka of Plenty"),
+              withItem("antique accordion"),
+              withSkill("Blood Sugar Sauce Magic"),
+              withStats(100, 100, 100),
+              withItem(ItemPool.GENIE_BOTTLE),
+              withProperty("_genieWishesUsed", "0"),
+              withProperty("verboseMaximizer", "true"));
+      String out1, out2, out3;
+      String cmd1 = "maximize(\"meat\", 0, 0, 0, \"cast\")";
+      String cmd2 = "maximize(\"mp\", 0, 0, 0, \"cast\")";
+      String cmd3 = "maximize(\"fishing skill\", 0, 0, 0, \"wish\")";
+      try (cleanups) {
+        out1 = execute(cmd1);
+        out2 = execute(cmd2);
+        out3 = execute(cmd3);
+      }
+
+      assertFalse(out1.isEmpty());
+      assertTrue(out1.contains("display => cast 1 The Polka of Plenty"));
+      assertTrue(out1.contains("afterdisplay => (7 mp, +50) [10 advs duration]"));
+
+      assertFalse(out2.isEmpty());
+      assertTrue(out2.contains("display => cast 1 Blood Sugar Sauce Magic"));
+      assertTrue(out2.contains("afterdisplay => (+30) [intrinsic]"));
+
+      assertFalse(out3.isEmpty());
+      assertTrue(out3.contains("display => genie effect Floundering"));
+      assertTrue(
+          out3.contains(
+              "afterdisplay => (+5) [20 advs duration, 3 uses remaining, 1 in inventory]"));
+    }
+
+    @Test
+    public void itShouldProvideSimplifiedAfterTextWhenNotVerbose() {
+      HttpClientWrapper.setupFakeClient();
+      var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.SAUCEROR),
+              withSkill("The Polka of Plenty"),
+              withItem("antique accordion"),
+              withSkill("Blood Sugar Sauce Magic"),
+              withStats(100, 100, 100),
+              withItem(ItemPool.GENIE_BOTTLE),
+              withProperty("_genieWishesUsed", "0"),
+              withProperty("verboseMaximizer", "false"));
+      String out1, out2, out3;
+      String cmd1 = "maximize(\"meat\", 0, 0, 0, \"cast\")";
+      String cmd2 = "maximize(\"mp\", 0, 0, 0, \"cast\")";
+      String cmd3 = "maximize(\"fishing skill\", 0, 0, 0, \"wish\")";
+      try (cleanups) {
+        out1 = execute(cmd1);
+        out2 = execute(cmd2);
+        out3 = execute(cmd3);
+      }
+
+      assertFalse(out1.isEmpty());
+      assertTrue(out1.contains("display => cast 1 The Polka of Plenty"));
+      assertTrue(out1.contains("afterdisplay => (7 mp, +50)"));
+      assertFalse(out1.contains("[10 advs duration]"));
+
+      assertFalse(out2.isEmpty());
+      assertTrue(out2.contains("display => cast 1 Blood Sugar Sauce Magic"));
+      assertTrue(out2.contains("afterdisplay => (+30)"));
+      assertFalse(out2.contains("[intrinsic]"));
+
+      assertFalse(out3.isEmpty());
+      assertTrue(out3.contains("display => genie effect Floundering"));
+      assertTrue(out3.contains("afterdisplay => (+5)"));
+      assertFalse(out3.contains("[20 advs duration, 3 uses remaining, 1 in inventory]"));
+    }
+
+    @Test
+    public void itShouldSilentlyIgnoreInvalidFilters() {
+      String maxStr = "meat";
+      HttpClientWrapper.setupFakeClient();
+      var cleanups =
+          new Cleanups(
+              withUnequipped(Slot.HAT),
+              withEquippableItem("Apriling band helmet"),
+              withItem(ItemPool.POCKET_WISH));
+      String out;
+      String cmd = "maximize(\"" + maxStr + "\", 0, 0, 0, \"equip,banana\")";
+      try (cleanups) {
+        out = execute(cmd);
+      }
+      assertFalse(out.isEmpty());
+      assertTrue(out.contains("equip hat Apriling band helmet"));
+      assertFalse(out.toLowerCase().contains("error"));
+      assertFalse(out.toLowerCase().contains("banana"));
+    }
+
+    @Test
+    public void exposesFailedResultWhenMinNotHit() {
+      final var cleanups = new Cleanups(withEquippableItem("helmet turtle"));
+      try (cleanups) {
+        execute("maximize(\"mus 2 min\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: false\n"));
+      }
+    }
+
+    @Test
+    public void exposesSuccessfulResultWhenMinHit() {
+      final var cleanups = new Cleanups(withEquippableItem("wreath of laurels"));
+      try (cleanups) {
+        execute("maximize(\"mus 2 min\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: true\n"));
+      }
+    }
+
+    @Test
+    public void exposesResultOfMostRecentMaximizeCall() {
+      final var cleanups = new Cleanups(withEquippableItem("wreath of laurels"));
+      try (cleanups) {
+        execute("maximize(\"mus 2 min\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: true\n"));
+
+        execute("maximize(\"mus 200 min\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: false\n"));
+      }
+    }
+
+    @Test
+    public void resetsResultWhenSubsequentMaximizeFailsToParse() {
+      final var cleanups = new Cleanups(withEquippableItem("wreath of laurels"));
+      try (cleanups) {
+        execute("maximize(\"mus\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: true\n"));
+
+        execute("maximize(\"nonsense\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: false\n"));
+      }
+    }
+
+    @Test
+    public void reportsFailureWhenMaximizingOnNonEquipment() {
+      final var cleanups =
+          new Cleanups(
+              withItem(ItemPool.POCKET_WISH), withEquippableItem("incredibly dense meat gem"));
+      try (cleanups) {
+        execute("maximize(\"mus\", true)");
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: true\n"));
+
+        // Without an 'equip' filter no combination is searched, so nothing succeeds
+        String out = execute("maximize(\"meat\", 0, 0, 0, \"wish\")");
+        assertTrue(out.contains("genie effect Sinuses For Miles"));
+        assertThat(execute("last_maximizer_succeeded()"), endsWith("Returned: false\n"));
+      }
+    }
+  }
+
+  @Test
+  public void canScoreCorrectly() {
+    HttpClientWrapper.setupFakeClient();
+    var cleanups = new Cleanups(withEquipped(ItemPool.APRILING_BAND_HELMET));
+    String out;
+    try (cleanups) {
+      out = execute("current_maximizer_score(\"meat\")");
+    }
+    assertFalse(out.isEmpty());
+    // 100 base, +40 for Apriling band helmet
+    assertEquals("Returned: 140.0\n", out);
+  }
+
+  @Nested
+  class Darts {
+    @Test
+    void canCalculateSkillsToParts() {
+      final var cleanups =
+          withProperty("_currentDartboard", "7513:torso,7514:head,7515:butt,7516:arm,7517:leg");
+
+      try (cleanups) {
+        String actual = execute("dart_skills_to_parts()");
+        String expected =
+            """
+            Returned: aggregate string [skill]
+            Darts: Throw at %part1 => torso
+            Darts: Throw at %part2 => head
+            Darts: Throw at %part3 => butt
+            Darts: Throw at %part4 => arm
+            Darts: Throw at %part5 => leg
+            """;
+        assertThat(actual, equalTo(expected));
+      }
+    }
+
+    @Test
+    void canCalculatePartsToSkills() {
+      final var cleanups =
+          withProperty("_currentDartboard", "7513:torso,7514:head,7515:butt,7516:arm,7517:leg");
+
+      try (cleanups) {
+        String actual = execute("dart_parts_to_skills()");
+        String expected =
+            """
+            Returned: aggregate skill [string]
+            arm => Darts: Throw at %part4
+            butt => Darts: Throw at %part3
+            head => Darts: Throw at %part2
+            leg => Darts: Throw at %part5
+            torso => Darts: Throw at %part1
+            """;
+        assertThat(actual, equalTo(expected));
+      }
+    }
+  }
+
+  @Nested
+  class Curse {
+    @Test
+    void canThrowBrick() {
+      setupFakeClient();
+      var cleanup = withItem(ItemPool.BRICK);
+
+      try (cleanup) {
+        var output = execute("curse($item[brick], \"StuBorn\")");
+        assertThat(output, endsWith("Returned: true\n"));
+
+        var requests = getRequests();
+        assertThat(requests.size(), is(1));
+        assertPostRequest(
+            requests.getFirst(), "/curse.php", "action=use&whichitem=1649&targetplayer=StuBorn");
+      }
+    }
+
+    @Test
+    void canThrowMultipleBricks() {
+      setupFakeClient();
+      var cleanup = withItem(ItemPool.BRICK, 3);
+
+      try (cleanup) {
+        var output = execute("curse(3, $item[brick], \"StuBorn\", \"\")");
+        assertThat(output, endsWith("Returned: true\n"));
+
+        var requests = getRequests();
+        assertThat(requests.size(), is(3));
+        requests.forEach(
+            x ->
+                assertPostRequest(
+                    x, "/curse.php", "action=use&whichitem=1649&targetplayer=StuBorn"));
+      }
+    }
+
+    @Test
+    void canSendCandyHeartMessage() {
+      setupFakeClient();
+      var cleanup = withItem(ItemPool.GREEN_CANDY);
+
+      try (cleanup) {
+        var output = execute("curse($item[green candy heart], \"StuBorn\", \"You|rock!\")");
+        assertThat(output, endsWith("Returned: true\n"));
+
+        var requests = getRequests();
+        assertThat(requests.size(), is(1));
+        assertPostRequest(
+            requests.getFirst(),
+            "/curse.php",
+            "action=use&whichitem=2309&targetplayer=StuBorn&texta=You&textb=rock!");
+      }
+    }
+
+    @Test
+    void cannotThrowMissingItem() {
+      var output = execute("curse($item[brick], \"StuBorn\")");
+      assertThat(output, startsWith("You need 1 more brick to continue"));
+    }
+
+    @Test
+    void cannotThrowNonCurseItem() {
+      var cleanup = withItem(ItemPool.DISCO_BALL);
+
+      try (cleanup) {
+        var output = execute("curse($item[disco ball], \"StuBorn\")");
+        assertThat(output, startsWith("The disco ball cannot be used for cursing"));
+      }
+    }
+  }
+
+  @Nested
+  class ToInt {
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "item",
+          "familiar",
+          "location",
+          "skill",
+          "effect",
+          "class",
+          "monster",
+          "thrall",
+          "servant",
+          "vykea",
+          "path"
+        })
+    void worksOnNoneValues(String type) {
+      assertThat(
+          execute("$" + type + "[none].to_int()"),
+          both(startsWith("Returned: ")).and(not(containsString("Script execution aborted"))));
+    }
+  }
+
+  @Nested
+  class TurnsUntilForcedNoncombat {
+    @Test
+    void works() {
+      AdventureSpentDatabase.resetTurns();
+      var cleanups =
+          new Cleanups(
+              withAdventuresSpent(AdventurePool.HAUNTED_BILLIARDS_ROOM, 5),
+              withProperty("lastNoncombat" + AdventurePool.HAUNTED_BILLIARDS_ROOM, 3));
+      try (cleanups) {
+        assertThat(
+            execute("$location[The Haunted Billiards Room].turns_until_forced_noncombat()").trim(),
+            is("Returned: 8"));
+      }
+    }
+
+    @Test
+    void worksOnNotApplicableValues() {
+      assertThat(
+          execute("$location[The Haunted Kitchen].turns_until_forced_noncombat()").trim(),
+          is("Returned: -1"));
+    }
+
+    @Test
+    void worksOnNoneValues() {
+      assertThat(
+          execute("$location[none].turns_until_forced_noncombat()").trim(), is("Returned: -1"));
+    }
+  }
+
+  @Nested
+  class ItemsHash {
+    @ParameterizedTest
+    @CsvSource({
+      "inventory,1,3010618080379317301",
+      "inventory,2,5098877678963069302",
+      "inventory,1|2,-5775617302849066554",
+      "inventory,1|2|3,8531806457801124500",
+      "closet,1,3010618080379317301",
+      "closet,2,5098877678963069302",
+      "storage,1,3010618080379317301",
+      "storage,2,5098877678963069302",
+      "display,1,3010618080379317301",
+      "display,2,5098877678963069302",
+      "shop,1,3366927173997222913",
+      "shop,2,-7673585838980678286"
+    })
+    void producesHashForValidItemsSource(String itemsSource, String itemIdsString, long expected) {
+      List<Integer> itemIds =
+          Arrays.stream(itemIdsString.split("\\|")).map(Integer::parseInt).toList();
+      var cleanups =
+          new Cleanups(
+              itemIds.stream()
+                  .map(
+                      itemId ->
+                          switch (itemsSource) {
+                            case "inventory" -> withItem(itemId);
+                            case "closet" -> withItemInCloset(itemId);
+                            case "storage" -> withItemInStorage(itemId);
+                            case "display" -> withItemInDisplay(itemId);
+                            case "shop" -> withItemInShop(itemId, 100, 0);
+                            default -> new Cleanups();
+                          })
+                  .toArray(Cleanups[]::new));
+      try (cleanups) {
+        assertThat(
+            execute("get_items_hash(\"%s\")".formatted(itemsSource)).trim(),
+            is("Returned: " + expected));
+        assertContinueState();
+      }
+    }
+
+    @Test
+    void errorsOnInvalidItemsSource() {
+      assertThat(
+          execute("get_items_hash(\"xxxxxx\")").trim(),
+          is(
+              "get_items_hash: Invalid items source. Valid are inventory, closet, storage, display, shop.\nReturned: -3750763034362895579"));
+    }
+  }
+
+  @Test
+  void getAvatar() {
+    KoLCharacter.setAvatar("otherimages/giant_foodie.gif");
+    assertThat(
+        execute("get_avatar()").trim(),
+        is("Returned: aggregate string [1]\n0 => otherimages/giant_foodie.gif"));
+  }
+
+  @Test
+  void getTitle() {
+    KoLCharacter.setTitle("NO PEEKING");
+    assertThat(execute("get_title()").trim(), is("Returned: NO PEEKING"));
+  }
+
+  @Nested
+  class XPath {
+    @AfterAll
+    static void reset() {
+      GenericRequest.setPasswordHash("");
+    }
+
+    private String xpath(String html, String xpath) {
+      return execute("xpath(`" + html + "`, `" + xpath + "`)");
+    }
+
+    @Test
+    void blankXpathReturnsFullHtml() {
+      var fullHtml = "<html><head><title>Hello</title></head><body>World</body></html>";
+      assertThat(
+          xpath(fullHtml, ""),
+          is(
+              """
+          Returned: aggregate string [1]
+          0 => &lt;html&gt;
+          &lt;head&gt;&lt;title&gt;Hello&lt;/title&gt;&lt;/head&gt;
+          &lt;body&gt;World&lt;/body&gt;&lt;/html&gt;
+          """));
+    }
+
+    @Test
+    void invalidXPathIsError() {
+      assertThat(xpath("<p>", "//p["), startsWith("invalid xpath expression"));
+    }
+
+    @Test
+    void xpathFullPage() {
+      var cleanups = withNextResponse(200, html("request/test_account_tab_combat.html"));
+
+      try (cleanups) {
+        assertThat(
+            execute(
+                "string page = visit_url(\"account.php?tab=combat\"); xpath(page, `//*[@id=\"opt_flag_aabosses\"]/label/input[@type='checkbox']@checked`)"),
+            is(
+                """
+                Returned: aggregate string [1]
+                0 => checked
+                """));
+      }
+    }
+
+    @Test
+    void xpathJoinsNodes() {
+      var cleanups = withNextResponse(200, html("request/test_clan_signup.html"));
+
+      try (cleanups) {
+        assertThat(
+            execute(
+                "string page = visit_url(\"clan_signup.php\"); xpath(page, `//select[@name=\"whichclan\"]//option`)"),
+            is(
+                """
+                    Returned: aggregate string [21]
+                    0 => &lt;option value=&quot;2046996836&quot;&gt;&Icirc;&copy;&Iuml;&lt;/option&gt;
+                    1 => &lt;option value=&quot;84165&quot;&gt;Alliance From Heck&lt;/option&gt;
+                    2 => &lt;option value=&quot;2046994401&quot;&gt;Black Mesa&lt;/option&gt;
+                    3 => &lt;option value=&quot;90485&quot;&gt;Bonus Adventures from Hell&lt;/option&gt;
+                    4 => &lt;option value=&quot;2047008364&quot;&gt;Collaborative Dungeon Central&lt;/option&gt;
+                    5 => &lt;option value=&quot;2047008362&quot;&gt;Collaborative Dungeon Running 1&lt;/option&gt;
+                    6 => &lt;option value=&quot;2047008363&quot;&gt;Collaborative Dungeon Running 2&lt;/option&gt;
+                    7 => &lt;option value=&quot;2046987880&quot;&gt;Easter Pink&lt;/option&gt;
+                    8 => &lt;option value=&quot;18112&quot;&gt;Evil for Fun and Profit&lt;/option&gt;
+                    9 => &lt;option value=&quot;2047004665&quot;&gt;factnet_0136&lt;/option&gt;
+                    10 => &lt;option value=&quot;52111&quot;&gt;First Lives Club&lt;/option&gt;
+                    11 => &lt;option value=&quot;2046994693&quot;&gt;From the Ashes&lt;/option&gt;
+                    12 => &lt;option value=&quot;2047005067&quot;&gt;Funking Good&lt;/option&gt;
+                    13 => &lt;option value=&quot;2047009544&quot;&gt;LUPO&lt;/option&gt;
+                    14 => &lt;option value=&quot;2046987019&quot;&gt;Not Dead Yet&lt;/option&gt;
+                    15 => &lt;option value=&quot;83922&quot;&gt;Prinny Land&lt;/option&gt;
+                    16 => &lt;option value=&quot;2047000135&quot;&gt;Reddit United&lt;/option&gt;
+                    17 => &lt;option value=&quot;2046997154&quot;&gt;The Fax Dump&lt;/option&gt;
+                    18 => &lt;option value=&quot;2046986725&quot;&gt;The Meowing Squirrel&lt;/option&gt;
+                    19 => &lt;option value=&quot;20655&quot;&gt;The Ugly Ducklings&lt;/option&gt;
+                    20 => &lt;option value=&quot;2046997063&quot;&gt;Ultimate Durs&lt;/option&gt;
+                    """));
+      }
+    }
+
+    @Test
+    void xpathWorksWithFragments() {
+      var fragment = "<select><option value=\"90485\">Bonus Adventures from Hell</option></select>";
+      assertThat(
+          xpath(fragment, "//@value"),
+          is(
+              """
+          Returned: aggregate string [1]
+          0 => 90485
+          """));
+      assertThat(
+          xpath(fragment, "//text()"),
+          is(
+              """
+          Returned: aggregate string [1]
+          0 => Bonus Adventures from Hell
+          """));
+    }
+  }
+
+  @Test
+  void computesFreeCrafts() {
+    var cleanups =
+        new Cleanups(
+            withEffect(EffectPool.INIGOS, 6),
+            withEffect(EffectPool.COOKING_CONCENTRATE, 7),
+            withItem(ItemPool.THORS_PLIERS),
+            withSkill(SkillPool.RAPID_PROTOTYPING),
+            withSkill(SkillPool.HOLIDAY_MULTITASKING),
+            withSkill(SkillPool.OLD_SCHOOL_COCKTAILCRAFTING),
+            withProperty("_thorsPliersCrafting", 1),
+            withProperty("_rapidPrototypingUsed", 5),
+            withProperty("_oldSchoolCocktailCraftingUsed", 1),
+            withProperty("_holidayMultitaskingUsed"));
+
+    try (cleanups) {
+      assertThat(execute("free_crafts()").trim(), is("Returned: 4"));
+      assertThat(execute("free_cooks()").trim(), is("Returned: 1"));
+      assertThat(execute("free_mixes()").trim(), is("Returned: 2"));
+      assertThat(execute("free_smiths()").trim(), is("Returned: 9"));
+    }
+  }
+
+  @Test
+  void determinesBanishes() {
+    var cleanups =
+        new Cleanups(withCurrentRun(128), withBanishedPhyla("undead:Patriotic Screech:119"));
+
+    try (cleanups) {
+      assertThat(execute("is_banished($monster[ghuol])").trim(), is("Returned: true"));
+      assertThat(execute("is_banished($phylum[undead])").trim(), is("Returned: true"));
+      assertThat(execute("is_banished($monster[zombie process])").trim(), is("Returned: false"));
+      assertThat(execute("is_banished($phylum[construct])").trim(), is("Returned: false"));
+      assertThat(execute("is_banished($monster[none])").trim(), is("Returned: false"));
+      assertThat(execute("is_banished($phylum[none])").trim(), is("Returned: false"));
+    }
+  }
+
+  @Nested
+  class BanisherData {
+    @Test
+    void banishersListsEveryBanisher() {
+      // No player state - this is a static registry.
+      assertThat(
+          execute(
+              "boolean found; foreach i, b in banishers() if (b == \"snokebomb\") found = true;"
+                  + " found;"),
+          equalTo("Returned: true\n"));
+      assertThat(
+          execute("boolean enough = count(banishers()) >= 50; enough;"),
+          equalTo("Returned: true\n"));
+    }
+
+    @Test
+    void banisherFieldsAreExposed() {
+      // A free banish lasts its full duration; a turn-taking one loses the banishing turn.
+      assertThat(execute("banisher_duration(\"snokebomb\");"), equalTo("Returned: 30\n"));
+      assertThat(execute("banisher_duration(\"Patriotic Screech\");"), equalTo("Returned: 99\n"));
+      assertThat(execute("banisher_duration(\"batter up!\");"), equalTo("Returned: -1\n"));
+      assertThat(execute("banisher_duration(\"Snokebomb\");"), equalTo("Returned: 30\n"));
+      assertThat(execute("banisher_queue_size(\"beancannon\");"), equalTo("Returned: 5\n"));
+      assertThat(execute("banisher_reset(\"snokebomb\");"), equalTo("Returned: turn_rollover\n"));
+      assertThat(
+          execute("banisher_reset(\"Bowl a Curveball\");"),
+          equalTo("Returned: cosmic_bowling_ball\n"));
+      assertThat(execute("banisher_type(\"Patriotic Screech\");"), equalTo("Returned: phylum\n"));
+      assertThat(execute("banisher_type(\"snokebomb\");"), equalTo("Returned: monster\n"));
+      assertThat(execute("banisher_is_turn_free(\"snokebomb\");"), equalTo("Returned: true\n"));
+      assertThat(execute("banisher_is_turn_free(\"batter up!\");"), equalTo("Returned: false\n"));
+    }
+
+    @Test
+    void unknownBanisherReturnsDefaults() {
+      assertThat(execute("banisher_duration(\"not a banisher\");"), equalTo("Returned: 0\n"));
+      assertThat(execute("banisher_queue_size(\"not a banisher\");"), equalTo("Returned: 0\n"));
+      assertThat(execute("banisher_reset(\"not a banisher\");"), equalTo("Returned:\n"));
+      assertThat(
+          execute("banisher_is_turn_free(\"not a banisher\");"), equalTo("Returned: false\n"));
+    }
+  }
+
+  @Nested
+  class ProxyRecordCoinmasters {
+    @Test
+    void dimesmasterBuys() {
+      assertThat(execute("$coinmaster[dimemaster].buys").trim(), is("Returned: true"));
+    }
+
+    @Test
+    void dimesmasterSells() {
+      assertThat(execute("$coinmaster[dimemaster].sells").trim(), is("Returned: true"));
+    }
+
+    @Test
+    void skeletonofcrimbopastDoesntBuy() {
+      assertThat(
+          execute("$coinmaster[skeleton of crimbo past].buys").trim(), is("Returned: false"));
+    }
+
+    @Test
+    void skeletonofcrimbopastSells() {
+      assertThat(
+          execute("$coinmaster[skeleton of crimbo past].sells").trim(), is("Returned: true"));
+    }
+  }
+
+  @Nested
+  class SkillCoinmasters {
+    @Test
+    void sellsSkillWorks() {
+      assertThat(
+          execute("sells_skill($coinmaster[Genetic Fiddling], $skill[Boiling Tear Ducts])").trim(),
+          is("Returned: true"));
+      assertThat(
+          execute("sells_skill($coinmaster[Genetic Fiddling], $skill[Magic Sweat])").trim(),
+          is("Returned: true"));
+      assertThat(
+          execute("sells_skill($coinmaster[Genetic Fiddling], $skill[Extra Brain])").trim(),
+          is("Returned: true"));
+      assertThat(
+          execute("sells_skill($coinmaster[Genetic Fiddling], $skill[Sucker Fingers])").trim(),
+          is("Returned: true"));
+      assertThat(
+          execute("sells_skill($coinmaster[Genetic Fiddling], $skill[Stream of sauce])").trim(),
+          is("Returned: false"));
+      assertThat(
+          execute("sells_skill($coinmaster[Kiwi Kwiki Mart], $skill[Boiling Tear Ducts])").trim(),
+          is("Returned: false"));
+    }
+
+    @Test
+    void sellPriceWorks() {
+      assertThat(
+          execute("sell_price($coinmaster[Genetic Fiddling], $skill[Boiling Tear Ducts])").trim(),
+          is("Returned: 30"));
+      assertThat(
+          execute("sell_price($coinmaster[Genetic Fiddling], $skill[Magic Sweat])").trim(),
+          is("Returned: 60"));
+      assertThat(
+          execute("sell_price($coinmaster[Genetic Fiddling], $skill[Extra Brain])").trim(),
+          is("Returned: 90"));
+      assertThat(
+          execute("sell_price($coinmaster[Genetic Fiddling], $skill[Sucker Fingers])").trim(),
+          is("Returned: 120"));
+      assertThat(
+          execute("sell_price($coinmaster[Genetic Fiddling], $skill[Stream of sauce])").trim(),
+          is("Returned: 0"));
+      assertThat(
+          execute("sell_price($coinmaster[Kiwi Kwiki Mart], $skill[Boiling Tear Ducts])").trim(),
+          is("Returned: 0"));
+      assertThat(
+          execute("sell_price($coinmaster[ChemiCorp], $item[seal-clubbing club])").trim(),
+          is("Returned: 0"));
+      assertThat(
+          execute("sell_price($coinmaster[ChemiCorp], $item[ultracoagulator])").trim(),
+          is("Returned: 1"));
+      assertThat(
+          execute("sell_price($coinmaster[the dedigitizer], $item[cyburger])").trim(),
+          is("Returned: 0"));
+      assertThat(
+          execute("sell_price($coinmaster[Kiwi Kwiki Mart], $item[mini kiwi bikini])").trim(),
+          is("Returned: 2"));
+    }
+  }
+
+  @Nested
+  class BeretBusking {
+    @Test
+    void statefulBusking() {
+      var cleanups =
+          new Cleanups(withProperty("_beretBuskingUses", 1), withEquipped(ItemPool.MOHAWK_WIG));
+
+      try (cleanups) {
+        assertThat(
+            execute("beret_busking_effects()").trim(),
+            is(
+                "Returned: aggregate int [effect]\nnone => 29\nNewt Gets In Your Eyes => 10\nGreasy Flavor => 10"));
+      }
+    }
+  }
+
+  @Nested
+  class Deprecation {
+    @Test
+    void warnsWithDefaultNoticeOnGet() {
+      var pref = "deprecatedPref";
+      var cleanups = withProperty(pref, "value");
+
+      try (cleanups) {
+        Preferences.deprecationNotices.put(pref, "");
+
+        assertThat(
+            execute("get_property('" + pref + "')"),
+            containsString(
+                "Warning: Preference '"
+                    + pref
+                    + "' is deprecated. This preference is deprecated."));
+
+        Preferences.deprecationNotices.remove(pref);
+      }
+    }
+
+    @Test
+    void warnsWithDefaultNoticeOnSet() {
+      var pref = "deprecatedPref";
+      var cleanups = withProperty(pref, "value");
+
+      try (cleanups) {
+        Preferences.deprecationNotices.put(pref, "");
+
+        assertThat(
+            execute("set_property('" + pref + "', 'value2')"),
+            containsString(
+                "Warning: Preference '"
+                    + pref
+                    + "' is deprecated. This preference is deprecated."));
+
+        Preferences.deprecationNotices.remove(pref);
+      }
+    }
+
+    @Test
+    void warnsWithCustomNoticeOnGet() {
+      var pref = "customDeprecatedPref";
+      var customNotice = "Do not use this pref!";
+
+      var cleanups = withProperty(pref, "value");
+
+      try (cleanups) {
+        Preferences.deprecationNotices.put(pref, customNotice);
+
+        assertThat(
+            execute("get_property('" + pref + "')"),
+            containsString("Warning: Preference '" + pref + "' is deprecated. " + customNotice));
+
+        Preferences.deprecationNotices.remove(pref);
+      }
+    }
+
+    @Test
+    void warnsWithCustomNoticeOnSet() {
+      var pref = "customDeprecatedPref";
+      var customNotice = "Do not use this pref!";
+
+      var cleanups = withProperty(pref, "value");
+
+      try (cleanups) {
+        Preferences.deprecationNotices.put(pref, customNotice);
+
+        assertThat(
+            execute("set_property('" + pref + "', 'value2')"),
+            containsString("Warning: Preference '" + pref + "' is deprecated. " + customNotice));
+
+        Preferences.deprecationNotices.remove(pref);
+      }
+    }
+  }
+
+  @Nested
+  class FuturisticWardrobe {
+    @Test
+    void generatesFuturisticClothingModifiersToday() {
+      // 7600 = 2023-02-12
+      var cleanups = withGlobalDay(7600);
+
+      try (cleanups) {
+        assertThat(
+            execute("futuristic_wardrobe($slot[shirt], 5)").trim(),
+            is(
+                """
+              Returned: aggregate int [modifier]
+              Hot Resistance => 5
+              MP Regen Max => 26
+              MP Regen Min => 15
+              Maximum HP => 92
+              Monster Level => 24
+              Mysticality => 50"""));
+      }
+    }
+
+    @Test
+    void generatesFuturisticClothingModifiersForDay() {
+      assertThat(
+          execute("futuristic_wardrobe(7600, $slot[shirt], 5)").trim(),
+          is(
+              """
+              Returned: aggregate int [modifier]
+              Hot Resistance => 5
+              MP Regen Max => 26
+              MP Regen Min => 15
+              Maximum HP => 92
+              Monster Level => 24
+              Mysticality => 50"""));
+    }
+  }
+
+  @Nested
+  class YamBatteryEffects {
+    @Test
+    void generatesTodaysEffects() {
+      var cleanups = withGlobalDay(8619);
+
+      try (cleanups) {
+        assertThat(
+            execute("yam_battery_effects()").trim(),
+            is(
+                """
+                Returned: aggregate int [effect]
+                Make Meat FA$T! => 20
+                Thaumodynamic => 30
+                Piratey Flavor => 10"""));
+      }
+    }
+
+    @Test
+    void generatesEffectsForDay() {
+      assertThat(
+          execute("yam_battery_effects(8654)").trim(),
+          is(
+              """
+              Returned: aggregate int [effect]
+              Dwarven Hardiness => 30
+              Space Tripping => 20
+              Cold as Ice => 10"""));
+    }
+
+    @Test
+    void sumsTheDurationOfAnEffectThatRollsTwice() {
+      assertThat(
+          execute("yam_battery_effects(7898)").trim(),
+          is(
+              """
+              Returned: aggregate int [effect]
+              Dreadful Heat => 30
+              Held Closer => 30"""));
+    }
+  }
+
+  @Nested
+  class AprilShowerThoughtsShield {
+    final String skillEffects =
+        """
+        Seal Clubbing Frenzy,Seal Clubbing Frenzy,Slippery as a Seal
+        Patience of the Tortoise,Patience of the Tortoise,Strength of the Tortoise
+        Manicotti Meditation,Pasta Oneness,Tubes of Universal Meat
+        Sauce Contemplation,Saucemastery,Lubricating Sauce
+        Disco Aerobics,Disco State of Mind,Disco over Matter
+        Moxie of the Mariachi,Mariachi Mood,Mariachi Moisture
+        """;
+
+    @ParameterizedTest
+    @CsvSource(skillEffects)
+    void onlyBasicEffectWithoutShieldEquipped(String skill, String basic, String bonus) {
+      String output = execute("$skill[" + skill + "].to_effect().name");
+      assertThat(output, both(containsString(basic)).and(not(containsString(bonus))));
+    }
+
+    @ParameterizedTest
+    @CsvSource(skillEffects)
+    void onlyBonusEffectWithShieldEquipped(String skill, String basic, String bonus) {
+      var cleanups = new Cleanups(withEquipped(ItemPool.APRIL_SHOWER_THOUGHTS_SHIELD));
+
+      try (cleanups) {
+        String output = execute("$skill[" + skill + "].to_effect().name");
+        assertThat(output, both(containsString(bonus)).and(not(containsString(basic))));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource(skillEffects)
+    void toEffectsReturnsBothEffects(String skill, String basic, String bonus) {
+      String output = execute("$skill[" + skill + "].to_effects()");
+      assertThat(output, both(containsString(basic)).and(containsString(bonus)));
+    }
+  }
+
+  @Nested
+  class ToEffects {
+    @Test
+    void nullSkill() {
+      String output = execute("$skill[none].to_effects()");
+      assertThat(output, containsString("aggregate effect [0]"));
+    }
+
+    @Test
+    void skillWithNoEffects() {
+      String output = execute("$skill[Advanced Cocktailcrafting].to_effects()");
+      assertThat(output, containsString("aggregate effect [0]"));
+    }
+
+    @Test
+    void skillWithOneEffect() {
+      String output = execute("$skill[The Ode to Booze].to_effects()");
+      assertThat(output, containsString("aggregate effect [1]"));
+    }
+
+    @Test
+    void skillWithTwoEffects() {
+      String output = execute("$skill[Sauce Contemplation].to_effects()");
+      assertThat(output, containsString("aggregate effect [2]"));
+    }
+  }
+
+  @Nested
+  class HeartstoneMiddleLetter {
+    @Test
+    void middleLetterMonsterSuccess() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[Orcish Frat Boy (Paddler)])").trim(),
+          is("Returned: F"));
+    }
+
+    @Test
+    void middleLetterMonsterEvenIsBlank() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[Ninja Snowman (Chopsticks)])").trim(),
+          is("Returned:"));
+    }
+
+    @Test
+    void middleLetterMonsterNonAlphaIsBlank() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[War Frat 151st Captain])").trim(),
+          is("Returned:"));
+    }
+
+    @Test
+    void middleLetterMonsterNoneIsBlank() {
+      assertThat(execute("heartstone_middle_letter($monster[none])").trim(), is("Returned:"));
+    }
+
+    @Test
+    void middleLetterStringWorks() {
+      assertThat(execute("heartstone_middle_letter(\"crate\")").trim(), is("Returned: A"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+      "crate,A", // Normal monster
+      "wet jock,J", // OCRS modifier
+      "Possessed Jar of Alphredo&trade;,O", // Encoded characters
+      "jock,''" // No middle letter
+    })
+    void parameterlessUsesCurrentEncounter(String currentEncounter, String expectedAnswer) {
+      var cleanups = withCurrentEncounter(currentEncounter);
+
+      try (cleanups) {
+        assertThat(
+            execute("heartstone_middle_letter()").trim(),
+            is(("Returned: " + expectedAnswer).trim()));
+      }
+    }
+
+    @Test
+    void middleLetterUsesBytes() {
+      assertThat(
+          execute("heartstone_middle_letter($monster[Legstrong™ stationary bicycle])").trim(),
+          containsString("Returned: A"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"Wardröb nightstand,", "wet Wardröb nightstand,B", "haunted Wardröb nightstand,"})
+    public void wardröbNightstandTests(String monster, String letter) {
+      if (letter != null) {
+        letter = " " + letter;
+      } else {
+        letter = "";
+      }
+      assertThat(
+          execute("heartstone_middle_letter(\"" + monster + "\")").trim(),
+          is("Returned:" + letter));
+    }
+  }
+
+  @Nested
+  class HeartstoneStringLength {
+    @Test
+    void returnsSpaceStrippedLength() {
+      assertThat(
+          execute("heartstone_string_length(\"spaces are stripped\")").trim(), is("Returned: 17"));
+    }
+
+    @Test
+    void countsUtf8Length() {
+      assertThat(execute("heartstone_string_length(\"Homebodyl™\")").trim(), is("Returned: 12"));
+    }
+  }
+
+  @Nested
+  class OutfitNameWithCodpieceGems {
+    @Test
+    void appendsCurrentCodpieceConfiguration() {
+      var cleanups =
+          new Cleanups(
+              withEquipped(Slot.CODPIECE1, ItemPool.ALIEN_GEMSTONE),
+              withEquipped(Slot.CODPIECE3, ItemPool.HAMETHYST));
+
+      try (cleanups) {
+        assertThat(
+            execute("outfit_name_with_codpiece_gems(\"Saved outfit\")").trim(),
+            is("Returned: Saved outfit c=~xEkAwAUAAA"));
+      }
+    }
+
+    @Test
+    void truncatesOutfitNameToFitConfiguration() {
+      var cleanups =
+          new Cleanups(
+              withEquipped(Slot.CODPIECE1, ItemPool.ALIEN_GEMSTONE),
+              withEquipped(Slot.CODPIECE3, ItemPool.HAMETHYST));
+
+      try (cleanups) {
+        String suffix = " c=~xEkAwAUAAA";
+        String originalName = "A".repeat(50);
+        String expectedName = "A".repeat(50 - suffix.length()) + suffix;
+        assertThat(
+            execute("outfit_name_with_codpiece_gems(\"" + originalName + "\")").trim(),
+            is("Returned: " + expectedName));
+      }
+    }
+  }
+
+  @Nested
+  class MobiusRingNoncombat {
+    @Test
+    void withoutPrimingTakesInfinity() {
+      var cleanups = withProperty("_mobiusRingPrimed", false);
+
+      try (cleanups) {
+        assertThat(
+            execute("turns_until_mobius_noncombat_available()").trim(),
+            is("Returned: " + Integer.MAX_VALUE));
+      }
+    }
+
+    @Test
+    void calculatesFirstNcCorrectly() {
+      var cleanups =
+          new Cleanups(
+              withProperty("_mobiusRingPrimed", true),
+              withProperty("_mobiusRingPrimedTurn", 20),
+              withTurnsPlayed(21));
+
+      try (cleanups) {
+        assertThat(execute("turns_until_mobius_noncombat_available()").trim(), is("Returned: 3"));
+      }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+      "1,10,15,2",
+      "1,10,20,0",
+      "2,10,15,8",
+      "3,10,15,14",
+      "4,10,15,20",
+      "5,10,15,26",
+      "6,10,15,36",
+      "8,10,15,36",
+      "11,10,15,46",
+      "17,10,15,71",
+    })
+    void calculatesFutureNcsCorrectly(
+        int numEncounters, int stripTurn, int turnsPlayed, int expected) {
+      var cleanups =
+          new Cleanups(
+              withProperty("_mobiusRingPrimed", true),
+              withProperty("_mobiusStripEncounters", numEncounters),
+              withProperty("_lastMobiusStripTurn", stripTurn),
+              withTurnsPlayed(turnsPlayed));
+
+      try (cleanups) {
+        assertThat(
+            execute("turns_until_mobius_noncombat_available()").trim(),
+            is("Returned: " + expected));
+      }
+    }
+  }
+
+  @Nested
+  class SessionLogs {
+    @Test
+    void countZeroReturnsEmptyArray() {
+      String output = execute("session_logs(0)");
+
+      assertContinueState();
+      assertThat(output.trim(), is("Returned: aggregate string [0]"));
+    }
+
+    @Test
+    void countOneReturnsCurrentDaysLog() {
+      var cleanups =
+          new Cleanups(
+              withDay(2025, Month.JANUARY, 2),
+              withSessionFile(TESTUSER + "_20250102.txt", "today's session line\n"));
+      try (cleanups) {
+        String output = execute("session_logs(1)");
+
+        assertContinueState();
+        assertThat(
+            output,
+            equalTo(
+                """
+            Returned: aggregate string [1]
+            0 => today's session line
+            """));
+      }
+    }
+
+    @Test
+    void missingFilesReturnBlank() {
+      String output = execute("session_logs(2)");
+
+      assertContinueState();
+      assertThat(
+          output,
+          equalTo(
+              """
+          Returned: aggregate string [2]
+          0 =>
+          1 =>
+          """));
+    }
+
+    @Test
+    void returnsSpecificPlayer() {
+      var cleanups =
+          new Cleanups(
+              withDay(2025, Month.JANUARY, 2),
+              withSessionFile(TESTUSER + "_20250102.txt", "today's session line\n"));
+      try (cleanups) {
+        String output = execute("session_logs(\"" + TESTUSER + "\", 1)");
+
+        assertContinueState();
+        assertThat(
+            output,
+            equalTo(
+                """
+            Returned: aggregate string [1]
+            0 => today's session line
+            """));
+
+        output = execute("session_logs(\"SOMEBODY_ELSE\", 1)");
+
+        assertContinueState();
+        assertThat(
+            output,
+            equalTo(
+                """
+            Returned: aggregate string [1]
+            0 =>
+            """));
+      }
+    }
+
+    @Test
+    void returnsSpecificDate() {
+      String filename = TESTUSER + "_20250101.txt";
+      var cleanups = withSessionFile(filename, "old session line\n");
+      try (cleanups) {
+        String output = execute("session_logs(\"" + TESTUSER + "\", \"20250101\", 0)");
+
+        assertContinueState();
+        assertThat(
+            output,
+            equalTo(
+                """
+            Returned: aggregate string [1]
+            0 => old session line
+            """));
+      }
+    }
+
+    @Test
+    void returnsGzippedDataIfPresent() {
+      String filename = TESTUSER + "_20250101.txt.gz";
+      var cleanups = withGzippedSessionFile(filename, "old session line\n");
+      try (cleanups) {
+        String output = execute("session_logs(\"" + TESTUSER + "\", \"20250101\", 0)");
+
+        assertContinueState();
+        assertThat(
+            output,
+            equalTo(
+                """
+            Returned: aggregate string [1]
+            0 => old session line
+            """));
+      }
+    }
+  }
+
+  @Test
+  void haveSkillReturnsTrueEvenWhenDailyLimitExhausted() {
+    var cleanups =
+        new Cleanups(withSkill(SkillPool.PASTAMASTERY), withProperty("noodleSummons", 1));
+    try (cleanups) {
+      String output = execute("have_skill($skill[Pastamastery])");
+
+      assertContinueState();
+      assertThat(output, containsString("Returned: true"));
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({"moxie weed,1", "spooky scarecrow,4", "cottage,3"})
+  public void cupOf13sTiers(String item, int tier) {
+    assertThat(execute("cup_of_13s_tier($item[" + item + "])").trim(), is("Returned: " + tier));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "570, true", // GameInformPowerDailyPro Walkthru - can walkaway
+    "1, false"
+  })
+  void canWalkFromChoice(int choice, boolean expected) {
+    var request = new GenericRequest("choice.php?whichchoice=" + choice);
+    request.responseText = "whichchoice=" + choice;
+    ChoiceManager.visitChoice(request);
+
+    String output = execute("can_walk_from_choice()");
+    assertThat(output, containsString("Returned: " + expected));
+  }
+
+  @Test
+  void appendBufferToFileKeepsExistingContent() throws IOException {
+    String filename = "RuntimeLibraryTest_append.txt";
+    File file = new File(KoLConstants.DATA_LOCATION, filename);
+    try {
+      execute("buffer_to_file(\"first line\".to_buffer(), \"" + filename + "\");");
+      // Prove the second line does not exist in the file
+      String contents = Files.readString(file.toPath());
+      assertThat(contents, not(containsString("second line")));
+
+      execute("append_buffer_to_file(\"second line\".to_buffer(), \"" + filename + "\");");
+
+      contents = Files.readString(file.toPath());
+      assertThat(contents, containsString("first line"));
+      assertThat(contents, containsString("second line"));
+    } finally {
+      Files.deleteIfExists(file.toPath());
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "flak shield,9",
+    "sealhide buckler,10",
+    "old school flying disc,14",
+    "replica Operation Patriot Shield,15",
+    "seal tooth,0"
+  })
+  void shieldDrReturnsInnateDamageReduction(String item, int dr) {
+    try (var cleanups = withLevel(15)) {
+      assertThat(execute("shield_dr($item[" + item + "])").trim(), is("Returned: " + dr));
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "crate,crate", // Normal monster
+    "wet jock,wet jock", // OCRS modifier
+    "Possessed Jar of Alphredo&trade;,Possessed Jar of Alphredo™", // Encoded characters
+  })
+  void monsterNameFromCurrentEncounter(String currentEncounter, String expectedAnswer) {
+    var cleanups = withCurrentEncounter(currentEncounter);
+
+    try (cleanups) {
+      assertThat(execute("monster_name()").trim(), is(("Returned: " + expectedAnswer).trim()));
+    }
+  }
+
+  @Nested
+  class BlackAndWhiteApronMealKit {
+    private static final String scriptTemplate =
+        """
+            void main(){
+              var kit=black_and_white_apron_kit_contents(PARAMS);
+              print(`Main: {kit.main_ingredient} -> {kit.main_effect.name}`);
+              for(int i=0;i<3;i++){
+                var meal=kit.meals[i];
+                for(int j=0;j<5;j++){
+                  var ing=meal[j];
+                  print(`Ingr[{i},{j}]: {ing.ingredient.name} -> {ing.effect.name}, {ing.effect_turns} turns, {ing.meat} meat`);
+                }
+              }
+            }""";
+
+    private static void validateBWKitOutput(String output) {
+      assertThat(output, containsString("Main: chicken -> Winner, Winner, Chicken!"));
+      assertThat(
+          output, containsString("Ingr[0,1]: Gnollish pie tin -> Litely Baked, 10 turns, 0 meat"));
+      assertThat(output, containsString("Ingr[0,3]: batgut -> , 0 turns, 0 meat"));
+      assertThat(
+          output,
+          containsString("Ingr[1,1]: blackberry -> Blackberry Politeness, 50 turns, 0 meat"));
+      assertThat(output, containsString("Ingr[2,1]: philosopher's scone -> , 0 turns, 500 meat"));
+      assertThat(output, containsString("Ingr[2,4]: fishy fish -> Fishy, 100 turns, 0 meat"));
+    }
+
+    @Test
+    void usesUserState() {
+      var cleanups =
+          new Cleanups(
+              withPath(Path.STANDARD),
+              withClass(AscensionClass.ACCORDION_THIEF),
+              withProperty("bwApronMealsEaten", 1));
+
+      try (cleanups) {
+        String script = scriptTemplate.replace("PARAMS", "");
+        String output = execute(script);
+
+        assertContinueState();
+        validateBWKitOutput(output);
+      }
+    }
+
+    @Test
+    void usesSpecifiedValues() {
+      var cleanups =
+          new Cleanups(
+              withPath(Path.BLUE_VS_RED),
+              withClass(AscensionClass.SEAL_CLUBBER),
+              withProperty("bwApronMealsEaten", 5));
+
+      try (cleanups) {
+        String script =
+            scriptTemplate.replace("PARAMS", "$path[standard], $class[accordion thief], 1");
+        String output = execute(script);
+
+        assertContinueState();
+        validateBWKitOutput(output);
+      }
+    }
+  }
+
+  @Test
+  void canGetChoiceOptionsWithExtras() {
+    var cleanups =
+        new Cleanups(
+            withLastLocation("Lair of the Ninja Snowmen"),
+            withChoice(1557, html("request/test_choice_peridot.html")));
+
+    try (cleanups) {
+      String choiceScript =
+          """
+            void main(){
+              var choices=available_choice_extras();
+              foreach idx, choice in choices {
+                print(`{choice.label}: {choice.decision} with \\{{choice.extras_joined}}`);
+              }
+            }""";
+      String output = execute(choiceScript);
+      assertThat(output, containsString("a Ninja Snowman: 1 with {bandersnatch=100}"));
+      assertThat(output, containsString("a Ninja Snowman: 1 with {bandersnatch=137}"));
+      assertThat(output, containsString("a Ninja Snowman Janitor: 1 with {bandersnatch=339}"));
+      assertThat(output, containsString("I choose peace: 2 with {}"));
+    }
+  }
+}

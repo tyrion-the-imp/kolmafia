@@ -1,0 +1,632 @@
+package net.sourceforge.kolmafia.request;
+
+import static internal.helpers.Networking.html;
+import static internal.helpers.Networking.json;
+import static internal.helpers.Player.withClass;
+import static internal.helpers.Player.withEquipped;
+import static internal.helpers.Player.withFamiliar;
+import static internal.helpers.Player.withInebriety;
+import static internal.helpers.Player.withLastLocation;
+import static internal.helpers.Player.withNoEffects;
+import static internal.helpers.Player.withNotAllowedInStandard;
+import static internal.helpers.Player.withParadoxicity;
+import static internal.helpers.Player.withPath;
+import static internal.helpers.Player.withProperty;
+import static internal.helpers.Player.withRestricted;
+import static internal.matchers.Preference.isSetTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.alibaba.fastjson2.JSONException;
+import internal.helpers.Cleanups;
+import net.sourceforge.kolmafia.AscensionClass;
+import net.sourceforge.kolmafia.AscensionPath.Path;
+import net.sourceforge.kolmafia.KoLAdventure;
+import net.sourceforge.kolmafia.KoLCharacter;
+import net.sourceforge.kolmafia.KoLConstants;
+import net.sourceforge.kolmafia.ModifierType;
+import net.sourceforge.kolmafia.PastaThrallData;
+import net.sourceforge.kolmafia.RestrictedItemType;
+import net.sourceforge.kolmafia.equipment.Slot;
+import net.sourceforge.kolmafia.modifiers.StringModifier;
+import net.sourceforge.kolmafia.objectpool.AdventurePool;
+import net.sourceforge.kolmafia.objectpool.EffectPool;
+import net.sourceforge.kolmafia.objectpool.FamiliarPool;
+import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.persistence.AdventureDatabase;
+import net.sourceforge.kolmafia.persistence.ModifierDatabase;
+import net.sourceforge.kolmafia.preferences.Preferences;
+import net.sourceforge.kolmafia.session.LimitMode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+class CharPaneRequestTest {
+  @BeforeEach
+  public void beforeEach() {
+    KoLCharacter.reset("CharPaneRequestTest");
+    Preferences.reset("CharPaneRequestTest");
+    KoLCharacter.setCurrentRun(0);
+    CharPaneRequest.reset();
+  }
+
+  @Test
+  void canFindAvatarWithCrossorigin() {
+    KoLCharacter.setAvatar("");
+    CharPaneRequest.processResults(html("request/test_charpane_sauce.html"));
+    var sauceCharacterAvatar = KoLCharacter.getAvatar();
+    assertTrue(
+        sauceCharacterAvatar.contains("otherimages/classav4a.gif"), "fails with crossorigin");
+  }
+
+  @Test
+  void canFindAvatarWithoutCrossorigin() {
+    KoLCharacter.setAvatar("");
+    CharPaneRequest.processResults(html("request/test_charpane_snowsuit.html"));
+    var snowCharacterAvatar = KoLCharacter.getAvatar();
+    assertTrue(snowCharacterAvatar.contains("itemimages/snowface5.gif"), "fails on no crossorigin");
+  }
+
+  @Test
+  void canFindTitle() {
+    KoLCharacter.setTitle("");
+    CharPaneRequest.processResults(html("request/test_charpane_basic.html"));
+    assertThat(KoLCharacter.getTitle(), is("NO PEEKING"));
+  }
+
+  @Nested
+  class Level {
+    @Test
+    void canFindBasicLevelWithOutTitle() {
+      KoLCharacter.setLevel(0);
+      CharPaneRequest.processResults(html("request/test_charpane_no_title.txt"));
+      assertThat(KoLCharacter.getLevel(), is(85));
+    }
+
+    @Test
+    void canFindBasicLevelWithTitle() {
+      KoLCharacter.setLevel(0);
+      CharPaneRequest.processResults(html("request/test_charpane_basic.html"));
+      assertThat(KoLCharacter.getLevel(), is(255));
+    }
+
+    @Test
+    void canFindCompactLevel() {
+      KoLCharacter.setLevel(0);
+      CharPaneRequest.processResults(html("request/test_charpane_compact.html"));
+      assertThat(KoLCharacter.getLevel(), is(255));
+    }
+  }
+
+  @Test
+  void canParseSnowsuit() {
+    var cleanups = new Cleanups(withProperty("snowsuit", ""));
+
+    try (cleanups) {
+      CharPaneRequest.processResults(html("request/test_charpane_snowsuit.html"));
+      assertThat("snowsuit", isSetTo("hat"));
+    }
+  }
+
+  @Nested
+  class ApiLimitMode {
+    @Test
+    void parseApiParsesLimitModeNone() {
+      var json = ApiRequest.getJSON(html("request/test_api_status_aftercore.json"), "testing");
+      assertThat(json, notNullValue());
+
+      CharPaneRequest.parseStatus(json);
+
+      assertThat(KoLCharacter.getLimitMode(), is(LimitMode.NONE));
+    }
+
+    @Test
+    void parseApiParsesLimitModeUnknownString() {
+      var json =
+          ApiRequest.getJSON(html("request/test_api_status_limit_mode_unknown.json"), "testing");
+      assertThat(json, notNullValue());
+
+      CharPaneRequest.parseStatus(json);
+
+      assertThat(KoLCharacter.getLimitMode(), is(LimitMode.UNKNOWN));
+    }
+
+    @Test
+    void parseApiParsesLimitModeUnknownObject() {
+      var json =
+          ApiRequest.getJSON(
+              html("request/test_api_status_limit_mode_unknown_int.json"), "testing");
+      assertThat(json, notNullValue());
+
+      CharPaneRequest.parseStatus(json);
+
+      assertThat(KoLCharacter.getLimitMode(), is(LimitMode.UNKNOWN));
+    }
+  }
+
+  @Nested
+  class NonCombatForcers {
+    @Test
+    void anyNoncombatForcerSetsFlagInApi() {
+      var cleanups =
+          new Cleanups(
+              withProperty("noncombatForcerActive", false), withProperty("noncombatForcers", ""));
+      try (cleanups) {
+        var json =
+            ApiRequest.getJSON(html("request/test_api_status_noncomforcers.json"), "testing");
+        assertThat(json, notNullValue());
+
+        CharPaneRequest.parseStatus(json);
+
+        assertThat("noncombatForcerActive", isSetTo(true));
+        assertThat(
+            "noncombatForcers",
+            isSetTo("clara|spikolodon|stench jelly|cincho exit|sneakisol|band tuba"));
+      }
+    }
+
+    @Test
+    void absenceOfNoncombatForcerUnsetsFlagInApi() {
+      var cleanups =
+          new Cleanups(
+              withProperty("noncombatForcerActive", true),
+              withProperty("noncombatForcers", "stench jelly"));
+      try (cleanups) {
+        var json =
+            ApiRequest.getJSON(
+                html("request/test_adventure_crystal_ball_handles_noncombat_api_preadventure.json"),
+                "testing");
+        assertThat(json, notNullValue());
+
+        CharPaneRequest.parseStatus(json);
+
+        assertThat("noncombatForcerActive", isSetTo(false));
+        assertThat("noncombatForcers", isSetTo(""));
+      }
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "test_parse_charpane_for_noncombat_forcers.html",
+          "test_parse_charpane_for_noncombat_forcers_compact.html"
+        })
+    void canParseNoncombatModifiersInCharpane(String fileName) {
+      var cleanups =
+          new Cleanups(
+              withProperty("noncombatForcerActive", false), withProperty("noncombatForcers", ""));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/" + fileName));
+        assertThat("noncombatForcerActive", isSetTo(true));
+        assertThat(
+            "noncombatForcers",
+            isSetTo("clara|spikolodon|stench jelly|cincho exit|sneakisol|band tuba"));
+      }
+    }
+
+    @Test
+    void canParseAbsenceOfNoncombatModifiersInCharpane() {
+      var cleanups =
+          new Cleanups(
+              withProperty("noncombatForcerActive", true),
+              withProperty("noncombatForcers", "stench jelly"));
+
+      try (cleanups) {
+        // This one doesn't have any noncombat modifiers
+        CharPaneRequest.processResults(html("request/test_charpane_comma_as_homemade_robot.html"));
+        assertThat("noncombatForcerActive", isSetTo(false));
+        assertThat("noncombatForcers", isSetTo(""));
+      }
+    }
+  }
+
+  @Nested
+  class Sweaty {
+    @ParameterizedTest
+    @CsvSource({
+      "request/test_charpane_sweatiness_100.html, 100",
+      "request/test_charpane_sweatiness_compact.html, 69",
+    })
+    void parseSweatiness(String responseHtml, int expectedValue) {
+      var cleanups =
+          new Cleanups(withEquipped(Slot.PANTS, "designer sweatpants"), withProperty("sweat", 0));
+
+      try (cleanups) {
+        var result = CharPaneRequest.processResults(html(responseHtml));
+        assertThat(result, equalTo(true));
+        assertThat("sweat", isSetTo(expectedValue));
+      }
+    }
+
+    @Test
+    void recogniseNoSweatinessDisplayedMeansZeroIfPantsEquipped() {
+      var cleanups =
+          new Cleanups(withEquipped(Slot.PANTS, "designer sweatpants"), withProperty("sweat", 11));
+
+      try (cleanups) {
+        var result = CharPaneRequest.processResults(html("request/test_charpane_basic.html"));
+        assertThat(result, equalTo(true));
+        assertThat("sweat", isSetTo(0));
+      }
+    }
+  }
+
+  @Nested
+  class Score {
+    @ParameterizedTest
+    @CsvSource({"black, 0", "blue, 2000", "green, 4000", "red, 6000"})
+    void parseScore(String color, int expectedScore) {
+      var cleanups =
+          new Cleanups(
+              withEquipped(ItemPool.TRANSFUNCTIONER),
+              withProperty("8BitScore", 0),
+              withProperty("8BitColor", ""),
+              withProperty("8BitBonusTurns", 0));
+
+      try (cleanups) {
+        var responseText = html("request/test_charpane_8bit_" + color + "_score.html");
+        var result = CharPaneRequest.processResults(responseText);
+        assertThat(result, equalTo(true));
+        assertThat("8BitScore", isSetTo(expectedScore));
+        assertThat("8BitColor", isSetTo(color));
+        assertThat("8BitBonusTurns", isSetTo(0));
+      }
+    }
+  }
+
+  @Nested
+  class Comma {
+    @Test
+    void commaGrantsGreyGooseSkills() {
+      var cleanups =
+          new Cleanups(withFamiliar(FamiliarPool.CHAMELEON, 200), withProperty("commaFamiliar"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_comma_as_goose.html"));
+        assertThat("commaFamiliar", isSetTo("Grey Goose"));
+        assertThat(KoLCharacter.hasCombatSkill(SkillPool.CONVERT_MATTER_TO_PROTEIN), is(true));
+
+        // Removed after change
+        CharPaneRequest.processResults(html("request/test_charpane_comma_as_homemade_robot.html"));
+        assertThat("commaFamiliar", isSetTo("Homemade Robot"));
+        assertThat(KoLCharacter.hasCombatSkill(SkillPool.CONVERT_MATTER_TO_PROTEIN), is(false));
+      }
+    }
+  }
+
+  @Nested
+  class Effects {
+    @Test
+    void canParseEffectDurations() {
+      var cleanups = withNoEffects();
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_citizen_of_a_zone.html"));
+
+        // normal
+        var shadowWaters = EffectPool.get(EffectPool.SHADOW_WATERS);
+        var duration = shadowWaters.getCount(KoLConstants.activeEffects);
+        assertThat(duration, equalTo(10));
+
+        // intrinsic
+        var peppermint = EffectPool.get(EffectPool.SPIRIT_OF_PEPPERMINT);
+        duration = peppermint.getCount(KoLConstants.activeEffects);
+        assertThat(duration, equalTo(Integer.MAX_VALUE));
+
+        // today
+        var citizen = EffectPool.get(EffectPool.CITIZEN_OF_A_ZONE);
+        duration = citizen.getCount(KoLConstants.activeEffects);
+        assertThat(duration, equalTo(Integer.MAX_VALUE));
+      }
+    }
+  }
+
+  @Nested
+  class Consumption {
+    @Test
+    void canParseInebriety() {
+      var cleanups = new Cleanups(withInebriety(0));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_sauce.html"));
+        assertThat(KoLCharacter.getInebriety(), is(10));
+      }
+    }
+
+    @Test
+    void canParseInebrietyInGelnoob() {
+      // You can still get drunk in Gelatinous Noob by using a drunk bang potion
+      var cleanups =
+          new Cleanups(
+              withClass(AscensionClass.GELATINOUS_NOOB),
+              withPath(Path.GELATINOUS_NOOB),
+              withInebriety(0));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_drunk_in_gelnoob.html"));
+        assertThat(KoLCharacter.getInebriety(), is(1));
+      }
+    }
+  }
+
+  @Nested
+  class WereProfessor {
+    @Test
+    void canTrackWereProfessorStats() {
+      var cleanups =
+          new Cleanups(
+              withPath(Path.WEREPROFESSOR),
+              withProperty("wereProfessorResearchPoints", 11),
+              withProperty("wereProfessorTransformTurns", 5));
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_research.html"));
+        assertThat("wereProfessorResearchPoints", isSetTo(74));
+        assertThat("wereProfessorTransformTurns", isSetTo(25));
+      }
+    }
+
+    @Test
+    void canTrackCompactWereProfessorStats() {
+      var cleanups =
+          new Cleanups(
+              withPath(Path.WEREPROFESSOR),
+              withProperty("wereProfessorResearchPoints", 11),
+              withProperty("wereProfessorTransformTurns", 5));
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_compact_research.html"));
+        assertThat("wereProfessorResearchPoints", isSetTo(15));
+        assertThat("wereProfessorTransformTurns", isSetTo(11));
+      }
+    }
+  }
+
+  @Nested
+  class PirateRealm {
+    private static final KoLAdventure PIRATEREALM =
+        AdventureDatabase.getAdventure(AdventurePool.PIRATEREALM_ISLAND);
+
+    @Test
+    void canTrackPirateRealmStats() {
+      var cleanups =
+          new Cleanups(
+              withLastLocation(PIRATEREALM),
+              withProperty("availableFunPoints", 0),
+              withProperty("_pirateRealmGold", 0),
+              withProperty("_pirateRealmGlue", 0),
+              withProperty("_pirateRealmGrog", 0),
+              withProperty("_pirateRealmGrub", 0),
+              withProperty("_pirateRealmGuns", 0));
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_piraterealm.html"));
+        assertThat("availableFunPoints", isSetTo(139));
+        assertThat("_pirateRealmGold", isSetTo(186));
+        assertThat("_pirateRealmGlue", isSetTo(1));
+        assertThat("_pirateRealmGrog", isSetTo(2));
+        assertThat("_pirateRealmGrub", isSetTo(2));
+        assertThat("_pirateRealmGuns", isSetTo(2));
+      }
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({"test_charpane_trail_basic.html,tutorial.php", "test_charpane_trail_compact.html,''"})
+  void tracksLastAdventureAndTrail(String fileName, String container) {
+    var cleanups =
+        new Cleanups(withLastLocation((KoLAdventure) null), withProperty("lastAdventureTrail", ""));
+    try (cleanups) {
+      CharPaneRequest.processResults(html("request/" + fileName));
+      assertThat("lastAdventure", isSetTo("Noob Cave"));
+      assertThat("lastAdventureContainer", isSetTo(container));
+      assertThat(
+          "lastAdventureTrail",
+          isSetTo("Noob Cave|The Dire Warren|The Haiku Dungeon|Shadow Rift|The Neverending Party"));
+      assertThat(KoLAdventure.lastVisitedLocation().getAdventureName(), is("Noob Cave"));
+      assertThat(KoLAdventure.lastAdventureId(), is(240));
+    }
+  }
+
+  @Test
+  void processAbsorbs() {
+    var cleanups = withPath(Path.GELATINOUS_NOOB);
+
+    try (cleanups) {
+      CharPaneRequest.processResults(html("request/test_gel_noob_charsheet.html"));
+      var mods =
+          ModifierDatabase.getStringModifier(
+              ModifierType.GENERATED, "Enchantments Absorbed", StringModifier.MODIFIERS);
+      assertThat(mods, is("Mysticality: 75, Smithsness: 75, Item Drop: 1125"));
+    }
+  }
+
+  @Nested
+  class Paradoxicity {
+    @Test
+    void canParseCharpaneParadoxicity() {
+      var cleanups = new Cleanups(withParadoxicity(0), withEquipped(ItemPool.MOBIUS_RING));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_paradoxicity.html"));
+        assertThat(KoLCharacter.getParadoxicity(), is(2));
+      }
+    }
+
+    @Test
+    void canParseCompactCharpaneParadoxicity() {
+      var cleanups = new Cleanups(withParadoxicity(0), withEquipped(ItemPool.MOBIUS_RING));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_compact_paradoxicity.html"));
+        assertThat(KoLCharacter.getParadoxicity(), is(2));
+      }
+    }
+  }
+
+  @Test
+  void parsePokefamTeam() {
+    var cleanups =
+        new Cleanups(
+            withPath(Path.POKEFAM),
+            withRestricted(true),
+            withNotAllowedInStandard(RestrictedItemType.FAMILIARS, "Slotter"));
+
+    try (cleanups) {
+      CharPaneRequest.processResults(html("request/test_charpane_pokefam.html"));
+      // check team
+      var team = KoLCharacter.getPokeTeam();
+      assertThat(team, arrayWithSize(3));
+      assertThat(team[0].getId(), is(FamiliarPool.BABY_GRAVY_FAIRY));
+      assertThat(team[1].getId(), is(FamiliarPool.SLEAZY_GRAVY_FAIRY));
+      assertThat(team[2].getId(), is(FamiliarPool.SLOTTER));
+      var slotter = team[2];
+      assertThat(slotter.getPokeLevel(), is(5));
+    }
+  }
+
+  @Nested
+  class ShrunkenHead {
+    @Test
+    void parseShrunkenHead() {
+      var cleanups =
+          new Cleanups(
+              withProperty("shrunkenHeadZombieMonster"),
+              withProperty("shrunkenHeadZombieAbilities"),
+              withProperty("shrunkenHeadZombieHP"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_shrunken_head.html"));
+        assertThat("shrunkenHeadZombieMonster", isSetTo("me4t begZ0r"));
+        assertThat(
+            "shrunkenHeadZombieAbilities",
+            isSetTo("Hot Attack (33%), Spooky Attack (30%), HP Regen (37%)"));
+        assertThat("shrunkenHeadZombieHP", isSetTo("535"));
+      }
+    }
+
+    @Test
+    void parseShrunkenHeadCompact() {
+      var cleanups =
+          new Cleanups(
+              withProperty("shrunkenHeadZombieMonster"),
+              withProperty("shrunkenHeadZombieAbilities"),
+              withProperty("shrunkenHeadZombieHP"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_shrunken_head_compact.html"));
+        assertThat("shrunkenHeadZombieMonster", isSetTo("BRICKO ooze"));
+        assertThat(
+            "shrunkenHeadZombieAbilities",
+            isSetTo(
+                "Item Drop Bonus (29%), Physical Attack (23%), Hot Attack (22%), Cold Attack (26%)"));
+        assertThat("shrunkenHeadZombieHP", isSetTo("400"));
+      }
+    }
+  }
+
+  @Nested
+  class LegendaryNoodles {
+    @Test
+    void canParseLegendaryAmygdalaCharpane() {
+      var cleanups =
+          new Cleanups(
+              withProperty("legendaryNoodlesAmygdala"), withProperty("noncombatForcerActive"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_legendary_amygdala.html"));
+        assertThat("legendaryNoodlesAmygdala", isSetTo(5));
+        assertThat("noncombatForcerActive", isSetTo(false));
+      }
+    }
+
+    @Test
+    void canParseAllLegendaryCharpane() {
+      var cleanups =
+          new Cleanups(
+              withProperty("legendaryNoodlesAmygdala"),
+              withProperty("legendaryNoodlesSkin"),
+              withProperty("legendaryNoodlesStomach"),
+              withProperty("noncombatForcerActive"));
+
+      try (cleanups) {
+        CharPaneRequest.processResults(html("request/test_charpane_legendary_all.html"));
+        assertThat("legendaryNoodlesAmygdala", isSetTo(5));
+        assertThat("legendaryNoodlesSkin", isSetTo(5));
+        assertThat("legendaryNoodlesStomach", isSetTo(2));
+        assertThat("noncombatForcerActive", isSetTo(false));
+      }
+    }
+
+    @Test
+    void canParseAbsenceOfNoodlyModifiersInCharpane() {
+      var cleanups = withProperty("legendaryNoodlesAmygdala", 3);
+
+      try (cleanups) {
+        // This one doesn't have any modifiers
+        CharPaneRequest.processResults(html("request/test_charpane_comma_as_homemade_robot.html"));
+        assertThat("legendaryNoodlesAmygdala", isSetTo(0));
+      }
+    }
+  }
+
+  @Test
+  void canParseFitnessTrackingSteps() {
+    var cleanups =
+        new Cleanups(
+            withEquipped(ItemPool.FITNESS_TRACKING_BRACELET),
+            withProperty("_fitnessTrackingSteps", 0));
+
+    try (cleanups) {
+      var result =
+          CharPaneRequest.processResults(
+              html("request/test_charpane_fitness_tracking_bracelet.html"));
+      assertThat(result, equalTo(true));
+      assertThat("_fitnessTrackingSteps", isSetTo(101));
+    }
+  }
+
+  @Test
+  void canParsePastaThrallExperience() {
+    PastaThrallData.initialize();
+    var cleanups = new Cleanups(withClass(AscensionClass.PASTAMANCER));
+
+    try (cleanups) {
+      CharPaneRequest.processResults(html("request/test_charpane_pasta_thrall_experience.html"));
+
+      var thrall = KoLCharacter.currentPastaThrall();
+      assertThat(thrall.getType(), is("Spice Ghost"));
+      assertThat(thrall.getName(), is("Zotzit"));
+      assertThat(thrall.getLevel(), is(4));
+      assertThat(thrall.getExperience(), is(1));
+    }
+  }
+
+  @Nested
+  class FamiliarStatus {
+    @Test
+    void parsesCurrentFamiliar() throws JSONException {
+      try (var cleanups = new Cleanups(withFamiliar(FamiliarPool.MOSQUITO))) {
+        CharPaneRequest.parseStatus(json(html("request/test_status2.json")));
+
+        assertThat(KoLCharacter.getFamiliar().getId(), is(326));
+      }
+    }
+
+    @Test
+    void ignoresCurrentFamiliarInPokefam() throws JSONException {
+      try (var cleanups =
+          new Cleanups(withPath(Path.POKEFAM), withFamiliar(FamiliarPool.MOSQUITO))) {
+        CharPaneRequest.parseStatus(json(html("request/test_status2.json")));
+
+        assertThat(KoLCharacter.getFamiliar().getId(), is(FamiliarPool.MOSQUITO));
+      }
+    }
+  }
+}
